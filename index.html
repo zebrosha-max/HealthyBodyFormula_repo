@@ -1678,6 +1678,33 @@
             }
         };
 
+        // Render Recipe Cards Dynamically
+        const recipesGridContainer = document.querySelector('.recipes-grid');
+        
+        if (recipesGridContainer) {
+            recipesGridContainer.innerHTML = ''; // Clear static placeholders
+            
+            Object.keys(recipesDB).forEach(id => {
+                const r = recipesDB[id];
+                const cardHtml = `
+                    <div class="recipe-card" data-recipe-id="${id}">
+                        <div class="recipe-img-placeholder">
+                            <div class="recipe-tag">${r.category}</div>
+                            <img src="${r.image}" alt="${r.title}">
+                        </div>
+                        <div class="recipe-info">
+                            <h3 class="recipe-title">${r.title}</h3>
+                            <div class="recipe-meta">
+                                <i class="fa-solid fa-fire-flame-curved"></i> ${r.kcal}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                recipesGridContainer.innerHTML += cardHtml;
+            });
+        }
+
+        // Re-select cards after dynamic injection
         const recipeCards = document.querySelectorAll('.recipe-card');
         
         // Elements to fill
@@ -1709,9 +1736,9 @@
                     detailSteps.innerHTML = data.steps
                         .map(step => `<li>${step}</li>`).join('');
 
-                    // Style Header
-                    detailHeaderColor.style.background = `linear-gradient(135deg, ${data.colorStart} 0%, ${data.colorEnd} 100%)`;
-                    detailIcon.className = `fa-solid ${data.icon}`;
+                    // Style Header - Use Image as Background
+                    detailHeaderColor.style.backgroundImage = `url('${data.image}')`;
+                    detailHeaderColor.innerHTML = ''; // Remove icon
 
                     // Show Screen
                     showScreen('recipe-detail');
