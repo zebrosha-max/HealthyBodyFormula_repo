@@ -66,3 +66,23 @@ All logic and styles are contained within `index.html`.
         ...
     </div>
     ```
+
+---
+
+## 🕒 Session History
+
+### 2025-12-20
+**Task:** Fix PDF loading in the certificate viewer and deploy to GitHub.
+
+*   **PDF.js Fixes:**
+    *   Explicitly initialized `pdfjsLib` from `window['pdfjs-dist/build/pdf']` to resolve reference errors.
+    *   Added `cMapUrl` and `cMapPacked` configuration to `getDocument` to support Cyrillic fonts and standard PDF character maps.
+    *   Enhanced error reporting in the lightbox to display specific error messages (e.g., "Missing PDF", "Fetch error").
+*   **Local Server & CORS:**
+    *   Identified that PDF loading via `file://` protocol is blocked by browser CORS policy.
+    *   Set up a local development server using `python -m http.server 8080` for testing.
+*   **Deployment:**
+    *   Initialized/re-linked local git repository to `https://github.com/zebrosha-max/HealthyBodyFormula_repo.git`.
+    *   Resolved merge conflicts in `index.html` by prioritizing local fixes.
+    *   Pushed the updated code to the `main` branch for GitHub Pages deployment.
+
