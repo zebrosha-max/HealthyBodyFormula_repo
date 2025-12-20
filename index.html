@@ -13,9 +13,6 @@
     <!-- FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
-    <!-- PDF.js for PDF viewing -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-
     <!-- Telegram Web App -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     
@@ -857,52 +854,46 @@
             <h3 class="section-title"><i class="fa-solid fa-award"></i> Дипломы и сертификаты</h3>
             
             <div class="certificates-carousel" id="certificatesCarousel">
-                <!-- Certificate 1: Диплом Нетология -->
-                <div class="certificate-card" data-certificate="1" data-type="pdf" data-src="Certificates/diploma_netology.pdf" data-rotation="-90">
-                    <img src="Certificates/diploma_netology_preview.jpg" alt="Диплом Нетология - Нутрициолог">
-                    <div class="certificate-zoom-hint">
-                        <i class="fa-solid fa-file-pdf"></i>
-                    </div>
+                <!-- Certificate 1: Диплом Нетология (2 стр) -->
+                <div class="certificate-card" data-certificate="1" data-type="gallery" 
+                     data-pages="Certificates/diploma_netology_optimized_0.jpg,Certificates/diploma_netology_optimized_1.jpg">
+                    <img src="Certificates/diploma_netology_preview.jpg" alt="Диплом Нетология">
+                    <div class="certificate-zoom-hint"><i class="fa-solid fa-layer-group"></i></div>
                 </div>
 
-                <!-- Certificate 2: ИМАТОН -->
-                <div class="certificate-card" data-certificate="2" data-type="pdf" data-src="Certificates/imaton.pdf" data-rotation="-90">
-                    <img src="Certificates/imaton_preview.jpg" alt="Удостоверение ИМАТОН - Психологическая коррекция">
-                    <div class="certificate-zoom-hint">
-                        <i class="fa-solid fa-file-pdf"></i>
-                    </div>
+                <!-- Certificate 2: ИМАТОН (1 стр) -->
+                <div class="certificate-card" data-certificate="2" data-type="gallery" 
+                     data-pages="Certificates/imaton_optimized_0.jpg">
+                    <img src="Certificates/imaton_preview.jpg" alt="Удостоверение ИМАТОН">
+                    <div class="certificate-zoom-hint"><i class="fa-solid fa-expand"></i></div>
                 </div>
 
-                <!-- Certificate 3: АНО ДПО НАДПО -->
-                <div class="certificate-card" data-certificate="3" data-type="pdf" data-src="Certificates/ano_dpo_nadpo.pdf" data-rotation="-90">
-                    <img src="Certificates/ano_dpo_nadpo_preview.jpg" alt="Диплом АНО ДПО НАДПО">
-                    <div class="certificate-zoom-hint">
-                        <i class="fa-solid fa-file-pdf"></i>
-                    </div>
+                <!-- Certificate 3: АНО ДПО НАДПО (2 стр) -->
+                <div class="certificate-card" data-certificate="3" data-type="gallery" 
+                     data-pages="Certificates/ano_dpo_nadpo_optimized_0.jpg,Certificates/ano_dpo_nadpo_optimized_1.jpg">
+                    <img src="Certificates/ano_dpo_nadpo_preview.jpg" alt="Диплом НАДПО">
+                    <div class="certificate-zoom-hint"><i class="fa-solid fa-layer-group"></i></div>
                 </div>
 
-                <!-- Certificate 4: INPO SVE IIN -->
-                <div class="certificate-card" data-certificate="4" data-type="pdf" data-src="Certificates/inpo_sve_iin.pdf" data-rotation="0">
-                    <img src="Certificates/inpo_sve_iin_preview.jpg" alt="Diploma INPO SVE IIN">
-                    <div class="certificate-zoom-hint">
-                        <i class="fa-solid fa-file-pdf"></i>
-                    </div>
+                <!-- Certificate 4: INPO SVE IIN (2 стр) -->
+                <div class="certificate-card" data-certificate="4" data-type="gallery" 
+                     data-pages="Certificates/inpo_sve_iin_optimized_0.jpg,Certificates/inpo_sve_iin_optimized_1.jpg">
+                    <img src="Certificates/inpo_sve_iin_preview.jpg" alt="Diploma INPO">
+                    <div class="certificate-zoom-hint"><i class="fa-solid fa-layer-group"></i></div>
                 </div>
 
-                <!-- Certificate 5: INCA Certificate -->
-                <div class="certificate-card" data-certificate="5" data-type="image" data-src="Certificates/inca_certificate.jpg">
-                    <img src="Certificates/inca_certificate.jpg" alt="INCA Certificate - Clinical Nutritionist">
-                    <div class="certificate-zoom-hint">
-                        <i class="fa-solid fa-expand"></i>
-                    </div>
+                <!-- Certificate 5: INCA Certificate (Image) -->
+                <div class="certificate-card" data-certificate="5" data-type="gallery" 
+                     data-pages="Certificates/inca_certificate.jpg">
+                    <img src="Certificates/inca_certificate.jpg" alt="INCA Certificate">
+                    <div class="certificate-zoom-hint"><i class="fa-solid fa-expand"></i></div>
                 </div>
 
-                <!-- Certificate 6: МИИН Сертификат -->
-                <div class="certificate-card" data-certificate="6" data-type="image" data-src="Certificates/miin_certificate.jpg">
-                    <img src="Certificates/miin_certificate.jpg" alt="Сертификат МИИН - Женское здоровье">
-                    <div class="certificate-zoom-hint">
-                        <i class="fa-solid fa-expand"></i>
-                    </div>
+                <!-- Certificate 6: МИИН Сертификат (Image) -->
+                <div class="certificate-card" data-certificate="6" data-type="gallery" 
+                     data-pages="Certificates/miin_certificate.jpg">
+                    <img src="Certificates/miin_certificate.jpg" alt="Сертификат МИИН">
+                    <div class="certificate-zoom-hint"><i class="fa-solid fa-expand"></i></div>
                 </div>
             </div>
 
@@ -935,25 +926,16 @@
             </button>
         </div>
 
-        <!-- Content container (image or PDF) -->
+        <!-- Content container -->
         <div class="lightbox-content-container" id="lightboxContainer">
-            <!-- For images -->
-            <img src="" alt="Сертификат" class="lightbox-image" id="lightboxImage" style="display: none;">
-
-            <!-- For PDF -->
-            <div class="pdf-viewer" id="pdfViewer" style="display: none;">
-                <div class="pdf-pages" id="pdfPages"></div>
+            <div id="galleryWrapper" style="display: flex; flex-direction: column; align-items: center; gap: 20px; transition: transform 0.2s ease;">
+                <!-- Images will be injected here -->
             </div>
-        </div>
-
-        <!-- Page indicator for PDFs -->
-        <div class="page-indicator" id="pageIndicator" style="display: none;">
-            <span id="currentPage">1</span> / <span id="totalPages">1</span>
         </div>
 
         <div class="lightbox-hint" id="lightboxHint">
             <i class="fa-solid fa-hand-pointer"></i>
-            <span id="hintText">Используйте + / - для зума</span>
+            <span id="hintText">Листайте вниз • Используйте +/- для зума</span>
         </div>
     </div>
 
@@ -982,29 +964,20 @@
                     targetScreen.classList.add('back-animation');
                 }
                 targetScreen.classList.add('active');
-                
-                // Scroll to top
                 window.scrollTo(0, 0);
-                
-                // Haptic feedback
-                if (tg.HapticFeedback) {
-                    tg.HapticFeedback.impactOccurred('light');
-                }
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
             }
         }
 
         navCards.forEach(card => {
             card.addEventListener('click', function(e) {
                 e.preventDefault();
-                const screenId = this.dataset.screen;
-                showScreen(screenId);
+                showScreen(this.dataset.screen);
             });
         });
 
         backButtons.forEach(btn => {
-            btn.addEventListener('click', function() {
-                showScreen('main', true);
-            });
+            btn.addEventListener('click', () => showScreen('main', true));
         });
 
         // ===== CERTIFICATES CAROUSEL =====
@@ -1014,7 +987,7 @@
         if (carousel) {
             carousel.addEventListener('scroll', function() {
                 const scrollLeft = carousel.scrollLeft;
-                const cardWidth = 200 + 12; // card width + gap
+                const cardWidth = 200 + 12; 
                 const activeIndex = Math.round(scrollLeft / cardWidth);
 
                 indicators.forEach((indicator, index) => {
@@ -1023,47 +996,24 @@
             });
         }
 
-        // ===== LIGHTBOX WITH PDF SUPPORT =====
+        // ===== LIGHTBOX (GALLERY SUPPORT) =====
         const lightbox = document.getElementById('lightbox');
-        const lightboxImage = document.getElementById('lightboxImage');
+        const galleryWrapper = document.getElementById('galleryWrapper');
         const lightboxClose = document.getElementById('lightboxClose');
-        const lightboxContainer = document.getElementById('lightboxContainer');
-        const pdfViewer = document.getElementById('pdfViewer');
-        const pdfPages = document.getElementById('pdfPages');
-        const pageIndicator = document.getElementById('pageIndicator');
-        const currentPageSpan = document.getElementById('currentPage');
-        const totalPagesSpan = document.getElementById('totalPages');
         const zoomIn = document.getElementById('zoomIn');
         const zoomOut = document.getElementById('zoomOut');
         const zoomLevelSpan = document.getElementById('zoomLevel');
-        const hintText = document.getElementById('hintText');
         const certificateCards = document.querySelectorAll('.certificate-card');
 
-        // Configure PDF.js worker
-        // Explicitly get the library from window object to avoid scope issues
-        var pdfjsLib = window['pdfjs-dist/build/pdf'];
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-
         let currentZoom = 1;
-        let currentPdfDoc = null;
-        let currentType = null;
 
-        // Open certificate
+        // Open Gallery
         certificateCards.forEach(card => {
             card.addEventListener('click', function() {
-                const type = this.dataset.type;
-                const src = this.dataset.src;
-                const rotation = parseInt(this.dataset.rotation) || 0;
-
-                currentType = type;
-                currentZoom = 1;
-                updateZoomDisplay();
-
-                if (type === 'image') {
-                    openImage(src);
-                } else if (type === 'pdf') {
-                    openPdf(src, rotation);
-                }
+                // Get comma-separated list of images
+                const pages = this.dataset.pages.split(',');
+                
+                openGallery(pages);
 
                 if (tg.HapticFeedback) {
                     tg.HapticFeedback.impactOccurred('light');
@@ -1071,118 +1021,35 @@
             });
         });
 
-        // Open image
-        function openImage(src) {
-            lightboxImage.src = src;
-            lightboxImage.style.display = 'block';
-            lightboxImage.style.transform = `scale(${currentZoom})`;
-            pdfViewer.style.display = 'none';
-            pageIndicator.style.display = 'none';
-            hintText.textContent = 'Используйте + / - для зума';
+        function openGallery(images) {
+            // Clear previous
+            galleryWrapper.innerHTML = '';
+            currentZoom = 1;
+            updateZoomDisplay();
+            galleryWrapper.style.transform = 'scale(1)';
 
-            lightbox.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        // Open PDF
-        async function openPdf(src, rotation) {
-            lightboxImage.style.display = 'none';
-            pdfViewer.style.display = 'flex';
-            pdfPages.innerHTML = '<div style="color: white; padding: 40px;">Загрузка...</div>';
-            pageIndicator.style.display = 'block';
-            hintText.textContent = 'Прокрутите для просмотра страниц';
-
-            lightbox.classList.add('active');
-            document.body.style.overflow = 'hidden';
-
-            try {
-                const loadingTask = pdfjsLib.getDocument({
-                    url: src,
-                    cMapUrl: 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/cmaps/',
-                    cMapPacked: true,
-                });
-                
-                const pdf = await loadingTask.promise;
-                currentPdfDoc = pdf;
-
-                totalPagesSpan.textContent = pdf.numPages;
-                currentPageSpan.textContent = '1';
-
-                pdfPages.innerHTML = '';
-
-                // Render all pages
-                for (let i = 1; i <= pdf.numPages; i++) {
-                    await renderPage(pdf, i, rotation);
-                }
-
-                // Update page indicator on scroll
-                pdfViewer.addEventListener('scroll', updateCurrentPage);
-
-            } catch (error) {
-                console.error('Error loading PDF:', error);
-                const errorMessage = error.message || 'Неизвестная ошибка';
-                pdfPages.innerHTML = `<div style="color: white; padding: 20px; text-align: center;">
-                    <i class="fa-solid fa-circle-exclamation" style="font-size: 40px; margin-bottom: 20px; color: #ff6b6b;"></i><br>
-                    Ошибка загрузки PDF<br>
-                    <span style="font-size: 12px; opacity: 0.7;">${errorMessage}</span>
-                </div>`;
-            }
-        }
-
-        // Render single PDF page
-        async function renderPage(pdf, pageNum, rotation) {
-            const page = await pdf.getPage(pageNum);
-
-            // Calculate scale based on viewport width
-            const containerWidth = window.innerWidth - 40;
-            const viewport = page.getViewport({ scale: 1, rotation: rotation });
-            const scale = Math.min(containerWidth / viewport.width, 2) * currentZoom;
-            const scaledViewport = page.getViewport({ scale: scale, rotation: rotation });
-
-            const container = document.createElement('div');
-            container.className = 'pdf-page-container';
-            container.dataset.pageNum = pageNum;
-
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            canvas.height = scaledViewport.height;
-            canvas.width = scaledViewport.width;
-
-            container.appendChild(canvas);
-            pdfPages.appendChild(container);
-
-            await page.render({
-                canvasContext: context,
-                viewport: scaledViewport
-            }).promise;
-        }
-
-        // Update current page indicator
-        function updateCurrentPage() {
-            const containers = pdfPages.querySelectorAll('.pdf-page-container');
-            const viewerRect = pdfViewer.getBoundingClientRect();
-            const viewerCenter = viewerRect.top + viewerRect.height / 2;
-
-            let currentPage = 1;
-            containers.forEach((container, index) => {
-                const rect = container.getBoundingClientRect();
-                if (rect.top < viewerCenter && rect.bottom > viewerRect.top) {
-                    currentPage = index + 1;
-                }
+            // Create images
+            images.forEach(src => {
+                const img = document.createElement('img');
+                img.src = src.trim();
+                img.className = 'lightbox-image';
+                img.style.maxWidth = '100%';
+                img.style.borderRadius = '8px';
+                img.style.boxShadow = '0 4px 20px rgba(0,0,0,0.5)';
+                img.style.display = 'block'; // Prevent inline gaps
+                galleryWrapper.appendChild(img);
             });
 
-            currentPageSpan.textContent = currentPage;
+            lightbox.classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
 
-        // Zoom controls
+        // Zoom logic
         zoomIn.addEventListener('click', function(e) {
             e.stopPropagation();
             if (currentZoom < 3) {
                 currentZoom += 0.25;
                 applyZoom();
-                if (tg.HapticFeedback) {
-                    tg.HapticFeedback.impactOccurred('light');
-                }
             }
         });
 
@@ -1191,81 +1058,51 @@
             if (currentZoom > 0.5) {
                 currentZoom -= 0.25;
                 applyZoom();
-                if (tg.HapticFeedback) {
-                    tg.HapticFeedback.impactOccurred('light');
-                }
             }
         });
 
         function applyZoom() {
             updateZoomDisplay();
-
-            if (currentType === 'image') {
-                lightboxImage.style.transform = `scale(${currentZoom})`;
-            } else if (currentType === 'pdf') {
-                pdfPages.style.transform = `scale(${currentZoom})`;
-            }
+            // Scale the wrapper containing all images
+            galleryWrapper.style.transform = `scale(${currentZoom})`;
+            // Adjust transform origin to top center so it grows down
+            galleryWrapper.style.transformOrigin = 'top center';
         }
 
         function updateZoomDisplay() {
             zoomLevelSpan.textContent = Math.round(currentZoom * 100) + '%';
         }
 
-        // Close lightbox
-        lightboxClose.addEventListener('click', closeLightbox);
+        // Close logic
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+            setTimeout(() => {
+                galleryWrapper.innerHTML = ''; // Memory cleanup
+            }, 300);
+        }
 
+        lightboxClose.addEventListener('click', closeLightbox);
+        
         lightbox.addEventListener('click', function(e) {
-            if (e.target === lightbox) {
+            if (e.target === lightbox || e.target.id === 'lightboxContainer') {
                 closeLightbox();
             }
         });
 
-        function closeLightbox() {
-            lightbox.classList.remove('active');
-            document.body.style.overflow = '';
-            currentZoom = 1;
-            updateZoomDisplay();
-            lightboxImage.style.transform = 'scale(1)';
-            pdfPages.style.transform = 'scale(1)';
-            pdfViewer.removeEventListener('scroll', updateCurrentPage);
-            currentPdfDoc = null;
-            currentType = null;
-        }
-
-        // Close lightbox on escape key
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && lightbox.classList.contains('active')) {
                 closeLightbox();
             }
         });
 
-        // Prevent context menu (to disable download)
         document.addEventListener('contextmenu', function(e) {
             if (lightbox.classList.contains('active')) {
                 e.preventDefault();
             }
         });
 
-        // ===== RIPPLE EFFECT =====
-        navCards.forEach(card => {
-            card.addEventListener('click', function(e) {
-                const ripple = document.createElement('span');
-                ripple.classList.add('ripple');
-                
-                const rect = this.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                ripple.style.left = x + 'px';
-                ripple.style.top = y + 'px';
-                
-                this.appendChild(ripple);
-                
-                setTimeout(() => ripple.remove(), 600);
-            });
-        });
-
-        // Prevent zoom on double tap (iOS)
+        // Prevent zoom on double tap
         let lastTouchEnd = 0;
         document.addEventListener('touchend', function(e) {
             const now = Date.now();
