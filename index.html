@@ -595,6 +595,13 @@
             -webkit-user-drag: none;
         }
 
+        /* Desktop Optimization for Lightbox */
+        @media (min-width: 768px) {
+            .lightbox-image {
+                max-width: 600px !important; /* Limit width on PC so it fits screen */
+            }
+        }
+
         /* PDF Viewer */
         .pdf-viewer {
             width: 100%;

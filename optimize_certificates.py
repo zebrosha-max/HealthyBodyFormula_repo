@@ -3,80 +3,64 @@ import os
 
 CERT_DIR = r"D:\GpT_docs\HealthyBodyFormula\HBF_web\Certificates"
 
-# Настройки поворота для конкретных файлов (из старого HTML)
-# 270 градусов = -90 градусов (против часовой)
+# Настройки:
+# page.set_rotation(90) поворачивает ПО ЧАСОВОЙ стрелке.
+# Если документ в PDF лежит "на левом боку" (заголовком влево), нужно повернуть на 90.
+# Если "на правом боку" (заголовком вправо) — на -90 (270).
 ROTATION_OVERRIDES = {
-    "diploma_netology.pdf": 270,
+    "diploma_netology.pdf": 270,  # -90
     "imaton.pdf": 270,
     "ano_dpo_nadpo.pdf": 270,
     "inpo_sve_iin.pdf": 0
 }
 
 def optimize_certificates():
-    print(f"🚀 Начинаем обработку в: {CERT_DIR}")
+    print(f"🚀 Исправленная конвертация (Метод set_rotation) в: {CERT_DIR}")
     
     files = [f for f in os.listdir(CERT_DIR) if f.lower().endswith('.pdf')]
     
-    if not files:
-        print("PDF файлы не найдены.")
-        return
-
-    # Сначала удалим старые _optimized файлы, чтобы не мусорить
-    for f in os.listdir(CERT_DIR):
-        if "_optimized" in f:
-            os.remove(os.path.join(CERT_DIR, f))
-
-    generated_map = {} # Словарь: имя_пдф -> список_картинок
-
     for filename in files:
         pdf_path = os.path.join(CERT_DIR, filename)
-        images_created = []
         
         try:
             doc = fitz.open(pdf_path)
             base_name = os.path.splitext(filename)[0]
+            rotation_angle = ROTATION_OVERRIDES.get(filename, 0)
             
-            # Определяем, нужен ли принудительный поворот
-            manual_rotation = ROTATION_OVERRIDES.get(filename, 0)
-            
-            print(f"\n📄 Обработка: {filename} ({doc.page_count} стр.)")
+            print(f"\n📄 {filename} | Поворот: {rotation_angle}")
 
             for i, page in enumerate(doc):
-                # 1. Основное изображение (Высокое качество)
-                # Устанавливаем поворот
-                page.set_rotation(manual_rotation)
+                # 1. Сначала жестко задаем поворот страницы
+                # Это заставляет PyMuPDF пересчитать page.rect
+                page.set_rotation(rotation_angle)
                 
-                # Zoom = 2 (высокое качество для Retina)
-                mat = fitz.Matrix(2, 2)
-                pix = page.get_pixmap(matrix=mat)
+                # 2. Теперь просто рендерим с зумом (без вращения в матрице)
+                mat = fitz.Matrix(2.0, 2.0)
                 
-                # Формируем имя: name_optimized_0.jpg, name_optimized_1.jpg
+                # get_pixmap автоматически возьмет новый page.rect
+                pix = page.get_pixmap(matrix=mat, alpha=False)
+                
                 img_name = f"{base_name}_optimized_{i}.jpg"
                 img_path = os.path.join(CERT_DIR, img_name)
                 
-                pix.save(img_path, output="jpg", jpg_quality=85)
-                images_created.append(f"Certificates/{img_name}")
-                print(f"   Saved Page {i+1}: {img_name}")
+                pix.save(img_path, output="jpg", jpg_quality=90)
+                print(f"   ✅ Стр {i+1}: {pix.width}x{pix.height}")
 
-                # 2. Превью (Только для первой страницы)
+                # Превью (первая страница)
                 if i == 0:
                     preview_name = f"{base_name}_preview.jpg"
                     preview_path = os.path.join(CERT_DIR, preview_name)
                     
-                    # Zoom = 0.3 (маленькая картинка для превью)
-                    mat_preview = fitz.Matrix(0.3, 0.3)
-                    pix_preview = page.get_pixmap(matrix=mat_preview)
+                    mat_preview = fitz.Matrix(0.4, 0.4)
+                    pix_preview = page.get_pixmap(matrix=mat_preview, alpha=False)
                     
-                    pix_preview.save(preview_path, output="jpg", jpg_quality=80)
-                    print(f"   Updated Preview: {preview_name}")
+                    pix_preview.save(preview_path, output="jpg", jpg_quality=85)
+                    print(f"   🖼️ Превью обновлено")
 
             doc.close()
-            generated_map[filename] = images_created
             
         except Exception as e:
             print(f"❌ Ошибка с {filename}: {e}")
-
-    return generated_map
 
 if __name__ == "__main__":
     optimize_certificates()
