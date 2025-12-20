@@ -783,6 +783,65 @@
         }
 
 
+        /* ===== RECORDINGS STYLES ===== */
+        .recording-card {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            margin-bottom: var(--spacing-md);
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        .recording-card:active {
+            transform: scale(0.98);
+        }
+
+        .recording-thumb {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background: linear-gradient(135deg, var(--peach-light) 0%, #FFF0EE 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .recording-thumb img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        .play-btn-overlay {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--peach-dark);
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            z-index: 2;
+            transition: transform 0.2s ease;
+        }
+
+        .recording-card:active .play-btn-overlay {
+            transform: scale(1.1);
+        }
+
+        .recording-info {
+            padding: var(--spacing-md);
+        }
+
+
         /* ===== LIGHTBOX ===== */
         .lightbox {
             position: fixed;
