@@ -482,6 +482,212 @@
             border-radius: 3px;
             background: var(--sage-green);
         }
+        
+        /* ===== GUIDES STYLES ===== */
+        .guide-card {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            padding: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+            box-shadow: var(--card-shadow);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .guide-header {
+            display: flex;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .guide-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--peach-light) 0%, var(--bg-gradient-end) 100%);
+            color: var(--peach-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        
+        .guide-content {
+            flex-grow: 1;
+        }
+
+        .guide-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1.3;
+            margin-bottom: 4px;
+        }
+
+        .guide-desc {
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin-bottom: var(--spacing-sm);
+        }
+
+        .guide-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid rgba(0,0,0,0.05);
+            padding-top: var(--spacing-sm);
+            margin-top: auto;
+        }
+
+        .guide-price {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--sage-green-dark);
+        }
+        
+        .guide-price.free {
+            color: var(--sage-green);
+            background: rgba(156, 180, 163, 0.15);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .guide-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        /* ===== RECIPES STYLES ===== */
+        .recipes-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--spacing-md);
+        }
+
+        .recipe-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            cursor: pointer;
+        }
+        
+        .recipe-img-placeholder {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: linear-gradient(135deg, var(--sage-green-light) 0%, #E8F0EB 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--sage-green);
+            font-size: 32px;
+            position: relative;
+        }
+
+        .recipe-tag {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(255,255,255,0.9);
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--text-secondary);
+        }
+
+        .recipe-info {
+            padding: var(--spacing-sm);
+        }
+
+        .recipe-title {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .recipe-meta {
+            font-size: 11px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        /* ===== RECORDINGS STYLES ===== */
+        .recording-card {
+            background: var(--card-bg);
+            border-radius: var(--card-radius);
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+            margin-bottom: var(--spacing-md);
+            cursor: pointer;
+        }
+
+        .recording-thumb {
+            width: 100%;
+            aspect-ratio: 16/9;
+            background: linear-gradient(135deg, var(--peach-light) 0%, #FFF0EE 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .play-btn-overlay {
+            width: 48px;
+            height: 48px;
+            background: rgba(255,255,255,0.9);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--peach-dark);
+            font-size: 18px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .recording-info {
+            padding: var(--spacing-md);
+        }
+
+        .recording-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 6px;
+        }
+
+        .recording-meta {
+            display: flex;
+            gap: var(--spacing-md);
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .recording-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .recording-meta i {
+            color: var(--sage-green);
+        }
+
 
         /* ===== LIGHTBOX ===== */
         .lightbox {
@@ -833,12 +1039,9 @@
 
         <!-- Profile Section -->
         <div class="profile-section">
-            <!-- Replace src with actual photo URL -->
             <div class="profile-photo-placeholder">
                 <i class="fa-solid fa-user"></i>
             </div>
-            <!-- Or use actual image: -->
-            <!-- <img src="photo.jpg" alt="Юля" class="profile-photo"> -->
             
             <h1 class="profile-name">Юля</h1>
             <p class="profile-title">Клинический нутрициолог</p>
@@ -861,42 +1064,42 @@
             <h3 class="section-title"><i class="fa-solid fa-award"></i> Дипломы и сертификаты</h3>
             
             <div class="certificates-carousel" id="certificatesCarousel">
-                <!-- Certificate 1: Диплом Нетология (2 стр) -->
+                <!-- Certificate 1: Диплом Нетология -->
                 <div class="certificate-card" data-certificate="1" data-type="gallery" 
                      data-pages="Certificates/diploma_netology_optimized_0.jpg,Certificates/diploma_netology_optimized_1.jpg">
                     <img src="Certificates/diploma_netology_preview.jpg" alt="Диплом Нетология">
                     <div class="certificate-zoom-hint"><i class="fa-solid fa-layer-group"></i></div>
                 </div>
 
-                <!-- Certificate 2: ИМАТОН (1 стр) -->
+                <!-- Certificate 2: ИМАТОН -->
                 <div class="certificate-card" data-certificate="2" data-type="gallery" 
                      data-pages="Certificates/imaton_optimized_0.jpg">
                     <img src="Certificates/imaton_preview.jpg" alt="Удостоверение ИМАТОН">
                     <div class="certificate-zoom-hint"><i class="fa-solid fa-expand"></i></div>
                 </div>
 
-                <!-- Certificate 3: АНО ДПО НАДПО (2 стр) -->
+                <!-- Certificate 3: АНО ДПО НАДПО -->
                 <div class="certificate-card" data-certificate="3" data-type="gallery" 
                      data-pages="Certificates/ano_dpo_nadpo_optimized_0.jpg,Certificates/ano_dpo_nadpo_optimized_1.jpg">
                     <img src="Certificates/ano_dpo_nadpo_preview.jpg" alt="Диплом НАДПО">
                     <div class="certificate-zoom-hint"><i class="fa-solid fa-layer-group"></i></div>
                 </div>
 
-                <!-- Certificate 4: INPO SVE IIN (2 стр) -->
+                <!-- Certificate 4: INPO SVE IIN -->
                 <div class="certificate-card" data-certificate="4" data-type="gallery" 
                      data-pages="Certificates/inpo_sve_iin_optimized_0.jpg,Certificates/inpo_sve_iin_optimized_1.jpg">
                     <img src="Certificates/inpo_sve_iin_preview.jpg" alt="Diploma INPO">
                     <div class="certificate-zoom-hint"><i class="fa-solid fa-layer-group"></i></div>
                 </div>
 
-                <!-- Certificate 5: INCA Certificate (Image) -->
+                <!-- Certificate 5: INCA Certificate -->
                 <div class="certificate-card" data-certificate="5" data-type="gallery" 
                      data-pages="Certificates/inca_certificate.jpg">
                     <img src="Certificates/inca_certificate.jpg" alt="INCA Certificate">
                     <div class="certificate-zoom-hint"><i class="fa-solid fa-expand"></i></div>
                 </div>
 
-                <!-- Certificate 6: МИИН Сертификат (Image) -->
+                <!-- Certificate 6: МИИН Сертификат -->
                 <div class="certificate-card" data-certificate="6" data-type="gallery" 
                      data-pages="Certificates/miin_certificate.jpg">
                     <img src="Certificates/miin_certificate.jpg" alt="Сертификат МИИН">
@@ -912,6 +1115,205 @@
                 <div class="indicator"></div>
                 <div class="indicator"></div>
                 <div class="indicator"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- ===== GUIDES SCREEN ===== -->
+    <div id="screen-guides" class="screen">
+        <div class="page-header">
+            <button class="back-button" data-back>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <h2 class="page-title">Гайды</h2>
+        </div>
+
+        <!-- Guide 1: Free Starter -->
+        <div class="guide-card">
+            <div class="guide-header">
+                <div class="guide-icon">
+                    <i class="fa-solid fa-seedling"></i>
+                </div>
+                <div class="guide-content">
+                    <h3 class="guide-title">С чего начать путь к здоровью?</h3>
+                    <p class="guide-desc">
+                        Базовый чек-лист привычек и простых шагов для мягкого старта без стресса.
+                    </p>
+                </div>
+            </div>
+            <div class="guide-footer">
+                <span class="guide-price free">Бесплатно</span>
+                <button class="guide-btn">
+                    Скачать <i class="fa-solid fa-download"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Guide 2: Sugar Detox -->
+        <div class="guide-card">
+            <div class="guide-header">
+                <div class="guide-icon">
+                    <i class="fa-solid fa-cube"></i>
+                </div>
+                <div class="guide-content">
+                    <h3 class="guide-title">Анти-сахар: протокол 21 день</h3>
+                    <p class="guide-desc">
+                        Программа избавления от сладкой зависимости. Схемы питания, замены и работа с тягой.
+                    </p>
+                </div>
+            </div>
+            <div class="guide-footer">
+                <span class="guide-price">990 ₽</span>
+                <button class="guide-btn">
+                    Купить <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Guide 3: Balanced Plate -->
+        <div class="guide-card">
+            <div class="guide-header">
+                <div class="guide-icon">
+                    <i class="fa-solid fa-utensils"></i>
+                </div>
+                <div class="guide-content">
+                    <h3 class="guide-title">Конструктор тарелки</h3>
+                    <p class="guide-desc">
+                        Как собирать сытные и полезные приемы пищи из того, что есть в холодильнике.
+                    </p>
+                </div>
+            </div>
+            <div class="guide-footer">
+                <span class="guide-price">490 ₽</span>
+                <button class="guide-btn">
+                    Купить <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== RECIPES SCREEN ===== -->
+    <div id="screen-recipes" class="screen">
+        <div class="page-header">
+            <button class="back-button" data-back>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <h2 class="page-title">Рецепты</h2>
+        </div>
+
+        <div class="recipes-grid">
+            <!-- Recipe 1 -->
+            <div class="recipe-card">
+                <div class="recipe-img-placeholder">
+                    <div class="recipe-tag">Завтрак</div>
+                    <i class="fa-solid fa-egg"></i>
+                </div>
+                <div class="recipe-info">
+                    <h3 class="recipe-title">Овсяноблин с авокадо и лососем</h3>
+                    <div class="recipe-meta">
+                        <i class="fa-solid fa-fire-flame-curved"></i> 350 ккал
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recipe 2 -->
+            <div class="recipe-card">
+                <div class="recipe-img-placeholder">
+                    <div class="recipe-tag">Обед</div>
+                    <i class="fa-solid fa-bowl-rice"></i>
+                </div>
+                <div class="recipe-info">
+                    <h3 class="recipe-title">Боул с киноа и креветками</h3>
+                    <div class="recipe-meta">
+                        <i class="fa-solid fa-fire-flame-curved"></i> 450 ккал
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recipe 3 -->
+            <div class="recipe-card">
+                <div class="recipe-img-placeholder">
+                    <div class="recipe-tag">Ужин</div>
+                    <i class="fa-solid fa-drumstick-bite"></i>
+                </div>
+                <div class="recipe-info">
+                    <h3 class="recipe-title">Куриные маффины с брокколи</h3>
+                    <div class="recipe-meta">
+                        <i class="fa-solid fa-fire-flame-curved"></i> 220 ккал
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recipe 4 -->
+            <div class="recipe-card">
+                <div class="recipe-img-placeholder">
+                    <div class="recipe-tag">Десерт</div>
+                    <i class="fa-solid fa-ice-cream"></i>
+                </div>
+                <div class="recipe-info">
+                    <h3 class="recipe-title">Чиа-пудинг на кокосовом молоке</h3>
+                    <div class="recipe-meta">
+                        <i class="fa-solid fa-fire-flame-curved"></i> 180 ккал
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== RECORDINGS SCREEN ===== -->
+    <div id="screen-recordings" class="screen">
+        <div class="page-header">
+            <button class="back-button" data-back>
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <h2 class="page-title">Записи</h2>
+        </div>
+
+        <!-- Recording 1 -->
+        <div class="recording-card">
+            <div class="recording-thumb">
+                <div class="play-btn-overlay">
+                    <i class="fa-solid fa-play"></i>
+                </div>
+            </div>
+            <div class="recording-info">
+                <h3 class="recording-title">Вебинар: Женское гормональное здоровье</h3>
+                <div class="recording-meta">
+                    <span><i class="fa-regular fa-calendar"></i> 12 Окт</span>
+                    <span><i class="fa-regular fa-clock"></i> 45 мин</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recording 2 -->
+        <div class="recording-card">
+            <div class="recording-thumb">
+                <div class="play-btn-overlay">
+                    <i class="fa-solid fa-play"></i>
+                </div>
+            </div>
+            <div class="recording-info">
+                <h3 class="recording-title">Эфир: Как перестать переедать вечером?</h3>
+                <div class="recording-meta">
+                    <span><i class="fa-regular fa-calendar"></i> 25 Сен</span>
+                    <span><i class="fa-regular fa-clock"></i> 20 мин</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recording 3 -->
+        <div class="recording-card">
+            <div class="recording-thumb">
+                <div class="play-btn-overlay">
+                    <i class="fa-solid fa-play"></i>
+                </div>
+            </div>
+            <div class="recording-info">
+                <h3 class="recording-title">Подкаст: Витамины осенью. Что пить?</h3>
+                <div class="recording-meta">
+                    <span><i class="fa-regular fa-calendar"></i> 10 Сен</span>
+                    <span><i class="fa-regular fa-clock"></i> 30 мин</span>
+                </div>
             </div>
         </div>
     </div>
