@@ -1559,6 +1559,15 @@
         tg.setHeaderColor('#F0F7F4');
         tg.setBackgroundColor('#F8F9FA');
 
+        // Check for deep linking / screen parameter
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const screenParam = urlParams.get('screen');
+            if (screenParam && ['about', 'guides', 'recipes', 'recordings'].includes(screenParam)) {
+                showScreen(screenParam);
+            }
+        });
+
         // ===== SCREEN NAVIGATION =====
         const screens = document.querySelectorAll('.screen');
         const navCards = document.querySelectorAll('.nav-card[data-screen]');

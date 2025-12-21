@@ -447,10 +447,8 @@
         // Back navigation
         function goBack() {
             haptic();
-            // If opened via direct link, history.back might close app
-            // Ideally we check history length, but for TWA history.back is usually safe
-            // Or we can link explicitly to index.html
-            window.location.href = "../index.html"; 
+            // Go back to main app and tell it to open 'guides' screen
+            window.location.href = "../index.html?screen=guides"; 
         }
 
         // Theme adaptation
