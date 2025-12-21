@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Анти-Сахар: Протокол 21 день</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        :root {
+            /* Theme Colors from Main App */
+            --bg-primary: #FDFBF7;
+            --text-primary: #2D3436;
+            --text-secondary: #636E72;
+            --sage-green: #8DA399;
+            --sage-dark: #6B8278;
+            --sage-light: #E8F0ED;
+            --peach: #F2D0A9;
+            --peach-light: #FDF5EB;
+            --white: #FFFFFF;
+            --danger: #E74C3C;
+            --success: #27AE60;
+            --shadow-sm: 0 4px 15px rgba(141, 163, 153, 0.15);
+            --radius-lg: 24px;
+            --radius-md: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            padding-bottom: 80px; /* Space for scroll */
+        }
+
+        /* Navigation Header */
+        .nav-header {
+            position: sticky;
+            top: 0;
+            background: rgba(253, 251, 247, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .back-btn {
+            background: none;
+            border: none;
+            color: var(--sage-dark);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            transition: background 0.2s;
+        }
+
+        .back-btn:active {
+            background: var(--sage-light);
+        }
+
+        .nav-title {
+            font-weight: 800;
+            font-size: 1rem;
+            color: var(--sage-dark);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 30px 20px;
+            text-align: center;
+            background: radial-gradient(circle at top right, var(--sage-light) 0%, transparent 70%);
+        }
+
+        .badge-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .badge-premium {
+            background: var(--peach);
+            color: var(--text-primary);
+            text-decoration: line-through;
+            opacity: 0.7;
+        }
+
+        .badge-free {
+            background: var(--sage-dark);
+            color: var(--white);
+            box-shadow: 0 4px 10px rgba(107, 130, 120, 0.3);
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+            line-height: 1.2;
+            margin: 0 0 10px 0;
+            color: var(--text-primary);
+            font-weight: 800;
+        }
+
+        .hero p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin: 0;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        /* Content Container */
+        .container {
+            padding: 0 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* Information Cards */
+        .info-card {
+            background: var(--white);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(0,0,0,0.02);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .card-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+        }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .text-content {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+        }
+
+        /* Food Lists */
+        .food-group {
+            margin-top: 10px;
+        }
+
+        .food-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--bg-primary);
+        }
+
+        .food-item:last-child {
+            border-bottom: none;
+        }
+
+        .food-item i {
+            margin-right: 12px;
+            font-size: 1.1rem;
+        }
+
+        /* Timeline Styles */
+        .timeline {
+            position: relative;
+            padding-left: 24px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 7px;
+            top: 5px;
+            bottom: 0;
+            width: 2px;
+            background: var(--sage-light);
+        }
+
+        .timeline-step {
+            position: relative;
+            padding-bottom: 30px;
+        }
+
+        .timeline-step:last-child {
+            padding-bottom: 0;
+        }
+
+        .timeline-dot {
+            position: absolute;
+            left: -24px;
+            top: 0;
+            width: 16px;
+            height: 16px;
+            background: var(--sage-green);
+            border: 4px solid var(--white);
+            border-radius: 50%;
+            box-shadow: 0 0 0 2px var(--sage-light);
+        }
+
+        .step-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .step-days {
+            font-size: 0.75rem;
+            font-weight: 800;
+            color: var(--sage-dark);
+            background: var(--sage-light);
+            padding: 4px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+
+        .step-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+            margin: 5px 0;
+        }
+
+        .step-desc {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* Utility Classes */
+        .bg-red-light { background: #FFF5F5; color: var(--danger); }
+        .bg-green-light { background: #F0F9F4; color: var(--success); }
+        
+        .icon-red { background: rgba(231, 76, 60, 0.1); color: var(--danger); }
+        .icon-green { background: rgba(39, 174, 96, 0.1); color: var(--success); }
+        .icon-blue { background: rgba(52, 152, 219, 0.1); color: #3498db; }
+
+        /* Call to Action Footer */
+        .footer-note {
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin-top: 40px;
+            padding: 20px;
+            background: var(--sage-light);
+            border-radius: var(--radius-md);
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="nav-header">
+        <button class="back-btn" onclick="goBack()">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <span class="nav-title">Здоровое Тело</span>
+        <div style="width: 32px;"></div> <!-- Spacer for centering -->
+    </nav>
+
+    <div class="hero">
+        <div class="badge-container">
+            <span class="badge badge-premium">990 ₽</span>
+            <span class="badge badge-free">БЕСПЛАТНО</span>
+        </div>
+        <h1>Анти-Сахар</h1>
+        <p>Протокол 21 день для полной перезагрузки метаболизма</p>
+    </div>
+
+    <div class="container">
+        
+        <!-- Intro Card -->
+        <div class="info-card">
+            <div class="card-header">
+                <div class="card-icon icon-blue">
+                    <i class="fa-solid fa-bolt"></i>
+                </div>
+                <h2 class="card-title">Зачем это нужно?</h2>
+            </div>
+            <p class="text-content">
+                Сахар вызывает зависимость, сравнимую с наркотической. Он "забивает" рецепторы, и натуральная еда кажется пресной. Этот протокол поможет вам слезть с "сахарной иглы", очистить кожу и вернуть энергию.
+            </p>
+        </div>
+
+        <!-- Red Zone -->
+        <div class="info-card bg-red-light" style="border: 1px solid rgba(231, 76, 60, 0.1);">
+            <div class="card-header">
+                <div class="card-icon" style="background: white; color: var(--danger);">
+                    <i class="fa-solid fa-ban"></i>
+                </div>
+                <h2 class="card-title" style="color: var(--danger)">Красная Зона</h2>
+            </div>
+            <div class="food-group">
+                <div class="food-item">
+                    <i class="fa-solid fa-cubes-stacked"></i>
+                    <span>Любой добавленный сахар (белый, коричневый)</span>
+                </div>
+                <div class="food-item">
+                    <i class="fa-solid fa-bottle-droplet"></i>
+                    <span>Сиропы (агавы, кленовый, топинамбура) и мед</span>
+                </div>
+                <div class="food-item">
+                    <i class="fa-solid fa-cookie-bite"></i>
+                    <span>Выпечка, белый хлеб, печенье, конфеты</span>
+                </div>
+                <div class="food-item">
+                    <i class="fa-solid fa-glass-water"></i>
+                    <span>Пакетированные соки, газировка, сладкий йогурт</span>
+                </div>
+                <div class="food-item">
+                    <i class="fa-solid fa-lemon"></i>
+                    <span>Сухофрукты (финики, изюм) — на 21 день</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Green Zone -->
+        <div class="info-card bg-green-light" style="border: 1px solid rgba(39, 174, 96, 0.1);">
+            <div class="card-header">
+                <div class="card-icon" style="background: white; color: var(--success);">
+                    <i class="fa-solid fa-leaf"></i>
+                </div>
+                <h2 class="card-title" style="color: var(--success)">Зеленая Зона</h2>
+            </div>
+            <div class="food-group">
+                <div class="food-item">
+                    <i class="fa-solid fa-carrot"></i>
+                    <span>Любые овощи и зелень (чем больше, тем лучше)</span>
+                </div>
+                <div class="food-item">
+                    <i class="fa-solid fa-egg"></i>
+                    <span>Белок: Яйца, рыба, птица, мясо, морепродукты</span>
+                </div>
+                <div class="food-item">
+                    <i class="fa-solid fa-cheese"></i>
+                    <span>Жиры: Авокадо, орехи, оливковое и сливочное масло</span>
+                </div>
+                <div class="food-item">
+                    <i class="fa-solid fa-apple-whole"></i>
+                    <span>Ягоды и кислые фрукты (1-2 порции в день)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timeline Protocol -->
+        <div class="info-card">
+            <div class="card-header">
+                <div class="card-icon" style="background: var(--peach-light); color: #E67E22;">
+                    <i class="fa-solid fa-road"></i>
+                </div>
+                <h2 class="card-title">Ваш путь: 21 день</h2>
+            </div>
+            
+            <div class="timeline">
+                <div class="timeline-step">
+                    <div class="timeline-dot"></div>
+                    <div class="step-header">
+                        <span class="step-days">ДНИ 1-7</span>
+                    </div>
+                    <h3 class="step-title">Фаза 1: Детокс и Ломка</h3>
+                    <p class="step-desc">
+                        Самый сложный этап. Организм будет требовать привычный допинг. Возможна головная боль и раздражительность.
+                        <br><strong>Совет:</strong> Пейте больше воды. Если очень тяжело — съешьте горсть ягод.
+                    </p>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="timeline-dot"></div>
+                    <div class="step-header">
+                        <span class="step-days">ДНИ 8-14</span>
+                    </div>
+                    <h3 class="step-title">Фаза 2: Просветление</h3>
+                    <p class="step-desc">
+                        Вкусовые рецепторы начинают оживать. Обычная морковь кажется сладкой. Тяга к мучному ослабевает.
+                        <br><strong>Совет:</strong> Начните экспериментировать со специями, чтобы разнообразить вкус натуральных продуктов.
+                    </p>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="timeline-dot"></div>
+                    <div class="step-header">
+                        <span class="step-days">ДНИ 15-21</span>
+                    </div>
+                    <h3 class="step-title">Фаза 3: Закрепление</h3>
+                    <p class="step-desc">
+                        Вы больше не зависите от еды. Улучшилось качество кожи, ушли отеки. Вы спокойно смотрите на торты.
+                        <br><strong>Финиш:</strong> Теперь вы управляете своими желаниями, а не сахар вами.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note">
+            <i class="fa-solid fa-heart" style="color: var(--danger); margin-bottom: 10px; display: block;"></i>
+            Этот протокол — не диета, а образ жизни. Возвращайтесь к нему, когда почувствуете, что теряете контроль.
+        </div>
+
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        tg.expand(); // Open full height
+
+        // Haptic feedback function
+        function haptic() {
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('light');
+            }
+        }
+
+        // Back navigation
+        function goBack() {
+            haptic();
+            // If opened via direct link, history.back might close app
+            // Ideally we check history length, but for TWA history.back is usually safe
+            // Or we can link explicitly to index.html
+            window.location.href = "../index.html"; 
+        }
+
+        // Theme adaptation
+        if (tg.colorScheme === 'dark') {
+            document.documentElement.style.setProperty('--bg-primary', tg.themeParams.bg_color || '#1c1c1e');
+            document.documentElement.style.setProperty('--white', tg.themeParams.secondary_bg_color || '#2c2c2e');
+            document.documentElement.style.setProperty('--text-primary', tg.themeParams.text_color || '#ffffff');
+            document.documentElement.style.setProperty('--sage-light', '#2c3e50'); // Darker sage for dark mode
+        }
+    </script>
+</body>
+</html>
