@@ -14,15 +14,15 @@
             --bg-primary: #F9FAFB;
             --bg-paper: #FFFFFF;
             --text-primary: #2C3E50;
-            --text-body: #4A5568;
-            --sage-primary: #5A7D6C; /* Более строгий зеленый */
+            --text-body: #2D3748; /* Darker for readability */
+            --sage-primary: #5A7D6C; 
             --sage-light: #E8F0ED;
-            --accent-gold: #D4AF37; /* Премиум акцент */
+            --accent-gold: #D4AF37;
             --danger: #C0392B;
             --border-light: #E2E8F0;
             
             --font-heading: 'Nunito', sans-serif;
-            --font-body: 'Lora', serif; /* Serif для текста (читаемость лонгридов) */
+            --font-body: 'Lora', serif;
             
             --shadow-card: 0 10px 30px rgba(0,0,0,0.05);
             --radius-lg: 16px;
@@ -39,30 +39,30 @@
             overflow-x: hidden;
         }
 
-        /* --- NAVIGATION --- */
+        /* --- NAVIGATION (FIXED STYLE) --- */
         .nav-header {
             position: sticky;
             top: 0;
-            background: rgba(249, 250, 251, 0.85); /* Matches bg-primary with blur */
-            backdrop-filter: blur(10px);
+            background: rgba(249, 250, 251, 0.85); /* Glass effect */
+            backdrop-filter: blur(12px);
             padding: 12px 20px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             z-index: 100;
-            /* Border removed for seamless look */
+            /* No border for cleaner look */
         }
 
         .back-btn {
             background: transparent;
-            border: none; /* Removed circle border */
+            border: none;
             padding: 8px;
-            margin-left: -8px; /* Align with layout */
+            margin-left: -8px; 
             display: flex;
             align-items: center;
             justify-content: center;
             color: var(--text-primary);
-            font-size: 1.2rem; /* Larger icon */
+            font-size: 1.2rem;
             cursor: pointer;
         }
 
@@ -77,33 +77,145 @@
 
         /* --- HERO --- */
         .hero {
-            padding: 20px 20px 40px 20px; /* Reduced top padding */
+            padding: 20px 20px 40px 20px;
             background: linear-gradient(180deg, var(--bg-paper) 0%, var(--bg-primary) 100%);
             text-align: center;
         }
+
+        .hero-label {
+            display: inline-block;
+            background: var(--sage-primary);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            font-family: var(--font-body);
+            font-size: 32px;
+            line-height: 1.2;
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+        }
+
+        .hero-meta {
+            font-size: 14px;
+            color: var(--text-body);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
         
-        /* ... existing styles ... */
+        .hero-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* --- CONTENT WRAPPER --- */
+        .content-wrapper {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
 
         /* --- SECTIONS --- */
-        /* ... existing styles ... */
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 40px 0 20px 0;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            height: 24px;
+            width: 4px;
+            background: var(--accent-gold);
+            border-radius: 2px;
+        }
 
         .text-block {
             font-family: var(--font-body);
             font-size: 17px;
             line-height: 1.7;
-            color: #2D3748; /* Darker text globally */
+            color: var(--text-body);
             margin-bottom: 24px;
         }
 
-        /* ... existing styles ... */
+        .highlight-box {
+            background: var(--bg-paper);
+            border-left: 4px solid var(--sage-primary);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+            box-shadow: var(--shadow-card);
+        }
+
+        .highlight-box h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: var(--sage-primary);
+        }
+
+        /* --- ACCORDION (RESTORED & FIXED) --- */
+        .accordion {
+            background: var(--bg-paper);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 16px;
+        }
+
+        .accordion-header {
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .accordion-header i {
+            color: var(--sage-primary);
+            transition: transform 0.3s;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: #FAFAFA;
+        }
+
+        .accordion.active .accordion-header {
+            border-bottom: 1px solid var(--border-light);
+            color: var(--sage-primary);
+        }
+
+        .accordion.active .accordion-header i {
+            transform: rotate(180deg);
+        }
 
         .accordion-body {
             padding: 24px;
             font-family: var(--font-body);
-            font-size: 16px; /* Slightly larger */
+            font-size: 16px;
             line-height: 1.6;
-            color: #1A202C; /* Almost black for max contrast */
-            background: #FFFFFF; /* Ensure white bg inside */
+            color: #1A202C; /* Explicit dark color */
+            background: #FFFFFF;
         }
 
         /* --- LISTS --- */
@@ -117,6 +229,7 @@
             padding-left: 30px;
             margin-bottom: 12px;
             font-family: var(--font-body);
+            color: var(--text-body);
         }
 
         .check-list li::before {
@@ -125,7 +238,7 @@
             font-weight: 900;
             position: absolute;
             left: 0;
-            top: 2px;
+            top: 4px;
             color: var(--sage-primary);
         }
 
@@ -149,7 +262,7 @@
 </head>
 <body>
 
-    <!-- Nav -->
+    <!-- Nav (UPDATED) -->
     <nav class="nav-header">
         <button class="back-btn" onclick="goBack()">
             <i class="fa-solid fa-arrow-left"></i>
