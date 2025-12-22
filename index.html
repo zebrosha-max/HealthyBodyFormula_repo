@@ -312,7 +312,7 @@
     <!-- ===== RECIPE DETAIL SCREEN ===== -->
     <div id="screen-recipe-detail" class="screen">
         <div class="page-header">
-            <button class="back-button" onclick="showScreen('recipes', true)">
+            <button class="back-button" id="close-recipe-detail">
                 <i class="fa-solid fa-chevron-left"></i>
             </button>
             <h2 class="page-title">Рецепт</h2>
@@ -337,6 +337,10 @@
                         <div class="stat-item">
                             <i class="fa-regular fa-clock"></i>
                             <span id="detail-time">15 мин</span>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fa-solid fa-chart-pie"></i>
+                            <span id="detail-bju">БЖУ</span>
                         </div>
                     </div>
                 </div>

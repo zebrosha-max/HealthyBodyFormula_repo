@@ -102,6 +102,15 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Custom Back for Recipe Detail
+    const closeRecipeBtn = document.getElementById('close-recipe-detail');
+    if (closeRecipeBtn) {
+        closeRecipeBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            showScreen('recipes', true);
+        });
+    }
+
     // ===== USER AUTH & SYNC =====
     async function initUser() {
         const userData = tg.initDataUnsafe?.user;
@@ -177,9 +186,16 @@ document.addEventListener('DOMContentLoaded', () => {
             type: "fish",
             kcal: 350,
             time: 15,
+            bju: "18/20/25",
             image: "Recipes/images/ovsyanoblin.png",
             ingredients: ["Яйцо куриное - 2 шт", "Овсяные хлопья - 3 ст.л.", "Лосось - 30 г", "Авокадо - 1/2 шт"],
-            steps: ["Смешать яйца и хлопья.", "Жарить 4 мин.", "Выложить начинку."]
+            steps: [
+                "В глубокой миске смешайте 2 яйца и 3 ст.л. овсяных хлопьев. Добавьте щепотку соли.",
+                "Дайте смеси постоять 5 минут, чтобы хлопья немного набухли.",
+                "Вылейте массу на разогретую антипригарную сковороду. Распределите ровным слоем.",
+                "Жарьте на среднем огне под крышкой 3-4 минуты до золотистого цвета, затем переверните.",
+                "На одну половину готового блина выложите слайсы лосося и авокадо. Сложите пополам."
+            ]
         },
         2: {
             title: "Боул с киноа и креветками",
@@ -187,9 +203,16 @@ document.addEventListener('DOMContentLoaded', () => {
             type: "fish",
             kcal: 450,
             time: 25,
+            bju: "25/12/45",
             image: "Recipes/images/kinoa_shrimp_bowl.png",
             ingredients: ["Киноа - 60 г", "Креветки - 100 г", "Огурец - 1 шт", "Авокадо - 1/2 шт"],
-            steps: ["Отварить киноа.", "Обжарить креветки.", "Собрать боул."]
+            steps: [
+                "Киноа тщательно промойте. Залейте водой (1:2) и варите на медленном огне 15 минут до готовности.",
+                "Креветки очистите и обжарьте на капле оливкового масла с чесноком по 2 минуты с каждой стороны.",
+                "Огурец нарежьте кубиками, авокадо — тонкими дольками.",
+                "Выложите в глубокую миску готовую киноа, а сверху распределите овощи и креветки секторами.",
+                "Сбрызните лимонным соком и посыпьте кунжутом перед подачей."
+            ]
         },
         3: {
             title: "Куриные маффины с брокколи",
@@ -197,9 +220,16 @@ document.addEventListener('DOMContentLoaded', () => {
             type: "meat",
             kcal: 220,
             time: 40,
+            bju: "28/10/5",
             image: "Recipes/images/brokkoli_muffin.png",
             ingredients: ["Филе куриное - 300 г", "Брокколи - 150 г", "Яйцо - 2 шт", "Сыр - 30 г"],
-            steps: ["Измельчить филе.", "Смешать с брокколи и яйцом.", "Запекать 25 мин."]
+            steps: [
+                "Куриное филе мелко нарежьте ножом или измельчите в блендере.",
+                "Брокколи разберите на мелкие соцветия и обдайте кипятком.",
+                "Смешайте в миске курицу, брокколи, яйца и тертый сыр. Добавьте соль и специи по вкусу.",
+                "Распределите массу по формочкам для маффинов (лучше использовать силиконовые).",
+                "Запекайте в духовке при 180°C около 25-30 минут до румяной корочки."
+            ]
         },
         4: {
             title: "Чиа-пудинг на кокосовом молоке",
@@ -207,9 +237,16 @@ document.addEventListener('DOMContentLoaded', () => {
             type: "vegan",
             kcal: 180,
             time: 5,
+            bju: "6/15/18",
             image: "Recipes/images/chia_dessert.png",
             ingredients: ["Семена чиа - 3 ст.л.", "Кокосовое молоко - 150 мл", "Манго - 50 г"],
-            steps: ["Смешать молоко и чиа.", "Оставить на 3 часа.", "Украсить манго."]
+            steps: [
+                "В стеклянную банку всыпьте семена чиа и залейте кокосовым молоком.",
+                "Тщательно перемешайте вилкой, чтобы не было комочков, и оставьте на 10 минут.",
+                "Перемешайте еще раз и уберите в холодильник минимум на 3-4 часа (идеально — на ночь).",
+                "Манго измельчите в пюре или нарежьте мелкими кубиками.",
+                "Выложите фруктовый слой поверх застывшего пудинга перед подачей."
+            ]
         }
     };
 
@@ -300,6 +337,7 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('detail-category').textContent = data.category;
         document.getElementById('detail-kcal').textContent = data.kcal + ' ккал';
         document.getElementById('detail-time').textContent = data.time + ' мин';
+        document.getElementById('detail-bju').textContent = data.bju;
         
         document.getElementById('detail-ingredients').innerHTML = data.ingredients.map(i => `<li>${i}</li>`).join('');
         document.getElementById('detail-steps').innerHTML = data.steps.map(s => `<li>${s}</li>`).join('');

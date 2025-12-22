@@ -873,6 +873,7 @@
         .badge-time { background: #E8F0EB; color: #7A9484; }
         .badge-kcal { background: #FDF1F0; color: #E8A9A5; }
         .badge-type { background: #F0F4F8; color: #636E72; }
+        .badge-bju  { background: #FFF8E1; color: #F39C12; } /* Желтоватый оттенок для БЖУ */
 
         .favorite-btn {
             position: absolute;

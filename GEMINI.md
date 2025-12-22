@@ -14,19 +14,22 @@ It features a mobile-first design, smooth transitions, and an integrated documen
 
 ```text
 D:\GpT_docs\HealthyBodyFormula\HBF_web\
-├── index.html          # Main application file (HTML + CSS + JS)
+├── index.html          # View structure
+├── css/
+│   └── style.css       # Styles
+├── js/
+│   └── app.js          # Logic
 ├── docs/               # Project Documentation (SDD)
-├── guides/             # Premium HTML Guides (See "Guides Standard" below)
-└── Certificates/       # Asset directory for diplomas (PDFs and Images)
-    ├── *.pdf           # Original certificate documents
-    └── *.jpg           # Preview images/thumbnails
+├── guides/             # Premium HTML Guides
+└── Certificates/       # Asset directory
 ```
 
 ## 🛠 Tech Stack
 
 *   **Core:** HTML5, CSS3, Vanilla JavaScript (ES6+).
+*   **Architecture:** Separation of Concerns (View/Style/Logic).
 *   **Backend:** Supabase (BaaS) for Auth & Database.
-*   **Styles:** Inline CSS using CSS Variables for theming (Sage Green/Peach palette).
+*   **Styles:** CSS Variables for theming (Sage Green/Peach palette).
 *   **Libraries (CDN):**
     *   `Telegram Web App SDK` - Integration with Telegram client (theme, haptic feedback).
     *   `Supabase JS` - Backend connection.
@@ -56,6 +59,50 @@ Act as a Clinical Nutritionist. Structure every guide as follows:
 *   **Components:**
     *   **Accordions:** Use for Phases and Troubleshooting to save space on mobile.
     *   **Colors:** High contrast text (`#1A202C` on `#FFFFFF`), Accents: Sage (`#5A7D6C`) + Gold (`#D4AF37`).
+
+## 🥗 Recipe Generation Standard (ROLE: HBF.RecipeCreator)
+When asked to generate new recipes, adopt the persona of **Yulia (Clinical Nutritionist)** and strictly follow this JSON structure.
+
+### 1. Data Integrity Rules
+*   **Format:** Valid JSON object keyed by a unique ID (integer).
+*   **BJU:** Must be a string in format "Protein/Fat/Carbs" (e.g., "15/10/45").
+*   **Steps:** Must be detailed, explaining *how* and *why* (e.g., "Soak chia to activate...").
+*   **Categories:** Only use: `breakfast`, `lunch`, `dinner`, `dessert`.
+*   **Types:** `fish`, `meat`, `vegan`, `poultry`.
+
+### 2. Output Template
+```json
+{
+  "ID": {
+    "title": "Recipe Name (Russian)",
+    "category": "breakfast|lunch|dinner|dessert",
+    "type": "vegan|meat|fish|poultry",
+    "kcal": 350,
+    "time": 20,
+    "bju": "P/F/C",
+    "image": "path/to/placeholder.png",
+    "ingredients": [
+      "Item 1 - Qty",
+      "Item 2 - Qty"
+    ],
+    "steps": [
+      "Detailed step 1...",
+      "Detailed step 2..."
+    ]
+  }
+}
+```
+
+### 3. Image Generation Strategy
+When requested to provide an image prompt for a recipe, strictly adhere to this style to maintain visual consistency.
+
+**Formula:** `[Specific Dish Visuals] + [Composition details] + [Global Style Suffix]`
+
+**Global Style Suffix (ALWAYS APPEND):**
+> Professional food photography, high resolution, photorealistic, 8k, soft natural morning lighting, aesthetic plating, shallow depth of field, sage green and pastel tones, clean background.
+
+**Example:**
+> White chia seed pudding with coconut milk in a clear glass jar. Topped with bright yellow mango puree and a mint leaf. Minimalist composition, bright background, glass texture. Professional food photography, high resolution, photorealistic, 8k, soft natural morning lighting, aesthetic plating, shallow depth of field, sage green and pastel tones, clean background.
 
 ## ✨ Key Features
 
