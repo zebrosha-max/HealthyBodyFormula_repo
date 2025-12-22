@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Биохимия сна: Протокол глубокого восстановления</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #0F172A; /* Deep midnight blue */
+            --bg-paper: #1E293B;
+            --text-primary: #F1F5F9;
+            --text-body: #CBD5E1;
+            --sage-primary: #38BDF8; /* Sky blue accent */
+            --sage-light: #1E293B;
+            --accent-gold: #FDE047; /* Star yellow */
+            --danger: #F87171;
+            --border-light: #334155;
+            
+            --font-heading: 'Nunito', sans-serif;
+            --font-body: 'Lora', serif;
+            
+            --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.3);
+            --radius-lg: 16px;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        .nav-header {
+            position: sticky;
+            top: 0;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            margin-left: -8px; 
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .nav-title {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--sage-primary);
+        }
+
+        .hero {
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .hero-label {
+            display: inline-block;
+            background: var(--sage-primary);
+            color: #0F172A;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            font-family: var(--font-body);
+            font-size: 32px;
+            line-height: 1.2;
+            margin: 0 0 16px 0;
+            color: #FFF;
+        }
+
+        .content-wrapper {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 40px 0 20px 0;
+            position: relative;
+            padding-left: 15px;
+            color: var(--sage-primary);
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            height: 24px;
+            width: 4px;
+            background: var(--accent-gold);
+            border-radius: 2px;
+        }
+
+        .text-block {
+            font-family: var(--font-body);
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text-body);
+            margin-bottom: 24px;
+        }
+
+        .highlight-box {
+            background: var(--bg-paper);
+            border-left: 4px solid var(--sage-primary);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+            box-shadow: var(--shadow-card);
+        }
+
+        .highlight-box h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: var(--sage-primary);
+        }
+
+        .accordion {
+            background: var(--bg-paper);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .accordion-header {
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 700;
+            color: #FFF;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+        }
+
+        .accordion-body {
+            padding: 24px;
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.6;
+            color: var(--text-body);
+        }
+
+        .check-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .check-list li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 12px;
+            font-family: var(--font-body);
+        }
+
+        .check-list li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 4px;
+            color: var(--sage-primary);
+        }
+
+        .author-sign {
+            margin-top: 60px;
+            text-align: right;
+            font-family: var(--font-body);
+            font-style: italic;
+            color: var(--text-body);
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="nav-header">
+        <button class="back-btn" onclick="goBack()">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <span class="nav-title">ПРОТОКОЛ</span>
+        <div style="width: 24px;"></div>
+    </nav>
+
+    <div class="hero">
+        <span class="hero-label">Anti-Age фундамент</span>
+        <h1>Биохимия сна: <br>Глубокое восстановление</h1>
+    </div>
+
+    <div class="content-wrapper">
+        
+        <div class="text-block">
+            <p><strong>Сон — это время вашей биологической "уборки".</strong> Пока вы спите, работает глимфатическая система мозга, очищая его от токсичных белков, а эндокринная система синтезирует гормон роста и восстанавливает чувствительность рецепторов.</p>
+            <p>Этот протокол поможет вам синхронизировать ваше питание и режим со световым днем, чтобы сделать сон максимально продуктивным инструментом здоровья и долголетия.</p>
+        </div>
+
+        <h2 class="section-title">Часть 1: Гормональные качели</h2>
+        
+        <div class="highlight-box">
+            <h3><i class="fa-solid fa-sun"></i> Мелатонин vs Кортизол</h3>
+            <p style="margin-bottom: 0;">В идеале кортизол высок утром (будит нас), а мелатонин — ночью (усыпляет). Поздний прием пищи (особенно сладкого) вызывает скачок инсулина, который подавляет мелатонин и гормон роста. Результат: вы спите 8 часов, но просыпаетесь разбитыми.</p>
+        </div>
+
+        <h2 class="section-title">Часть 2: Протокол настройки</h2>
+
+        <!-- Rule 1 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                1. "Сонный" ужин
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Суть:</strong> Ужин за 3–4 часа до сна. Он должен быть легким, но содержать триптофан — аминокислоту-предшественник мелатонина.</p>
+                    <p><strong>Лучшие продукты:</strong> Индейка, яйца, вишня (содержит природный мелатонин), грецкие орехи, семена тыквы.</p>
+                    <p><strong>Хитрость:</strong> Небольшое количество сложных углеводов в ужине (например, полчашки риса или киноа) помогает триптофану легче преодолеть гематоэнцефалический барьер и превратиться в серотонин, а затем в мелатонин.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rule 2 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                2. Световой режим
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Суть:</strong> Блокировка синего спектра света за 2 часа до сна.</p>
+                    <p><strong>Действие:</strong> Синий свет от смартфонов дает мозгу сигнал "полдень", блокируя мелатонин на 3–4 часа. Используйте "ночной режим" на устройствах или специальные очки, блокирующие синий свет (Blue blockers).</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rule 3 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                3. Нутрицевтическая поддержка
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Магний Глицинат:</strong> 400 мг за 1 час до сна. Глицин в составе этой формы магния является тормозным нейромедиатором, который "выключает" бег мыслей.</p>
+                    <p><strong>Травяной чай:</strong> Мелисса, ромашка или пассифлора — мягкая поддержка ГАМК-рецепторов.</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Часть 3: Траблшутинг</h2>
+        
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                1. Пробуждения в 3–4 часа утра
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Причина 1:</strong> Падение сахара в крови (гипогликемия). Мозг выбрасывает кортизол, чтобы поднять сахар — и вы просыпаетесь с чувством тревоги.</p>
+                    <p><strong>Причина 2:</strong> Пик работы детокс-системы печени. Если печень перегружена (поздний ужин, алкоголь), она может "будить" вас.</p>
+                    <p><strong>Решение:</strong> Уберите алкоголь вечером и добавьте чуть больше полезных жиров в ужин.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="author-sign">
+            Юля<br>
+            Ваш клинический нутрициолог
+        </div>
+
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            const content = header.nextElementSibling;
+            
+            document.querySelectorAll('.accordion').forEach(acc => {
+                if (acc !== item) {
+                    acc.classList.remove('active');
+                    acc.querySelector('.accordion-content').style.maxHeight = null;
+                }
+            });
+
+            item.classList.toggle('active');
+            
+            if (item.classList.contains('active')) {
+                content.style.maxHeight = content.scrollHeight + "px";
+                if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            } else {
+                content.style.maxHeight = null;
+            }
+        }
+
+        function goBack() { window.location.href = "../index.html?screen=guides"; }
+    </script>
+</body>
+</html>

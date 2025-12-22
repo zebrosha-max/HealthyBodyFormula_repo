@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Чистый Кишечник: Протокол Восстановления</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #F9FAFB;
+            --bg-paper: #FFFFFF;
+            --text-primary: #2C3E50;
+            --text-body: #2D3748;
+            --sage-primary: #5A7D6C; 
+            --sage-light: #E8F0ED;
+            --accent-gold: #D4AF37;
+            --danger: #C0392B;
+            --border-light: #E2E8F0;
+            
+            --font-heading: 'Nunito', sans-serif;
+            --font-body: 'Lora', serif;
+            
+            --shadow-card: 0 10px 30px rgba(0,0,0,0.05);
+            --radius-lg: 16px;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        .nav-header {
+            position: sticky;
+            top: 0;
+            background: rgba(249, 250, 251, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            margin-left: -8px; 
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .nav-title {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--sage-primary);
+            opacity: 0.9;
+        }
+
+        .hero {
+            padding: 20px 20px 40px 20px;
+            background: linear-gradient(180deg, var(--bg-paper) 0%, var(--bg-primary) 100%);
+            text-align: center;
+        }
+
+        .hero-label {
+            display: inline-block;
+            background: var(--sage-primary);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            font-family: var(--font-body);
+            font-size: 30px;
+            line-height: 1.2;
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+        }
+
+        .hero-meta {
+            font-size: 14px;
+            color: var(--text-body);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .hero-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .content-wrapper {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 40px 0 20px 0;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            height: 24px;
+            width: 4px;
+            background: var(--accent-gold);
+            border-radius: 2px;
+        }
+
+        .text-block {
+            font-family: var(--font-body);
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text-body);
+            margin-bottom: 24px;
+        }
+
+        .highlight-box {
+            background: var(--bg-paper);
+            border-left: 4px solid var(--sage-primary);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+            box-shadow: var(--shadow-card);
+        }
+
+        .highlight-box h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: var(--sage-primary);
+        }
+
+        .accordion {
+            background: var(--bg-paper);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 16px;
+        }
+
+        .accordion-header {
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .accordion-header i {
+            color: var(--sage-primary);
+            transition: transform 0.3s;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: #FAFAFA;
+        }
+
+        .accordion.active .accordion-header {
+            border-bottom: 1px solid var(--border-light);
+            color: var(--sage-primary);
+        }
+
+        .accordion.active .accordion-header i {
+            transform: rotate(180deg);
+        }
+
+        .accordion-body {
+            padding: 24px;
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.6;
+            color: #1A202C;
+            background: #FFFFFF;
+        }
+
+        .check-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .check-list li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 12px;
+            font-family: var(--font-body);
+            color: var(--text-body);
+        }
+
+        .check-list li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 4px;
+            color: var(--sage-primary);
+        }
+
+        .danger-list li::before {
+            content: '\f00d';
+            color: var(--danger);
+        }
+
+        .author-sign {
+            margin-top: 60px;
+            text-align: right;
+            font-family: var(--font-body);
+            font-style: italic;
+            color: var(--text-body);
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="nav-header">
+        <button class="back-btn" onclick="goBack()">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <span class="nav-title">ПРОТОКОЛ</span>
+        <div style="width: 24px;"></div>
+    </nav>
+
+    <div class="hero">
+        <span class="hero-label">Здоровье ЖКТ</span>
+        <h1>Чистый кишечник: <br>Фундамент иммунитета</h1>
+        <div class="hero-meta">
+            <span><i class="fa-regular fa-clock"></i> 28 дней</span>
+            <span><i class="fa-solid fa-microscope"></i> Научный базис</span>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        
+        <div class="text-block">
+            <p><strong>Кишечник — это не просто трубка для переваривания пищи.</strong> Это крупнейший иммунный орган, в котором сосредоточено 70–80% иммунокомпетентных клеток и триллионы бактерий, управляющих вашим настроением, метаболизмом и даже генетикой.</p>
+            <p>Этот протокол направлен на восстановление кишечного барьера и устранение системного воспаления, которое часто проявляется через усталость, туман в голове и проблемы с кожей.</p>
+        </div>
+
+        <h2 class="section-title">Часть 1: Научное обоснование</h2>
+        
+        <div class="highlight-box">
+            <h3><i class="fa-solid fa-shield-virus"></i> Синдром повышенной проницаемости</h3>
+            <p style="margin-bottom: 0;">В норме стенки кишечника — это "умный фильтр". При воспалении плотные контакты (Tight Junctions) между клетками ослабевают, и в кровоток проникают токсины, непереваренные белки и липополисахариды (LPS). Это вызывает иммунный ответ, который мы ощущаем как хроническую усталость или акне.</p>
+        </div>
+
+        <h2 class="section-title">Часть 2: Реализация протокола</h2>
+        <p class="text-block">Протокол разбит на логические этапы восстановления слизистой и микробиома.</p>
+
+        <!-- Phase 1 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                Фаза 1: Элиминация (Дни 1–14)
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Цель:</strong> Удаление "поджигателей" воспаления для снижения нагрузки на иммунную систему.</p>
+                    <p><strong>Что исключаем:</strong> Глютен, цельное молоко, добавленный сахар и рафинированные масла. Эти продукты часто вызывают временную непереносимость при поврежденной слизистой.</p>
+                    <p><strong>Действие:</strong> Переход на цельные продукты: овощи, качественный белок (рыба, птица), полезные жиры.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                Фаза 2: Регенерация (Дни 15–28)
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Цель:</strong> Поставка "строительного материала" для клеток кишечника (энтероцитов).</p>
+                    <p><strong>Ключевые элементы:</strong></p>
+                    <ul class="check-list">
+                        <li><strong>Костный бульон:</strong> Источник коллагена и аминокислот (L-глутамин), которые буквально "заклеивают" повреждения в стенках.</li>
+                        <li><strong>Клетчатка:</strong> Разноцветные овощи как пребиотики для роста дружественной флоры.</li>
+                        <li><strong>Алоэ вера (сок):</strong> Обладает мощным заживляющим эффектом на слизистые.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <h2 class="section-title">Часть 3: Практический рацион</h2>
+        
+        <div class="highlight-box">
+            <h3><i class="fa-solid fa-leaf"></i> Продукты-союзники</h3>
+            <ul class="check-list" style="margin-bottom: 0;">
+                <li><strong>Ферментированные овощи:</strong> Квашеная капуста без сахара (начинать с 1 ч.л., если есть вздутие).</li>
+                <li><strong>Крестоцветные:</strong> Брокколи, цветная капуста (лучше в термообработке).</li>
+                <li><strong>Жирная рыба:</strong> Омега-3 снижает местное воспаление.</li>
+                <li><strong>Травы:</strong> Орегано, чеснок и имбирь обладают природными антисептическими свойствами.</li>
+            </ul>
+        </div>
+
+        <h2 class="section-title">Часть 4: Сложности и решения</h2>
+        <p class="text-block">Восстановление кишечника — это путь, на котором важно правильно реагировать на сигналы тела.</p>
+
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                1. Вздутие от клетчатки
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Причина:</strong> Микробиота еще не готова перерабатывать большой объем волокон.</p>
+                    <p><strong>Решение:</strong> Термическая обработка (тушение, запекание, пюрирование). Сырые овощи вводим минимальными порциями через 2 недели протокола.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                2. Реакция "отмирания" (Die-off)
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Симптомы:</strong> Кратковременное усиление акне или слабость.</p>
+                    <p><strong>Причина:</strong> Гибель патогенной флоры и выброс их метаболитов.</p>
+                    <p><strong>Решение:</strong> Пейте больше чистой воды, используйте сорбенты (энтеросгель или пектин) за 1.5 часа до еды в течение 3–5 дней.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                3. Социальные ужины
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Решение:</strong> Выбирайте максимально простые блюда: гриль (мясо/рыба) + овощной гарнир. Просите официанта не добавлять соусы и заправлять салат маслом, а не майонезом.</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Индивидуальная адаптация</h2>
+        <div class="text-block">
+            <p>При наличии подтвержденного диагноза <strong>СИБР</strong> (синдром избыточного бактериального роста) употребление ферментированных продуктов может усилить симптомы. В этом случае необходим переход на протокол <strong>Low FODMAP</strong> под присмотром специалиста.</p>
+        </div>
+
+        <h2 class="section-title">Безопасность</h2>
+        <div class="text-block" style="font-size: 15px; background: #FFF3CD; padding: 15px; border-radius: 8px; color: #444;">
+            <p><strong>Противопоказания:</strong> Обострение язвенной болезни, неспецифический язвенный колит (НЯК) в острой фазе, болезнь Крона. Протокол не заменяет медикаментозное лечение, назначенное гастроэнтерологом.</p>
+            <p><strong>Стоп-сигналы:</strong> Острая боль в животе, кровь в стуле, резкое повышение температуры.</p>
+        </div>
+
+        <div class="author-sign">
+            Юля<br>
+            Ваш клинический нутрициолог
+        </div>
+
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            const content = header.nextElementSibling;
+            
+            document.querySelectorAll('.accordion').forEach(acc => {
+                if (acc !== item) {
+                    acc.classList.remove('active');
+                    acc.querySelector('.accordion-content').style.maxHeight = null;
+                }
+            });
+
+            item.classList.toggle('active');
+            
+            if (item.classList.contains('active')) {
+                content.style.maxHeight = content.scrollHeight + "px";
+                if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            } else {
+                content.style.maxHeight = null;
+            }
+        }
+
+        function goBack() {
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            window.location.href = "../index.html?screen=guides";
+        }
+
+        if (tg.colorScheme === 'dark') {
+            document.documentElement.style.setProperty('--bg-primary', '#121212');
+            document.documentElement.style.setProperty('--bg-paper', '#1E1E1E');
+            document.documentElement.style.setProperty('--text-primary', '#FFFFFF');
+            document.documentElement.style.setProperty('--text-body', '#E0E0E0');
+            document.documentElement.style.setProperty('--border-light', '#333');
+        }
+    </script>
+</body>
+</html>

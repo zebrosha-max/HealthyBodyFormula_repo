@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Гормональное сияние: Женский Протокол</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #FDF7F7; /* Soft blush */
+            --bg-paper: #FFFFFF;
+            --text-primary: #4A3737;
+            --text-body: #4A5568;
+            --sage-primary: #9C8484; /* Dusty rose */
+            --sage-light: #F2EBEB;
+            --accent-gold: #D4AF37;
+            --danger: #C0392B;
+            --border-light: #EDF2F7;
+            
+            --font-heading: 'Nunito', sans-serif;
+            --font-body: 'Lora', serif;
+            
+            --shadow-card: 0 10px 30px rgba(156, 132, 132, 0.1);
+            --radius-lg: 16px;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        .nav-header {
+            position: sticky;
+            top: 0;
+            background: rgba(253, 247, 247, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            margin-left: -8px; 
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .nav-title {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--sage-primary);
+            opacity: 0.9;
+        }
+
+        .hero {
+            padding: 20px 20px 40px 20px;
+            background: linear-gradient(180deg, var(--bg-paper) 0%, var(--bg-primary) 100%);
+            text-align: center;
+        }
+
+        .hero-label {
+            display: inline-block;
+            background: var(--sage-primary);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            font-family: var(--font-body);
+            font-size: 30px;
+            line-height: 1.2;
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+        }
+
+        .hero-meta {
+            font-size: 14px;
+            color: var(--text-body);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+        
+        .hero-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .content-wrapper {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 40px 0 20px 0;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            height: 24px;
+            width: 4px;
+            background: var(--accent-gold);
+            border-radius: 2px;
+        }
+
+        .text-block {
+            font-family: var(--font-body);
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text-body);
+            margin-bottom: 24px;
+        }
+
+        .highlight-box {
+            background: var(--bg-paper);
+            border-left: 4px solid var(--sage-primary);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+            box-shadow: var(--shadow-card);
+        }
+
+        .highlight-box h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: var(--sage-primary);
+        }
+
+        .accordion {
+            background: var(--bg-paper);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 16px;
+        }
+
+        .accordion-header {
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .accordion-header i {
+            color: var(--sage-primary);
+            transition: transform 0.3s;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: #FAFAFA;
+        }
+
+        .accordion.active .accordion-header {
+            border-bottom: 1px solid var(--border-light);
+            color: var(--sage-primary);
+        }
+
+        .accordion.active .accordion-header i {
+            transform: rotate(180deg);
+        }
+
+        .accordion-body {
+            padding: 24px;
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.6;
+            color: #1A202C;
+            background: #FFFFFF;
+        }
+
+        .check-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .check-list li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 12px;
+            font-family: var(--font-body);
+            color: var(--text-body);
+        }
+
+        .check-list li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 4px;
+            color: var(--sage-primary);
+        }
+
+        .author-sign {
+            margin-top: 60px;
+            text-align: right;
+            font-family: var(--font-body);
+            font-style: italic;
+            color: var(--text-body);
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="nav-header">
+        <button class="back-btn" onclick="goBack()">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <span class="nav-title">ПРОТОКОЛ</span>
+        <div style="width: 24px;"></div>
+    </nav>
+
+    <div class="hero">
+        <span class="hero-label">Женское здоровье</span>
+        <h1>Гормональное сияние: <br>Питание по циклу</h1>
+        <div class="hero-meta">
+            <span><i class="fa-solid fa-moon"></i> По фазам</span>
+            <span><i class="fa-solid fa-venus"></i> 100% Женский</span>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        
+        <div class="text-block">
+            <p><strong>Ваш цикл — это ваша суперсила.</strong> На протяжении месяца гормональный фон женщины постоянно меняется, влияя на скорость метаболизма, работу мозга и даже на то, насколько эффективно организм усваивает белки и жиры.</p>
+            <p>Этот протокол научит вас не бороться со своим телом, а поддерживать его в каждой фазе, используя нутриенты как тонкий инструмент настройки самочувствия и красоты.</p>
+        </div>
+
+        <h2 class="section-title">Часть 1: Биохимия процесса</h2>
+        
+        <div class="highlight-box">
+            <h3><i class="fa-solid fa-flask-vial"></i> Танец Эстрогена и Прогестерона</h3>
+            <p style="margin-bottom: 0;">В первой фазе доминирует <strong>эстроген</strong> — гормон энергии и сияния. Во второй (после овуляции) на сцену выходит <strong>прогестерон</strong>. Он повышает температуру тела и основной обмен на 200–300 ккал, но при этом снижает чувствительность к инсулину, что и вызывает ту самую тягу к сладкому перед менструацией.</p>
+        </div>
+
+        <h2 class="section-title">Часть 2: Четыре фазы — четыре стратегии</h2>
+        <p class="text-block">Мы делим питание на этапы, соответствующие физиологическим потребностям организма.</p>
+
+        <!-- Phase 1 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                1. Фолликулярная фаза (Весна)
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Период:</strong> С 1-го по 12-й день цикла.</p>
+                    <p><strong>Задача:</strong> Поддержка созревания фолликула и подготовки печени к выводу отработанных гормонов.</p>
+                    <p><strong>Протокол:</strong></p>
+                    <ul class="check-list">
+                        <li><strong>Крестоцветные:</strong> Брокколи и цветная капуста содержат DIM, который помогает печени безопасно метаболизировать эстрогены.</li>
+                        <li><strong>Ферментированные продукты:</strong> Для здорового эстроболома (микрофлоры, влияющей на эстроген).</li>
+                        <li><strong>Легкие белки:</strong> Птица, нежирная рыба, проростки.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                2. Овуляторная фаза (Лето)
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Период:</strong> 13–16 день (середина цикла).</p>
+                    <p><strong>Задача:</strong> Энергия на пике. Контроль воспаления в момент выхода яйцеклетки.</p>
+                    <p><strong>Протокол:</strong></p>
+                    <ul class="check-list">
+                        <li><strong>Клетчатка:</strong> Максимум овощей и зелени для вывода избытка эстрогена.</li>
+                        <li><strong>Антиоксиданты:</strong> Ягоды, зеленый чай, куркума.</li>
+                        <li><strong>Умеренность:</strong> Вы можете чувствовать меньше голода — слушайте свое тело.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                3. Лютеиновая фаза (Осень)
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Период:</strong> С 17-го дня до начала менструации.</p>
+                    <p><strong>Задача:</strong> Поддержка прогестерона, контроль аппетита и борьба с отеками.</p>
+                    <p><strong>Протокол:</strong></p>
+                    <ul class="check-list">
+                        <li><strong>Магний:</strong> Темный шоколад (85%+), семена тыквы, миндаль. Магний снимает ПМС и тягу к сладкому.</li>
+                        <li><strong>Сложные углеводы:</strong> Бурый рис, батат, гречка. Они помогают синтезировать серотонин, предотвращая перепады настроения.</li>
+                        <li><strong>Полезные жиры:</strong> Авокадо, кедровые орехи — строительный материал для прогестерона.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 4 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                4. Менструальная фаза (Зима)
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Задача:</strong> Восполнение дефицитов и согревание организма.</p>
+                    <p><strong>Протокол:</strong></p>
+                    <ul class="check-list">
+                        <li><strong>Железо:</strong> Субпродукты, красное мясо (если употребляете), чечевица, шпинат.</li>
+                        <li><strong>Теплая еда:</strong> Супы, рагу, согревающие специи (имбирь, корица).</li>
+                        <li><strong>Витамин С:</strong> Шиповник, киви — для лучшего усвоения железа.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Часть 3: Траблшутинг</h2>
+        
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                1. Отеки во второй фазе
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Причина:</strong> Задержка натрия под влиянием прогестерона или дисбаланс электролитов.</p>
+                    <p><strong>Решение:</strong> Минимизируйте соль за 5 дней до цикла. Пейте травяные чаи (крапива, одуванчик) и добавьте калий (петрушка, курага, запеченный картофель).</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                2. Срывы на сладкое перед циклом
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Решение:</strong> Увеличьте общую калорийность рациона на 150–200 ккал за счет жиров и белков в обед. Если мозг сыт нутриентами, он реже посылает сигналы SOS в виде желания съесть шоколадку.</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Критерии безопасности</h2>
+        <div class="text-block" style="font-size: 15px; background: #FFF3CD; padding: 15px; border-radius: 8px; color: #444;">
+            <p><strong>Важно:</strong> Данный протокол является поддерживающим. Если у вас аменорея (отсутствие цикла), сильные боли (подозрение на эндометриоз) или кисты яичников — обязательно пройдите обследование у гинеколога-эндокринолога.</p>
+        </div>
+
+        <div class="author-sign">
+            Юля<br>
+            Ваш клинический нутрициолог
+        </div>
+
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            const content = header.nextElementSibling;
+            
+            document.querySelectorAll('.accordion').forEach(acc => {
+                if (acc !== item) {
+                    acc.classList.remove('active');
+                    acc.querySelector('.accordion-content').style.maxHeight = null;
+                }
+            });
+
+            item.classList.toggle('active');
+            
+            if (item.classList.contains('active')) {
+                content.style.maxHeight = content.scrollHeight + "px";
+                if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            } else {
+                content.style.maxHeight = null;
+            }
+        }
+
+        function goBack() {
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            window.location.href = "../index.html?screen=guides";
+        }
+
+        if (tg.colorScheme === 'dark') {
+            document.documentElement.style.setProperty('--bg-primary', '#1A1A1A');
+            document.documentElement.style.setProperty('--bg-paper', '#2D2D2D');
+            document.documentElement.style.setProperty('--text-primary', '#FFD1D1');
+            document.documentElement.style.setProperty('--text-body', '#E0E0E0');
+            document.documentElement.style.setProperty('--sage-primary', '#FFB7B7');
+        }
+    </script>
+</body>
+</html>

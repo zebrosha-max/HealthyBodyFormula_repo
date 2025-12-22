@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Анти-стресс и Надпочечники: Кортизол-контроль</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #F7F9F7; /* Calm greenish grey */
+            --bg-paper: #FFFFFF;
+            --text-primary: #2F4F4F;
+            --text-body: #4A5568;
+            --sage-primary: #708090; /* Slate grey-blue */
+            --sage-light: #F0F4F8;
+            --accent-gold: #C0C0C0; /* Silver accent */
+            --danger: #C0392B;
+            --border-light: #E2E8F0;
+            
+            --font-heading: 'Nunito', sans-serif;
+            --font-body: 'Lora', serif;
+            
+            --shadow-card: 0 10px 30px rgba(112, 128, 144, 0.08);
+            --radius-lg: 16px;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        .nav-header {
+            position: sticky;
+            top: 0;
+            background: rgba(247, 249, 247, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            margin-left: -8px; 
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .nav-title {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--sage-primary);
+        }
+
+        .hero {
+            padding: 20px 20px 40px 20px;
+            background: linear-gradient(180deg, var(--bg-paper) 0%, var(--bg-primary) 100%);
+            text-align: center;
+        }
+
+        .hero-label {
+            display: inline-block;
+            background: var(--sage-primary);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            font-family: var(--font-body);
+            font-size: 30px;
+            line-height: 1.2;
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+        }
+
+        .content-wrapper {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 40px 0 20px 0;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            height: 24px;
+            width: 4px;
+            background: #708090;
+            border-radius: 2px;
+        }
+
+        .text-block {
+            font-family: var(--font-body);
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text-body);
+            margin-bottom: 24px;
+        }
+
+        .highlight-box {
+            background: var(--bg-paper);
+            border-left: 4px solid var(--sage-primary);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+            box-shadow: var(--shadow-card);
+        }
+
+        .highlight-box h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: var(--sage-primary);
+        }
+
+        .accordion {
+            background: var(--bg-paper);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 16px;
+        }
+
+        .accordion-header {
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: #FAFAFA;
+        }
+
+        .accordion.active .accordion-content {
+            background: #FFFFFF;
+        }
+
+        .accordion-body {
+            padding: 24px;
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.6;
+            color: #1A202C;
+        }
+
+        .check-list {
+            list-style: none;
+            padding: 0;
+        }
+        
+        .check-list li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 12px;
+            font-family: var(--font-body);
+            color: var(--text-body);
+        }
+
+        .check-list li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 4px;
+            color: var(--sage-primary);
+        }
+
+        .author-sign {
+            margin-top: 60px;
+            text-align: right;
+            font-family: var(--font-body);
+            font-style: italic;
+            color: var(--text-body);
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="nav-header">
+        <button class="back-btn" onclick="goBack()">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <span class="nav-title">ПРОТОКОЛ</span>
+        <div style="width: 24px;"></div>
+    </nav>
+
+    <div class="hero">
+        <span class="hero-label">Анти-хрупкость</span>
+        <h1>Кортизол-контроль: <br>Питание против стресса</h1>
+    </div>
+
+    <div class="content-wrapper">
+        
+        <div class="text-block">
+            <p><strong>Стресс — это биологически дорогая реакция.</strong> В режиме выживания ваш организм тратит колоссальное количество ресурсов (магния, витаминов группы B, витамина C) на поддержание работы нервной системы и синтез гормонов стресса.</p>
+            <p>Если эти ресурсы не восполнять, наступает стадия "истощения", которую в нутрициологии называют дисфункцией надпочечников. Этот гайд поможет вам создать нутритивную "подушку безопасности" и вернуть контроль над своим состоянием.</p>
+        </div>
+
+        <h2 class="section-title">Часть 1: Механизм "кражи" нутриентов</h2>
+        
+        <div class="highlight-box">
+            <h3><i class="fa-solid fa-battery-half"></i> Ресурсный дефицит</h3>
+            <p style="margin-bottom: 0;">Надпочечники — главные потребители витамина С и магния в теле. При стрессе почки начинают выводить магний в разы быстрее. Результат: мышечные зажимы, бессонница и тяга к соленому (попытка удержать электролиты).</p>
+        </div>
+
+        <h2 class="section-title">Часть 2: Протокол поддержки</h2>
+
+        <!-- Phase 1 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                1. "Антистрессовый" завтрак
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Почему это важно:</strong> При стрессе утренний пик кортизола может быть слишком высоким или, наоборот, отсутствовать. Нам нужно стабилизировать сахар с самого утра.</p>
+                    <p><strong>Протокол:</strong> Завтрак в течение первого часа после пробуждения. Обязательно: белок + жиры + сложные углеводы. Например: омлет с овощами и кусочком цельнозернового хлеба.</p>
+                    <p><strong>Запрет:</strong> Кофе натощак. Кофеин стимулирует выброс кортизола, когда он и так на пике, что ведет к быстрому истощению ресурсов к обеду.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                2. Восполнение электролитов
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Задача:</strong> Поддержка водно-солевого баланса.</p>
+                    <ul class="check-list">
+                        <li><strong>Качественная соль:</strong> Гималайская или морская (источник 80+ микроэлементов). Не бойтесь солить пищу по вкусу, надпочечникам нужен натрий.</li>
+                        <li><strong>Магниевые ванны:</strong> Соль Эпсома (английская соль) — магний отлично всасывается через кожу, расслабляя нервную систему перед сном.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                3. Микронутриенты-союзники
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Витамин С:</strong> Шиповник, болгарский перец, петрушка. Надпочечники хранят самую высокую концентрацию витамина С в теле.</p>
+                    <p><strong>Витамины группы B:</strong> Субпродукты, семена, яйца. Необходимы для передачи нервных импульсов и производства энергии.</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Часть 3: Траблшутинг</h2>
+        
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                1. Вечерний "дожор" и тяга к сладкому
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Причина:</strong> Мозг пытается быстро получить глюкозу для "гашения" высокого вечернего кортизола.</p>
+                    <p><strong>Решение:</strong> Плотный сбалансированный ужин с достаточным количеством клетчатки. Если тяга острая — примите 400 мг магния глицината.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="author-sign">
+            Юля<br>
+            Ваш клинический нутрициолог
+        </div>
+
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+        
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            const content = header.nextElementSibling;
+            
+            document.querySelectorAll('.accordion').forEach(acc => {
+                if (acc !== item) {
+                    acc.classList.remove('active');
+                    acc.querySelector('.accordion-content').style.maxHeight = null;
+                }
+            });
+
+            item.classList.toggle('active');
+            
+            if (item.classList.contains('active')) {
+                content.style.maxHeight = content.scrollHeight + "px";
+                if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            } else {
+                content.style.maxHeight = null;
+            }
+        }
+
+        function goBack() { window.location.href = "../index.html?screen=guides"; }
+    </script>
+</body>
+</html>
