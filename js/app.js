@@ -177,6 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const localFavs = localStorage.getItem('hbf_favorites');
             if (localFavs) state.favorites = JSON.parse(localFavs);
             renderRecipes();
+            renderProfileFavorites();
         }
     }
 
@@ -200,6 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data) {
             state.favorites = data.map(f => f.recipe_id);
             renderRecipes(); 
+            renderProfileFavorites();
         }
     }
 
@@ -619,6 +621,64 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function renderProfileFavorites() {
+        const container = document.getElementById('profile-favorites-container');
+        const emptyMsg = document.getElementById('profile-favorites-empty');
+        
+        if (!container || !emptyMsg) return;
+
+        if (state.favorites.length === 0) {
+            container.style.display = 'none';
+            emptyMsg.style.display = 'block';
+            return;
+        }
+
+        container.style.display = 'grid';
+        emptyMsg.style.display = 'none';
+        container.innerHTML = '';
+
+        state.favorites.forEach(id => {
+            const r = recipesDB[id];
+            if (!r) return;
+
+            const card = document.createElement('div');
+            card.className = 'recipe-card';
+            // Compact style for profile
+            card.style.marginBottom = '0';
+            card.style.display = 'flex';
+            card.style.alignItems = 'center';
+            card.style.padding = '10px';
+            card.style.gap = '15px';
+
+            card.innerHTML = `
+                <img src="${r.image}" alt="${r.title}" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover;">
+                <div style="flex: 1;">
+                    <h4 style="margin: 0 0 5px 0; font-size: 16px;">${r.title}</h4>
+                    <span style="font-size: 12px; color: var(--text-secondary);"><i class="fa-solid fa-fire"></i> ${r.kcal} ккал</span>
+                </div>
+                <button class="favorite-btn active" data-id="${id}" style="position: static; background: none; box-shadow: none; color: var(--peach-dark);">
+                    <i class="fa-solid fa-heart"></i>
+                </button>
+            `;
+
+            // Click on card opens detail
+            card.addEventListener('click', (e) => {
+                if (!e.target.closest('.favorite-btn')) {
+                    openRecipeDetail(id);
+                }
+            });
+
+            // Click on heart removes from favorites
+            const favBtn = card.querySelector('.favorite-btn');
+            favBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                toggleFavorite(id);
+            });
+
+            container.appendChild(card);
+        });
+    }
+
     async function toggleFavorite(id) {
         const index = state.favorites.indexOf(id);
         const isAdding = index === -1;
@@ -630,6 +690,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         
         renderRecipes(); 
+        renderProfileFavorites(); // Sync Profile UI
         if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
 
         if (state.user && supabase) {
