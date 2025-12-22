@@ -38,7 +38,9 @@ document.addEventListener('DOMContentLoaded', () => {
         favorites: [],
         filters: {
             category: 'all',
-            type: 'all'
+            type: 'all',
+            time: 'all',
+            kcal: 'all'
         }
     };
 
@@ -217,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
         3: {
             title: "Куриные маффины с брокколи",
             category: "dinner",
-            type: "meat",
+            type: "poultry",
             kcal: 220,
             time: 40,
             bju: "28/10/5",
@@ -234,7 +236,7 @@ document.addEventListener('DOMContentLoaded', () => {
         4: {
             title: "Чиа-пудинг на кокосовом молоке",
             category: "dessert",
-            type: "vegan",
+            type: "vegetarian",
             kcal: 180,
             time: 5,
             bju: "6/15/18",
@@ -251,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         5: {
             title: "Зеленые вафли из гречки",
             category: "breakfast",
-            type: "vegan",
+            type: "vegetarian",
             kcal: 280,
             time: 20,
             bju: "8/5/50",
@@ -268,7 +270,7 @@ document.addEventListener('DOMContentLoaded', () => {
         6: {
             title: "Котлеты из индейки с кабачком",
             category: "lunch",
-            type: "meat",
+            type: "poultry",
             kcal: 180,
             time: 35,
             bju: "20/8/5",
@@ -302,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
         8: {
             title: "Печеное яблоко с орехами",
             category: "dessert",
-            type: "vegan",
+            type: "vegetarian",
             kcal: 160,
             time: 20,
             bju: "1/8/22",
@@ -319,7 +321,7 @@ document.addEventListener('DOMContentLoaded', () => {
         9: {
             title: "Скрэмбл со шпинатом и фетой",
             category: "breakfast",
-            type: "meat",
+            type: "vegetarian",
             kcal: 260,
             time: 10,
             bju: "18/18/3",
@@ -336,7 +338,7 @@ document.addEventListener('DOMContentLoaded', () => {
         10: {
             title: "Чечевичный крем-суп",
             category: "lunch",
-            type: "vegan",
+            type: "vegetarian",
             kcal: 210,
             time: 30,
             bju: "12/4/32",
@@ -370,7 +372,7 @@ document.addEventListener('DOMContentLoaded', () => {
         12: {
             title: "Raw-трюфели",
             category: "dessert",
-            type: "vegan",
+            type: "vegetarian",
             kcal: 90,
             time: 15,
             bju: "2/4/12",
@@ -404,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
         14: {
             title: "Тушеная курица с травами",
             category: "dinner",
-            type: "meat",
+            type: "poultry",
             kcal: 200,
             time: 45,
             bju: "26/9/3",
@@ -421,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
         15: {
             title: "Ленивая овсянка в банке",
             category: "breakfast",
-            type: "vegan",
+            type: "vegetarian",
             kcal: 250,
             time: 5,
             bju: "10/6/40",
@@ -438,7 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
         16: {
             title: "Салат с нутом и овощами",
             category: "lunch",
-            type: "vegan",
+            type: "vegetarian",
             kcal: 220,
             time: 10,
             bju: "9/8/28",
@@ -455,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
         17: {
             title: "Куриная грудка в паприке",
             category: "dinner",
-            type: "meat",
+            type: "poultry",
             kcal: 190,
             time: 30,
             bju: "30/7/2",
@@ -472,7 +474,7 @@ document.addEventListener('DOMContentLoaded', () => {
         18: {
             title: "Овощной омлет",
             category: "dinner",
-            type: "meat",
+            type: "vegetarian",
             kcal: 210,
             time: 10,
             bju: "14/15/5",
@@ -489,7 +491,7 @@ document.addEventListener('DOMContentLoaded', () => {
         19: {
             title: "Банановое мороженое",
             category: "dessert",
-            type: "vegan",
+            type: "vegetarian",
             kcal: 110,
             time: 5,
             bju: "1/0/25",
@@ -506,7 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
         20: {
             title: "Творожный паштет",
             category: "lunch",
-            type: "meat",
+            type: "vegetarian",
             kcal: 140,
             time: 5,
             bju: "18/5/4",
@@ -526,12 +528,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.querySelector('.recipes-grid');
         if (!container) return;
 
+        const typeNames = {
+            meat: 'Мясо',
+            poultry: 'Птица',
+            fish: 'Рыба',
+            vegetarian: 'Вегетарианское'
+        };
+
         container.innerHTML = '';
         
         Object.keys(recipesDB).forEach(id => {
             const r = recipesDB[id];
             
+            // Filters Logic
             if (state.filters.category !== 'all' && r.category !== state.filters.category) return;
+            if (state.filters.type !== 'all' && r.type !== state.filters.type) return;
+            
+            if (state.filters.time !== 'all') {
+                if (state.filters.time === 'short' && r.time > 20) return;
+                if (state.filters.time === 'medium' && (r.time <= 20 || r.time > 40)) return;
+                if (state.filters.time === 'long' && r.time <= 40) return;
+            }
+
+            if (state.filters.kcal !== 'all') {
+                if (state.filters.kcal === 'light' && r.kcal >= 250) return;
+                if (state.filters.kcal === 'medium' && (r.kcal < 250 || r.kcal > 400)) return;
+                if (state.filters.kcal === 'heavy' && r.kcal <= 400) return;
+            }
             
             const isFav = state.favorites.includes(id);
             const card = document.createElement('div');
@@ -548,7 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <div class="recipe-badges">
                         <span class="badge badge-time"><i class="fa-regular fa-clock"></i> ${r.time} м</span>
                         <span class="badge badge-kcal"><i class="fa-solid fa-fire"></i> ${r.kcal}</span>
-                        <span class="badge badge-type">${r.type}</span>
+                        <span class="badge badge-type">${typeNames[r.type] || r.type}</span>
                     </div>
                 </div>
             `;
@@ -618,28 +641,41 @@ document.addEventListener('DOMContentLoaded', () => {
         showScreen('recipe-detail');
     }
 
-    // Add Filters UI
-    const recipesScreen = document.getElementById('screen-recipes');
-    if (recipesScreen && !document.querySelector('.filter-container')) {
-        const filterHtml = `
-            <div class="filter-container">
-                <button class="filter-chip active" data-cat="all">Все</button>
-                <button class="filter-chip" data-cat="breakfast">Завтрак</button>
-                <button class="filter-chip" data-cat="lunch">Обед</button>
-                <button class="filter-chip" data-cat="dinner">Ужин</button>
-                <button class="filter-chip" data-cat="dessert">Десерты</button>
-            </div>
-        `;
-        const header = recipesScreen.querySelector('.page-header');
-        if(header) header.insertAdjacentHTML('afterend', filterHtml);
+    // ===== FILTER LISTENERS =====
+    const filterCat = document.getElementById('filter-category');
+    const filterType = document.getElementById('filter-type');
+    const filterTime = document.getElementById('filter-time');
+    const filterKcal = document.getElementById('filter-kcal');
+    const resetBtn = document.getElementById('reset-filters');
 
-        recipesScreen.querySelectorAll('.filter-chip').forEach(btn => {
-            btn.addEventListener('click', function() {
-                recipesScreen.querySelectorAll('.filter-chip').forEach(b => b.classList.remove('active'));
-                this.classList.add('active');
-                state.filters.category = this.dataset.cat;
-                renderRecipes();
-            });
+    function updateFilters() {
+        if(filterCat) state.filters.category = filterCat.value;
+        if(filterType) state.filters.type = filterType.value;
+        if(filterTime) state.filters.time = filterTime.value;
+        if(filterKcal) state.filters.kcal = filterKcal.value;
+        
+        // Show/Hide Reset Button
+        const isFiltered = Object.values(state.filters).some(v => v !== 'all');
+        if(resetBtn) resetBtn.classList.toggle('visible', isFiltered);
+
+        renderRecipes();
+    }
+
+    [filterCat, filterType, filterTime, filterKcal].forEach(el => {
+        if(el) el.addEventListener('change', updateFilters);
+    });
+
+    if(resetBtn) {
+        resetBtn.addEventListener('click', () => {
+            state.filters = { category: 'all', type: 'all', time: 'all', kcal: 'all' };
+            
+            if(filterCat) filterCat.value = 'all';
+            if(filterType) filterType.value = 'all';
+            if(filterTime) filterTime.value = 'all';
+            if(filterKcal) filterKcal.value = 'all';
+            
+            resetBtn.classList.remove('visible');
+            renderRecipes();
         });
     }
 

@@ -250,6 +250,42 @@
             <h2 class="page-title">Рецепты</h2>
         </div>
 
+        <div class="filters-grid">
+            <select id="filter-category" class="filter-select">
+                <option value="all">Прием пищи</option>
+                <option value="breakfast">Завтрак</option>
+                <option value="lunch">Обед</option>
+                <option value="dinner">Ужин</option>
+                <option value="dessert">Десерт</option>
+            </select>
+
+            <select id="filter-type" class="filter-select">
+                <option value="all">Продукт</option>
+                <option value="meat">Мясо</option>
+                <option value="poultry">Птица</option>
+                <option value="fish">Рыба</option>
+                <option value="vegetarian">Вегетарианское</option>
+            </select>
+
+            <select id="filter-time" class="filter-select">
+                <option value="all">Время</option>
+                <option value="short">До 20 мин</option>
+                <option value="medium">20-40 мин</option>
+                <option value="long">40+ мин</option>
+            </select>
+
+            <select id="filter-kcal" class="filter-select">
+                <option value="all">Калории</option>
+                <option value="light">Лёгкое (&lt;250)</option>
+                <option value="medium">Среднее (250-400)</option>
+                <option value="heavy">Плотное (&gt;400)</option>
+            </select>
+
+            <button id="reset-filters" class="reset-filters-btn">
+                <i class="fa-solid fa-xmark"></i> Сбросить фильтры
+            </button>
+        </div>
+
         <div class="recipes-grid">
             <!-- Recipe 1 -->
             <div class="recipe-card" data-recipe-id="1">
