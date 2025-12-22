@@ -245,7 +245,13 @@
             <button class="back-button" data-back>
                 <i class="fa-solid fa-chevron-left"></i>
             </button>
-            <h2 class="page-title">Рецепты</h2>
+            <!-- Recipes Header with Fav Toggle -->
+        <div class="page-header" style="min-height: 40px; width: 100%; margin-bottom: 15px;">
+            <h2 class="page-title" style="margin: 0;">Рецепты</h2>
+            <button id="filter-favorites-btn" class="guide-btn" style="position: absolute; right: 0; top: 50%; transform: translateY(-50%); width: 40px; height: 40px; border-radius: 50%; padding: 0; display: flex; align-items: center; justify-content: center; background: var(--card-bg); color: var(--text-primary); border: 1px solid var(--sage-green-light); box-shadow: var(--card-shadow);">
+                <i class="fa-regular fa-heart" style="color: var(--peach-dark); font-size: 18px;"></i>
+            </button>
+        </div>
         </div>
 
         <div class="filters-grid">

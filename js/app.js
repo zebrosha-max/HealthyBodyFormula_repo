@@ -40,7 +40,8 @@ document.addEventListener('DOMContentLoaded', () => {
             category: 'all',
             type: 'all',
             time: 'all',
-            kcal: 'all'
+            kcal: 'all',
+            onlyFavorites: false
         }
     };
 
@@ -566,6 +567,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const r = recipesDB[id];
             
             // Filters Logic
+            if (state.filters.onlyFavorites && !state.favorites.includes(id)) return;
             if (state.filters.category !== 'all' && r.category !== state.filters.category) return;
             if (state.filters.type !== 'all' && r.type !== state.filters.type) return;
             
@@ -731,6 +733,28 @@ document.addEventListener('DOMContentLoaded', () => {
     const filterTime = document.getElementById('filter-time');
     const filterKcal = document.getElementById('filter-kcal');
     const resetBtn = document.getElementById('reset-filters');
+    const filterFavBtn = document.getElementById('filter-favorites-btn');
+
+    if (filterFavBtn) {
+        filterFavBtn.addEventListener('click', () => {
+            state.filters.onlyFavorites = !state.filters.onlyFavorites;
+            
+            // Visual update
+            const icon = filterFavBtn.querySelector('i');
+            if (state.filters.onlyFavorites) {
+                icon.classList.replace('fa-regular', 'fa-solid');
+                filterFavBtn.style.background = 'var(--sage-green-light)';
+                filterFavBtn.style.borderColor = 'var(--sage-green)';
+            } else {
+                icon.classList.replace('fa-solid', 'fa-regular');
+                filterFavBtn.style.background = 'var(--card-bg)';
+                filterFavBtn.style.borderColor = 'var(--sage-green-light)';
+            }
+            
+            if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+            updateFilters(); // Reuse update logic to show/hide reset btn
+        });
+    }
 
     function updateFilters() {
         if(filterCat) state.filters.category = filterCat.value;
@@ -739,7 +763,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if(filterKcal) state.filters.kcal = filterKcal.value;
         
         // Show/Hide Reset Button
-        const isFiltered = Object.values(state.filters).some(v => v !== 'all');
+        const isFiltered = Object.values(state.filters).some(v => v !== 'all' && v !== false);
         if(resetBtn) resetBtn.classList.toggle('visible', isFiltered);
 
         renderRecipes();
@@ -751,13 +775,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if(resetBtn) {
         resetBtn.addEventListener('click', () => {
-            state.filters = { category: 'all', type: 'all', time: 'all', kcal: 'all' };
+            state.filters = { category: 'all', type: 'all', time: 'all', kcal: 'all', onlyFavorites: false };
             
             if(filterCat) filterCat.value = 'all';
             if(filterType) filterType.value = 'all';
             if(filterTime) filterTime.value = 'all';
             if(filterKcal) filterKcal.value = 'all';
             
+            // Reset Fav Button visual
+            if (filterFavBtn) {
+                const icon = filterFavBtn.querySelector('i');
+                icon.classList.replace('fa-solid', 'fa-regular');
+                filterFavBtn.style.background = 'var(--card-bg)';
+                filterFavBtn.style.borderColor = 'var(--sage-green-light)';
+            }
+
             resetBtn.classList.remove('visible');
             renderRecipes();
         });
