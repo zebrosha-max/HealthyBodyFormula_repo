@@ -43,6 +43,7 @@
 HBF_web/
 ├── index.html          # Основной файл (HTML верстка + CSS стили + JS логика)
 ├── README.md           # Документация проекта
+├── guides/             # Папка с глубокими нутрициологическими протоколами (HTML)
 └── Certificates/       # Папка с изображениями дипломов и превью
 ```
 
@@ -53,3 +54,21 @@ HBF_web/
 python -m http.server 8080
 ```
 Сайт будет доступен по адресу: `http://localhost:8080`
+
+---
+
+## 🕒 Session History
+
+### 2025-12-21
+**Task:** Implement a premium-grade "Anti-Sugar" guide system.
+
+*   **HTML Guide Architecture:**
+    *   Transitioned from static PDFs to a dynamic HTML-based "Magazine Style" guide system located in `/guides`.
+    *   Implemented `anti-sugar.html` using a scientific "Evidence-Based" approach (biochemistry, 3-phase timeline, troubleshooting).
+    *   Designed responsive, accessible UI with expandable Accordions for long-form content.
+*   **Seamless Navigation:**
+    *   Enhanced `index.html` with a deep-linking mechanism (`URLSearchParams`) to allow "Back" buttons in guides to return users to the specific screen they came from (e.g., `?screen=guides`).
+*   **UI/UX Refinements:**
+    *   Created a "Glassmorphism" sticky header for guides.
+    *   Localized all medical and technical terms for the Russian-speaking audience.
+    *   Optimized typography (Lora for body, Nunito for UI) for maximum readability of long nutritional protocols.
