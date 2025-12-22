@@ -99,10 +99,20 @@ When requested to provide an image prompt for a recipe, strictly adhere to this 
 **Formula:** `[Specific Dish Visuals] + [Composition details] + [Global Style Suffix]`
 
 **Global Style Suffix (ALWAYS APPEND):**
-> Professional food photography, high resolution, photorealistic, 8k, soft natural morning lighting, aesthetic plating, shallow depth of field, sage green and pastel tones, clean background.
+> Professional food photography, high resolution, photorealistic, 8k, soft natural morning lighting, aesthetic plating, shallow depth of field, sage green and pastel tones, clean background, **perfectly centered composition, subject in the middle, sufficient negative space around the edges, wide shot to prevent cropping, --ar 1:1**
 
 **Example:**
-> White chia seed pudding with coconut milk in a clear glass jar. Topped with bright yellow mango puree and a mint leaf. Minimalist composition, bright background, glass texture. Professional food photography, high resolution, photorealistic, 8k, soft natural morning lighting, aesthetic plating, shallow depth of field, sage green and pastel tones, clean background.
+> White chia seed pudding with coconut milk in a clear glass jar. Topped with bright yellow mango puree and a mint leaf. Minimalist composition, bright background, glass texture. Professional food photography, high resolution, photorealistic, 8k, soft natural morning lighting, aesthetic plating, shallow depth of field, sage green and pastel tones, clean background, perfectly centered composition, subject in the middle, sufficient negative space around the edges, wide shot to prevent cropping, --ar 1:1
+
+### 4. Asset Pipeline
+After generating images:
+1.  **Save:** Save files to `Recipes/images/` using generic names (e.g., `id5.png`).
+2.  **Optimize:** Run `python optimize_new_recipes.py`. This script will:
+    *   Convert to JPG.
+    *   Resize to 1000x1000.
+    *   Rename to `recipe_{ID}.jpg`.
+    *   Delete source files.
+3.  **Link:** Ensure `js/app.js` references `Recipes/images/recipe_{ID}.jpg`.
 
 ## ✨ Key Features
 

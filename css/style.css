@@ -683,7 +683,7 @@
         /* ===== RECIPE DETAIL STYLES ===== */
         .recipe-detail-header {
             width: 100%;
-            height: 320px; /* Taller header for better visibility */
+            aspect-ratio: 4 / 3; /* Оптимальная высота для мобильных */
             border-radius: 20px;
             display: flex;
             align-items: center;
