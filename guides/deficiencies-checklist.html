@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Чек-лист дефицитов: Энергия на максимум</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-primary: #F0FDF4;
+            --bg-paper: #FFFFFF;
+            --text-primary: #14532D;
+            --sage-primary: #22C55E;
+            --font-heading: 'Nunito', sans-serif;
+            --font-body: 'Lora', serif;
+        }
+        body { margin: 0; background: var(--bg-primary); font-family: var(--font-heading); color: var(--text-primary); padding-bottom: 60px; }
+        .nav-header { position: sticky; top: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); padding: 15px; display: flex; align-items: center; z-index: 100; }
+        .back-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-primary); }
+        .hero { padding: 30px 20px; text-align: center; background: white; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
+        .content { padding: 20px; max-width: 600px; margin: 0 auto; }
+        .section-title { font-size: 20px; font-weight: 800; margin: 30px 0 15px; color: var(--sage-primary); }
+        .def-card { background: white; padding: 15px; border-radius: 12px; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    </style>
+</head>
+<body>
+    <nav class="nav-header" style="position: relative; justify-content: flex-start;">
+        <button class="back-btn" onclick="window.location.href='../index.html?screen=guides'"><i class="fa-solid fa-arrow-left"></i></button>
+        <span style="position: absolute; left: 50%; transform: translateX(-50%); font-weight: 800; font-size: 13px; text-transform: uppercase; color: var(--sage-primary); white-space: nowrap;">Бесплатный гайд</span>
+    </nav>
+    <div class="hero">
+        <div style="background: #DCFCE7; color: #15803D; width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 24px;">
+            <i class="fa-solid fa-clipboard-list"></i>
+        </div>
+        <h1>Чек-лист дефицитов</h1>
+        <p style="color: #166534;">Почему нет энергии и что с этим делать?</p>
+    </div>
+    <div class="content">
+        <div class="def-card">
+            <h3 style="margin-top: 0;"><i class="fa-solid fa-battery-quarter"></i> Усталость с утра?</h3>
+            <p style="font-family: var(--font-body);">Возможен дефицит <strong>железа (ферритина)</strong> или <strong>витамина D</strong>. Проверьте уровень витамина D (норма 60-80 нг/мл).</p>
+        </div>
+        <div class="def-card">
+            <h3 style="margin-top: 0;"><i class="fa-solid fa-candy-cane"></i> Тяга к сладкому?</h3>
+            <p style="font-family: var(--font-body);">Часто это сигнал нехватки <strong>хрома</strong> или <strong>магния</strong>. Магний расходуется при стрессе в первую очередь.</p>
+        </div>
+        <div class="def-card">
+            <h3 style="margin-top: 0;"><i class="fa-solid fa-moon"></i> Плохой сон?</h3>
+            <p style="font-family: var(--font-body);">Попробуйте добавить <strong>магний цитрат или глицинат</strong> (400 мг) за час до сна. Это поможет нервной системе расслабиться.</p>
+        </div>
+    </div>
+    <script>const tg = window.Telegram.WebApp; tg.ready();</script>
+</body>
+</html>
