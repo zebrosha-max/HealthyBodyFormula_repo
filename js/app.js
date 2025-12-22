@@ -123,9 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (userData) {
             if (userNameEl) userNameEl.textContent = userData.first_name + (userData.last_name ? ' ' + userData.last_name : '');
-            // DEBUG: Show raw data to check photo_url
-            if (userStatusEl) userStatusEl.innerText = JSON.stringify(userData, null, 2); 
-            // if (userStatusEl) userStatusEl.textContent = 'Пользователь HBF';
+            if (userStatusEl) userStatusEl.textContent = 'Пользователь HBF';
             
             // Set User Photo if available
             if (userPhotoEl) {
