@@ -1753,25 +1753,45 @@
     </div>
 
     <script>
-        // Initialize Telegram Web App
-        const tg = window.Telegram.WebApp;
+        // Initialize Telegram Web App with safety check
+        let tg = { 
+            ready: () => {}, expand: () => {}, setHeaderColor: () => {}, 
+            setBackgroundColor: () => {}, HapticFeedback: { impactOccurred: () => {}, selectionChanged: () => {} } 
+        };
         
-        tg.ready();
-        tg.expand();
-        tg.setHeaderColor('#F0F7F4');
-        tg.setBackgroundColor('#F8F9FA');
+        try {
+            if (window.Telegram && window.Telegram.WebApp) {
+                tg = window.Telegram.WebApp;
+                tg.ready();
+                tg.expand();
+                tg.setHeaderColor('#F0F7F4');
+                tg.setBackgroundColor('#F8F9FA');
+            }
+        } catch (e) {
+            console.error("Telegram SDK init error:", e);
+        }
 
-        // Supabase Configuration
+        // Supabase Configuration with safety check
         const SUPABASE_URL = 'https://jaxiqphuvwspwanydlez.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_dx1fnlKqP5w9e26_qLuFxA_DYLd392O';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let supabase = null;
+        
+        try {
+            if (window.supabase && typeof window.supabase.createClient === 'function') {
+                supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            } else {
+                console.warn("Supabase SDK not found, running in offline mode.");
+            }
+        } catch (e) {
+            console.error("Supabase init error:", e);
+        }
 
         // State Management
         const state = {
             user: null,
             isPremium: false,
             activeTab: 'main',
-            favorites: [], // Now synced with DB
+            favorites: [],
             filters: {
                 category: 'all',
                 type: 'all'
@@ -1785,6 +1805,7 @@
         const tabItems = document.querySelectorAll('.nav-item[data-tab]');
 
         function showScreen(screenId, isBack = false) {
+            console.log("Switching to screen:", screenId);
             screens.forEach(screen => {
                 screen.classList.remove('active', 'back-animation');
             });
@@ -1797,41 +1818,47 @@
                 targetScreen.classList.add('active');
                 window.scrollTo(0, 0);
                 
-                // Update active tab visual state if screenId is one of the tabs
-                const matchingTab = document.querySelector(`.nav-item[data-tab="${screenId}"]`);
-                if (matchingTab) {
-                    updateActiveTab(screenId);
-                }
+                // Update active tab visual state
+                updateActiveTab(screenId);
 
                 if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
             }
         }
 
         function updateActiveTab(tabId) {
-            tabItems.forEach(item => {
-                item.classList.toggle('active', item.dataset.tab === tabId);
-            });
-            state.activeTab = tabId;
+            // Find if this screen belongs to a tab
+            const matchingTab = document.querySelector(`.nav-item[data-tab="${tabId}"]`);
+            if (matchingTab) {
+                tabItems.forEach(item => {
+                    item.classList.toggle('active', item.dataset.tab === tabId);
+                });
+                state.activeTab = tabId;
+            }
         }
 
+        // NAVIGATION LISTENERS
         tabItems.forEach(item => {
             item.addEventListener('click', function() {
                 const tabId = this.dataset.tab;
-                if (state.activeTab !== tabId) {
-                    showScreen(tabId);
-                }
+                console.log("Tab clicked:", tabId);
+                showScreen(tabId);
             });
         });
 
         navCards.forEach(card => {
             card.addEventListener('click', function(e) {
                 e.preventDefault();
-                showScreen(this.dataset.screen);
+                const target = this.dataset.screen;
+                console.log("Nav card clicked, going to:", target);
+                showScreen(target);
             });
         });
 
         backButtons.forEach(btn => {
-            btn.addEventListener('click', () => showScreen('main', true));
+            btn.addEventListener('click', () => {
+                console.log("Back button clicked");
+                showScreen('main', true);
+            });
         });
 
         // ===== USER AUTH & SYNC =====
@@ -1842,12 +1869,11 @@
             const subInfoEl = document.getElementById('subscription-info');
 
             if (userData) {
-                userNameEl.textContent = userData.first_name + (userData.last_name ? ' ' + userData.last_name : '');
-                userStatusEl.textContent = 'Пользователь HBF';
+                if (userNameEl) userNameEl.textContent = userData.first_name + (userData.last_name ? ' ' + userData.last_name : '');
+                if (userStatusEl) userStatusEl.textContent = 'Пользователь HBF';
                 
                 if (supabase) {
                     try {
-                        // 1. Sync User
                         const { data: user, error } = await supabase
                             .from('users')
                             .upsert({ 
@@ -1862,21 +1888,17 @@
                             state.user = user;
                             state.isPremium = user.is_premium;
                             renderUserStatus();
-                            
-                            // 2. Load Favorites
                             await loadFavorites();
                         }
                     } catch (e) {
                         console.error("Supabase sync error:", e);
-                        subInfoEl.textContent = "Ошибка синхронизации данных.";
                     }
                 }
             } else {
-                // Fallback for testing without Telegram
-                userNameEl.textContent = 'Гость';
-                userStatusEl.textContent = 'Web Preview';
-                subInfoEl.textContent = 'Войдите через Telegram для сохранения данных.';
-                // Try load from local storage for guest
+                if (userNameEl) userNameEl.textContent = 'Гость';
+                if (userStatusEl) userStatusEl.textContent = 'Web Preview';
+                if (subInfoEl) subInfoEl.textContent = 'Войдите через Telegram для сохранения данных.';
+                
                 const localFavs = localStorage.getItem('hbf_favorites');
                 if (localFavs) state.favorites = JSON.parse(localFavs);
                 renderRecipes();
