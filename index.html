@@ -1778,7 +1778,61 @@
             }
         };
 
-        // ... [Screen Navigation code omitted for brevity] ...
+        // ===== SCREEN NAVIGATION =====
+        const screens = document.querySelectorAll('.screen');
+        const navCards = document.querySelectorAll('.nav-card[data-screen]');
+        const backButtons = document.querySelectorAll('[data-back]');
+        const tabItems = document.querySelectorAll('.nav-item[data-tab]');
+
+        function showScreen(screenId, isBack = false) {
+            screens.forEach(screen => {
+                screen.classList.remove('active', 'back-animation');
+            });
+            
+            const targetScreen = document.getElementById(`screen-${screenId}`);
+            if (targetScreen) {
+                if (isBack) {
+                    targetScreen.classList.add('back-animation');
+                }
+                targetScreen.classList.add('active');
+                window.scrollTo(0, 0);
+                
+                // Update active tab visual state if screenId is one of the tabs
+                const matchingTab = document.querySelector(`.nav-item[data-tab="${screenId}"]`);
+                if (matchingTab) {
+                    updateActiveTab(screenId);
+                }
+
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            }
+        }
+
+        function updateActiveTab(tabId) {
+            tabItems.forEach(item => {
+                item.classList.toggle('active', item.dataset.tab === tabId);
+            });
+            state.activeTab = tabId;
+        }
+
+        tabItems.forEach(item => {
+            item.addEventListener('click', function() {
+                const tabId = this.dataset.tab;
+                if (state.activeTab !== tabId) {
+                    showScreen(tabId);
+                }
+            });
+        });
+
+        navCards.forEach(card => {
+            card.addEventListener('click', function(e) {
+                e.preventDefault();
+                showScreen(this.dataset.screen);
+            });
+        });
+
+        backButtons.forEach(btn => {
+            btn.addEventListener('click', () => showScreen('main', true));
+        });
 
         // ===== USER AUTH & SYNC =====
         async function initUser() {
@@ -1859,9 +1913,102 @@
         // Run user init
         initUser();
 
-        // ... [Recipes Data omitted] ...
+        // ===== RECIPES DATA & LOGIC =====
+        const recipesDB = {
+            1: {
+                title: "Овсяноблин с авокадо и лососем",
+                category: "breakfast",
+                type: "fish",
+                kcal: 350,
+                time: 15,
+                image: "Recipes/images/ovsyanoblin.png",
+                ingredients: ["Яйцо куриное - 2 шт", "Овсяные хлопья - 3 ст.л.", "Лосось - 30 г", "Авокадо - 1/2 шт"],
+                steps: ["Смешать яйца и хлопья.", "Жарить 4 мин.", "Выложить начинку."]
+            },
+            2: {
+                title: "Боул с киноа и креветками",
+                category: "lunch",
+                type: "fish",
+                kcal: 450,
+                time: 25,
+                image: "Recipes/images/kinoa_shrimp_bowl.png",
+                ingredients: ["Киноа - 60 г", "Креветки - 100 г", "Огурец - 1 шт", "Авокадо - 1/2 шт"],
+                steps: ["Отварить киноа.", "Обжарить креветки.", "Собрать боул."]
+            },
+            3: {
+                title: "Куриные маффины с брокколи",
+                category: "dinner",
+                type: "meat",
+                kcal: 220,
+                time: 40,
+                image: "Recipes/images/brokkoli_muffin.png",
+                ingredients: ["Филе куриное - 300 г", "Брокколи - 150 г", "Яйцо - 2 шт", "Сыр - 30 г"],
+                steps: ["Измельчить филе.", "Смешать с брокколи и яйцом.", "Запекать 25 мин."]
+            },
+            4: {
+                title: "Чиа-пудинг на кокосовом молоке",
+                category: "dessert",
+                type: "vegan",
+                kcal: 180,
+                time: 5,
+                image: "Recipes/images/chia_dessert.png",
+                ingredients: ["Семена чиа - 3 ст.л.", "Кокосовое молоко - 150 мл", "Манго - 50 г"],
+                steps: ["Смешать молоко и чиа.", "Оставить на 3 часа.", "Украсить манго."]
+            }
+        };
 
-        // ... [renderRecipes function omitted - mostly same, calls toggleFavorite] ...
+        function renderRecipes() {
+            const container = document.querySelector('.recipes-grid');
+            if (!container) return;
+
+            container.innerHTML = '';
+            
+            Object.keys(recipesDB).forEach(id => {
+                const r = recipesDB[id];
+                
+                // Filtering logic
+                if (state.filters.category !== 'all' && r.category !== state.filters.category) return;
+                
+                const isFav = state.favorites.includes(id);
+                const card = document.createElement('div');
+                card.className = 'recipe-card';
+                card.innerHTML = `
+                    <div class="recipe-img-placeholder">
+                        <button class="favorite-btn ${isFav ? 'active' : ''}" data-id="${id}">
+                            <i class="fa-${isFav ? 'solid' : 'regular'} fa-heart"></i>
+                        </button>
+                        <img src="${r.image}" alt="${r.title}">
+                    </div>
+                    <div class="recipe-info">
+                        <h3 class="recipe-title">${r.title}</h3>
+                        <div class="recipe-badges">
+                            <span class="badge badge-time"><i class="fa-regular fa-clock"></i> ${r.time} м</span>
+                            <span class="badge badge-kcal"><i class="fa-solid fa-fire"></i> ${r.kcal}</span>
+                            <span class="badge badge-type">${r.type}</span>
+                        </div>
+                    </div>
+                `;
+
+                card.addEventListener('click', (e) => {
+                    if (e.target.closest('.favorite-btn')) {
+                        // Handled by btn click listener below
+                    } else {
+                        openRecipeDetail(id);
+                    }
+                });
+                
+                // Separate listener for fav button
+                const favBtn = card.querySelector('.favorite-btn');
+                if (favBtn) {
+                    favBtn.addEventListener('click', (e) => {
+                         e.stopPropagation();
+                         toggleFavorite(id);
+                    });
+                }
+
+                container.appendChild(card);
+            });
+        }
 
         async function toggleFavorite(id) {
             // Optimistic UI update
