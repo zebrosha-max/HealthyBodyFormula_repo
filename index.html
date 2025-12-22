@@ -181,150 +181,178 @@
             <button class="back-button" data-back>
                 <i class="fa-solid fa-chevron-left"></i>
             </button>
-            <h2 class="page-title">Гайды</h2>
+            <h2 class="page-title">Протоколы</h2>
         </div>
 
-        <!-- Guide 1: Free Starter -->
-        <div class="guide-card">
-            <div class="guide-header">
-                <div class="guide-icon">
-                    <i class="fa-solid fa-seedling"></i>
+        <div id="guides-list" style="padding: 0 5px;">
+            <!-- Guide 0: Free Starter -->
+            <div class="guide-card">
+                <div class="guide-header">
+                    <div class="guide-icon">
+                        <i class="fa-solid fa-seedling"></i>
+                    </div>
+                    <div class="guide-content">
+                        <h3 class="guide-title">С чего начать путь к здоровью?</h3>
+                        <p class="guide-desc">Базовый чек-лист привычек и простых шагов для мягкого старта без стресса.</p>
+                    </div>
                 </div>
-                <div class="guide-content">
-                    <h3 class="guide-title">С чего начать путь к здоровью?</h3>
-                    <p class="guide-desc">
-                        Базовый чек-лист привычек и простых шагов для мягкого старта без стресса.
-                    </p>
+                <div class="guide-footer">
+                    <span class="guide-price free">Бесплатно</span>
+                    <button class="guide-btn">Скачать <i class="fa-solid fa-download"></i></button>
                 </div>
             </div>
-            <div class="guide-footer">
-                <span class="guide-price free">Бесплатно</span>
-                <button class="guide-btn">
-                    Скачать <i class="fa-solid fa-download"></i>
-                </button>
-            </div>
-        </div>
 
-        <!-- Guide 1 -->
-        <div class="guide-card" onclick="window.location.href='guides/anti-sugar.html'">
-            <div class="guide-header">
-                <div class="guide-icon" style="background: #E8F0ED; color: #5A7D6C;">
-                    <i class="fa-solid fa-bolt"></i>
+            <!-- Free Guide 1: Plate -->
+            <div class="guide-card" onclick="window.location.href='guides/plate-constructor.html'">
+                <div class="guide-header">
+                    <div class="guide-icon" style="background: #F0F9FF; color: #0EA5E9;">
+                        <i class="fa-solid fa-utensils"></i>
+                    </div>
+                    <div class="guide-content">
+                        <h3 class="guide-title">Конструктор тарелки</h3>
+                        <p class="guide-desc">Метод 50/25/25: как собирать идеальный рацион без весов и калорий.</p>
+                    </div>
                 </div>
-                <div class="guide-content">
-                    <h3 class="guide-title">Анти-Сахар</h3>
-                    <p class="guide-desc">Научный протокол перезагрузки организма за 21 день. Откажитесь от сахара без срывов.</p>
+                <div class="guide-footer">
+                    <span class="guide-price free">Бесплатно</span>
+                    <button class="guide-btn">Читать <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
-            <div class="guide-footer">
-                <span class="guide-price free">Бесплатно</span>
-                <button class="guide-btn">Читать <i class="fa-solid fa-chevron-right"></i></button>
-            </div>
-        </div>
 
-        <!-- Guide 2 -->
-        <div class="guide-card" onclick="window.location.href='guides/clean-gut.html'">
-            <div class="guide-header">
-                <div class="guide-icon" style="background: #E8F0ED; color: #5A7D6C;">
-                    <i class="fa-solid fa-leaf"></i>
+            <!-- Free Guide 2: Deficiencies -->
+            <div class="guide-card" onclick="window.location.href='guides/deficiencies-checklist.html'">
+                <div class="guide-header">
+                    <div class="guide-icon" style="background: #F0FDF4; color: #22C55E;">
+                        <i class="fa-solid fa-clipboard-list"></i>
+                    </div>
+                    <div class="guide-content">
+                        <h3 class="guide-title">Чек-лист дефицитов</h3>
+                        <p class="guide-desc">Почему нет энергии? Проверьте себя на главные дефициты мегаполиса.</p>
+                    </div>
                 </div>
-                <div class="guide-content">
-                    <h3 class="guide-title">Чистый кишечник</h3>
-                    <p class="guide-desc">Фундамент иммунитета: восстановление слизистой и баланса микробиома.</p>
+                <div class="guide-footer">
+                    <span class="guide-price free">Бесплатно</span>
+                    <button class="guide-btn">Читать <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
-            <div class="guide-footer">
-                <span class="guide-price">690 ₽</span>
-                <button class="guide-btn">Купить <i class="fa-solid fa-chevron-right"></i></button>
-            </div>
-        </div>
 
-        <!-- Guide 3 -->
-        <div class="guide-card" onclick="window.location.href='guides/hormonal-glow.html'">
-            <div class="guide-header">
-                <div class="guide-icon" style="background: #FFF0F0; color: #B88A8A;">
-                    <i class="fa-solid fa-venus"></i>
+            <!-- Free Guide 3: Shopping -->
+            <div class="guide-card" onclick="window.location.href='guides/smart-shopping.html'">
+                <div class="guide-header">
+                    <div class="guide-icon" style="background: #FFF7ED; color: #EA580C;">
+                        <i class="fa-solid fa-cart-shopping"></i>
+                    </div>
+                    <div class="guide-content">
+                        <h3 class="guide-title">Умный шоппинг</h3>
+                        <p class="guide-desc">Здоровая корзина: как читать этикетки и не покупать лишнего в супермаркете.</p>
+                    </div>
                 </div>
-                <div class="guide-content">
-                    <h3 class="guide-title">Гормональное сияние</h3>
-                    <p class="guide-desc">Синхронизация питания с фазами цикла для баланса гормонов и настроения.</p>
+                <div class="guide-footer">
+                    <span class="guide-price free">Бесплатно</span>
+                    <button class="guide-btn">Читать <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
-            <div class="guide-footer">
-                <span class="guide-price">890 ₽</span>
-                <button class="guide-btn">Купить <i class="fa-solid fa-chevron-right"></i></button>
-            </div>
-        </div>
 
-        <!-- Guide 4 -->
-        <div class="guide-card" onclick="window.location.href='guides/metabolic-flexibility.html'">
-            <div class="guide-header">
-                <div class="guide-icon" style="background: #EBF8FF; color: #3182CE;">
-                    <i class="fa-solid fa-fire-flame-curved"></i>
+            <!-- Guide 4: Anti-Sugar -->
+            <div class="guide-card" onclick="window.location.href='guides/anti-sugar.html'">
+                <div class="guide-header">
+                    <div class="guide-icon" style="background: #E8F0ED; color: #5A7D6C;">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <div class="guide-content">
+                        <h3 class="guide-title">Анти-Сахар</h3>
+                        <p class="guide-desc">Научный протокол перезагрузки организма за 21 день. Откажитесь от сахара без срывов.</p>
+                    </div>
                 </div>
-                <div class="guide-content">
-                    <h3 class="guide-title">Метаболическая гибкость</h3>
-                    <p class="guide-desc">Смарт-управление весом: как научить тело сжигать жир вместо сахара.</p>
+                <div class="guide-footer">
+                    <span class="guide-price free">Бесплатно</span>
+                    <button class="guide-btn">Читать <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
-            <div class="guide-footer">
-                <span class="guide-price">790 ₽</span>
-                <button class="guide-btn">Купить <i class="fa-solid fa-chevron-right"></i></button>
-            </div>
-        </div>
 
-        <!-- Guide 5 -->
-        <div class="guide-card" onclick="window.location.href='guides/cortisol-control.html'">
-            <div class="guide-header">
-                <div class="guide-icon" style="background: #F0F4F8; color: #4A5568;">
-                    <i class="fa-solid fa-brain"></i>
+            <!-- Guide 5: Clean Gut -->
+            <div class="guide-card" onclick="window.location.href='guides/clean-gut.html'">
+                <div class="guide-header">
+                    <div class="guide-icon" style="background: #E8F0ED; color: #5A7D6C;">
+                        <i class="fa-solid fa-leaf"></i>
+                    </div>
+                    <div class="guide-content">
+                        <h3 class="guide-title">Чистый кишечник</h3>
+                        <p class="guide-desc">Фундамент иммунитета: восстановление слизистой и баланса микробиома.</p>
+                    </div>
                 </div>
-                <div class="guide-content">
-                    <h3 class="guide-title">Кортизол-контроль</h3>
-                    <p class="guide-desc">Питание против стресса: поддержка надпочечников и нервной системы.</p>
+                <div class="guide-footer">
+                    <span class="guide-price">690 ₽</span>
+                    <button class="guide-btn">Купить <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
-            <div class="guide-footer">
-                <span class="guide-price">990 ₽</span>
-                <button class="guide-btn">Купить <i class="fa-solid fa-chevron-right"></i></button>
-            </div>
-        </div>
 
-        <!-- Guide 6 -->
-        <div class="guide-card" onclick="window.location.href='guides/sleep-fix.html'">
-            <div class="guide-header">
-                <div class="guide-icon" style="background: #1E293B; color: #BAE6FD;">
-                    <i class="fa-solid fa-moon"></i>
+            <!-- Guide 6: Hormonal Glow -->
+            <div class="guide-card" onclick="window.location.href='guides/hormonal-glow.html'">
+                <div class="guide-header">
+                    <div class="guide-icon" style="background: #FFF0F0; color: #B88A8A;">
+                        <i class="fa-solid fa-venus"></i>
+                    </div>
+                    <div class="guide-content">
+                        <h3 class="guide-title">Гормональное сияние</h3>
+                        <p class="guide-desc">Синхронизация питания с фазами цикла для баланса гормонов и настроения.</p>
+                    </div>
                 </div>
-                <div class="guide-content">
-                    <h3 class="guide-title">Биохимия сна</h3>
-                    <p class="guide-desc">Протокол глубокого восстановления: настройка мелатонина через еду.</p>
+                <div class="guide-footer">
+                    <span class="guide-price">890 ₽</span>
+                    <button class="guide-btn">Купить <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
-            <div class="guide-footer">
-                <span class="guide-price">590 ₽</span>
-                <button class="guide-btn">Купить <i class="fa-solid fa-chevron-right"></i></button>
-            </div>
-        </div>
 
-        <!-- Guide 3: Balanced Plate -->
-        <div class="guide-card">
-            <div class="guide-header">
-                <div class="guide-icon">
-                    <i class="fa-solid fa-utensils"></i>
+            <!-- Guide 7: Metabolic -->
+            <div class="guide-card" onclick="window.location.href='guides/metabolic-flexibility.html'">
+                <div class="guide-header">
+                    <div class="guide-icon" style="background: #EBF8FF; color: #3182CE;">
+                        <i class="fa-solid fa-fire-flame-curved"></i>
+                    </div>
+                    <div class="guide-content">
+                        <h3 class="guide-title">Метаболическая гибкость</h3>
+                        <p class="guide-desc">Смарт-управление весом: как научить тело сжигать жир вместо сахара.</p>
+                    </div>
                 </div>
-                <div class="guide-content">
-                    <h3 class="guide-title">Конструктор тарелки</h3>
-                    <p class="guide-desc">
-                        Как собирать сытные и полезные приемы пищи из того, что есть в холодильнике.
-                    </p>
+                <div class="guide-footer">
+                    <span class="guide-price">790 ₽</span>
+                    <button class="guide-btn">Купить <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
-            <div class="guide-footer">
-                <span class="guide-price">490 ₽</span>
-                <button class="guide-btn">
-                    Купить <i class="fa-solid fa-chevron-right"></i>
-                </button>
+
+            <!-- Guide 8: Cortisol -->
+            <div class="guide-card" onclick="window.location.href='guides/cortisol-control.html'">
+                <div class="guide-header">
+                    <div class="guide-icon" style="background: #F0F4F8; color: #4A5568;">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <div class="guide-content">
+                        <h3 class="guide-title">Кортизол-контроль</h3>
+                        <p class="guide-desc">Питание против стресса: поддержка надпочечников и нервной системы.</p>
+                    </div>
+                </div>
+                <div class="guide-footer">
+                    <span class="guide-price">990 ₽</span>
+                    <button class="guide-btn">Купить <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
+            </div>
+
+            <!-- Guide 9: Sleep -->
+            <div class="guide-card" onclick="window.location.href='guides/sleep-fix.html'">
+                <div class="guide-header">
+                    <div class="guide-icon" style="background: #1E293B; color: #BAE6FD;">
+                        <i class="fa-solid fa-moon"></i>
+                    </div>
+                    <div class="guide-content">
+                        <h3 class="guide-title">Биохимия сна</h3>
+                        <p class="guide-desc">Протокол глубокого восстановления: настройка мелатонина через еду.</p>
+                    </div>
+                </div>
+                <div class="guide-footer">
+                    <span class="guide-price">590 ₽</span>
+                    <button class="guide-btn">Купить <i class="fa-solid fa-chevron-right"></i></button>
+                </div>
             </div>
         </div>
     </div>
