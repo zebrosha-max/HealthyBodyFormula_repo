@@ -119,10 +119,27 @@ document.addEventListener('DOMContentLoaded', () => {
         const userNameEl = document.getElementById('user-name');
         const userStatusEl = document.getElementById('user-status');
         const subInfoEl = document.getElementById('subscription-info');
+        const userPhotoEl = document.getElementById('user-photo');
 
         if (userData) {
             if (userNameEl) userNameEl.textContent = userData.first_name + (userData.last_name ? ' ' + userData.last_name : '');
             if (userStatusEl) userStatusEl.textContent = 'Пользователь HBF';
+            
+            // Set User Photo if available
+            if (userPhotoEl) {
+                if (userData.photo_url) {
+                    userPhotoEl.innerHTML = `<img src="${userData.photo_url}" alt="${userData.first_name}" class="profile-photo" style="margin-bottom: 0;">`;
+                    userPhotoEl.className = ''; // Remove placeholder styling wrapper
+                    userPhotoEl.style.background = 'none';
+                    userPhotoEl.style.boxShadow = 'none';
+                    userPhotoEl.style.border = 'none';
+                } else {
+                    // Fallback to placeholder
+                    userPhotoEl.className = 'profile-photo-placeholder';
+                    userPhotoEl.innerHTML = '<i class="fa-solid fa-user"></i>';
+                    userPhotoEl.style = ''; // Reset inline styles
+                }
+            }
             
             if (supabase) {
                 try {
@@ -150,6 +167,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (userNameEl) userNameEl.textContent = 'Гость';
             if (userStatusEl) userStatusEl.textContent = 'Web Preview';
             if (subInfoEl) subInfoEl.textContent = 'Войдите через Telegram для сохранения данных.';
+            
+            // Guest photo placeholder
+            if (userPhotoEl) {
+                userPhotoEl.className = 'profile-photo-placeholder';
+                userPhotoEl.innerHTML = '<i class="fa-solid fa-user"></i>';
+            }
             
             const localFavs = localStorage.getItem('hbf_favorites');
             if (localFavs) state.favorites = JSON.parse(localFavs);
