@@ -815,6 +815,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // Init
     initUser();
 
+    // Deep Linking Support
+    const urlParams = new URLSearchParams(window.location.search);
+    const screenParam = urlParams.get('screen');
+    if (screenParam) {
+        showScreen(screenParam);
+        // Clean up URL parameters after processing
+        window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
 
     // ===== LIGHTBOX (GALLERY SUPPORT) =====
     const lightbox = document.getElementById('lightbox');
