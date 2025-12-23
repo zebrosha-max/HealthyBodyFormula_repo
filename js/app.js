@@ -81,9 +81,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (fabLogFood) {
         fabLogFood.addEventListener('click', () => {
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            // Redirect to Bot with a specific parameter to start logging
-            // Replace 'YourFoodLogBot' with your actual bot username
-            tg.openTelegramLink('https://t.me/YourFoodLogBot?start=log_food');
+            // Redirect to the actual bot with a deep linking parameter
+            tg.openTelegramLink('https://t.me/HealthyBodyFormula_bot?start=log_food');
         });
     }
 
@@ -108,29 +107,50 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         modalSave.addEventListener('click', async () => {
+            const btn = modalSave;
+            const originalText = btn.textContent;
             const newGoal = parseInt(modalInput.value);
-            if (newGoal && newGoal > 500 && newGoal < 10000) {
-                state.calorieGoal = newGoal;
-                // localStorage.setItem('hbf_calorie_goal', newGoal); // No longer primary source
-
-                // Sync with Supabase
-                if (state.user && supabase) {
-                    try {
-                        await supabase
-                            .from('users')
-                            .update({ calorie_goal: newGoal })
-                            .eq('telegram_id', state.user.telegram_id);
-                    } catch (e) {
-                        console.error("Failed to update goal:", e);
-                    }
-                }
-
-                modal.classList.remove('active');
-                renderFoodDiary(); // Refresh UI
-                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-            } else {
+            
+            // Validation visual feedback
+            if (!newGoal || newGoal < 500 || newGoal > 10000) {
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+                modalInput.style.borderColor = '#ff6b6b';
+                modalInput.style.transition = 'border-color 0.3s';
+                setTimeout(() => modalInput.style.borderColor = '', 1000);
+                return;
             }
+
+            // Loading state
+            btn.textContent = 'Сохраняю...';
+            btn.style.opacity = '0.7';
+            btn.disabled = true;
+
+            state.calorieGoal = newGoal;
+
+            // Sync with Supabase
+            if (state.user && supabase) {
+                try {
+                    await supabase
+                        .from('users')
+                        .update({ calorie_goal: newGoal })
+                        .eq('telegram_id', state.user.telegram_id);
+                } catch (e) {
+                    console.error("Failed to update goal:", e);
+                    // Even if DB fails, we update UI locally
+                }
+            }
+
+            // Success feedback
+            modal.classList.remove('active');
+            renderFoodDiary(); 
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+            // Reset button state
+            setTimeout(() => {
+                btn.textContent = originalText;
+                btn.style.opacity = '1';
+                btn.disabled = false;
+            }, 300);
         });
         
         // Close on click outside
