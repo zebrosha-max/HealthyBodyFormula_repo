@@ -184,6 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .from('food_logs')
                 .select('*')
                 .eq('user_id', state.user.telegram_id)
+                .eq('status', 'confirmed') // Show only confirmed logs
                 .gte('created_at', startOfDay.toISOString())
                 .order('created_at', { ascending: false });
 
