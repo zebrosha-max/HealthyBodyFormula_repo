@@ -81,8 +81,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (fabLogFood) {
         fabLogFood.addEventListener('click', () => {
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            // Redirect to the actual bot with a deep linking parameter
+            
+            // Redirect to the actual bot
             tg.openTelegramLink('https://t.me/HealthyBodyFormula_bot?start=log_food');
+            
+            // Close the Web App so the user sees the chat immediately
+            tg.close();
         });
     }
 
