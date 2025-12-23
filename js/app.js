@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isPremium: false,
         activeTab: 'main',
         favorites: [],
+        calorieGoal: parseInt(localStorage.getItem('hbf_calorie_goal')) || 2000,
         filters: {
             category: 'all',
             type: 'all',
@@ -51,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const backButtons = document.querySelectorAll('[data-back]');
     const tabItems = document.querySelectorAll('.nav-item[data-tab]');
 
+    // Navigation Tabs Logic
     function showScreen(screenId, isBack = false) {
         screens.forEach(screen => {
             screen.classList.remove('active', 'back-animation');
@@ -66,6 +68,137 @@ document.addEventListener('DOMContentLoaded', () => {
             
             updateActiveTab(screenId);
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+
+            // Refresh Diary when entering profile
+            if (screenId === 'profile') {
+                renderFoodDiary();
+            }
+        }
+    }
+
+    // ===== SMART LOGGER (FAB) =====
+    const fabLogFood = document.getElementById('fab-log-food');
+    if (fabLogFood) {
+        fabLogFood.addEventListener('click', () => {
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            // Redirect to Bot with a specific parameter to start logging
+            // Replace 'YourFoodLogBot' with your actual bot username
+            tg.openTelegramLink('https://t.me/YourFoodLogBot?start=log_food');
+        });
+    }
+
+    // ===== FOOD DIARY LOGIC =====
+    
+    // Settings Modal Logic
+    const settingsBtn = document.getElementById('diary-settings-btn');
+    const modal = document.getElementById('modal-diary-settings');
+    const modalInput = document.getElementById('diary-goal-input');
+    const modalCancel = document.getElementById('modal-cancel');
+    const modalSave = document.getElementById('modal-save');
+
+    if (settingsBtn && modal) {
+        settingsBtn.addEventListener('click', () => {
+            modalInput.value = state.calorieGoal;
+            modal.classList.add('active');
+            if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+        });
+
+        modalCancel.addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        modalSave.addEventListener('click', async () => {
+            const newGoal = parseInt(modalInput.value);
+            if (newGoal && newGoal > 500 && newGoal < 10000) {
+                state.calorieGoal = newGoal;
+                // localStorage.setItem('hbf_calorie_goal', newGoal); // No longer primary source
+
+                // Sync with Supabase
+                if (state.user && supabase) {
+                    try {
+                        await supabase
+                            .from('users')
+                            .update({ calorie_goal: newGoal })
+                            .eq('telegram_id', state.user.telegram_id);
+                    } catch (e) {
+                        console.error("Failed to update goal:", e);
+                    }
+                }
+
+                modal.classList.remove('active');
+                renderFoodDiary(); // Refresh UI
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+            } else {
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
+            }
+        });
+        
+        // Close on click outside
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modal.classList.remove('active');
+        });
+    }
+
+    async function renderFoodDiary() {
+        const diaryList = document.getElementById('diary-list');
+        const diaryEmpty = document.getElementById('diary-empty');
+        const kcalTotalEl = document.getElementById('diary-kcal-total');
+        const goalDisplayEl = document.getElementById('diary-goal-display');
+        const progressBar = document.getElementById('diary-progress');
+        
+        if (!diaryList || !state.user || !supabase) return;
+        
+        // Update Goal Display
+        if(goalDisplayEl) goalDisplayEl.textContent = state.calorieGoal;
+
+        try {
+            // Get today's start and end timestamps
+            const startOfDay = new Date();
+            startOfDay.setHours(0, 0, 0, 0);
+            
+            const { data, error } = await supabase
+                .from('food_logs')
+                .select('*')
+                .eq('user_id', state.user.telegram_id)
+                .gte('created_at', startOfDay.toISOString())
+                .order('created_at', { ascending: false });
+
+            if (error) throw error;
+
+            if (!data || data.length === 0) {
+                diaryList.innerHTML = '';
+                diaryEmpty.style.display = 'block';
+                kcalTotalEl.textContent = '0';
+                progressBar.style.width = '0%';
+                return;
+            }
+
+            diaryEmpty.style.display = 'none';
+            diaryList.innerHTML = '';
+            
+            let totalKcal = 0;
+            data.forEach(log => {
+                totalKcal += log.calories;
+                const time = new Date(log.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+                
+                const item = document.createElement('div');
+                item.className = 'food-log-item';
+                item.innerHTML = `
+                    <div class="food-log-info">
+                        <h4>${log.dish_name || 'Прием пищи'}</h4>
+                        <p>${time} • Б:${log.protein} Ж:${log.fat} У:${log.carbs}</p>
+                    </div>
+                    <div class="food-log-kcal">${log.calories} ккал</div>
+                `;
+                diaryList.appendChild(item);
+            });
+
+            kcalTotalEl.textContent = totalKcal;
+            const progress = Math.min((totalKcal / state.calorieGoal) * 100, 100);
+            progressBar.style.width = `${progress}%`;
+
+        } catch (e) {
+            console.error("Diary load error:", e);
         }
     }
 
@@ -157,8 +290,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (user) {
                         state.user = user;
                         state.isPremium = user.is_premium;
+                        state.calorieGoal = user.calorie_goal || 2000; // Load from DB
                         renderUserStatus();
                         await loadFavorites();
+                        
+                        // If we are in profile, render diary immediately to reflect goal
+                        if (state.activeTab === 'profile') {
+                            renderFoodDiary();
+                        }
                     }
                 } catch (e) {
                     console.error("Supabase sync error:", e);

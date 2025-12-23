@@ -1,0 +1,306 @@
+{
+  "name": "HBF Smart Logger (Gemini 3.0)",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "telegram-trigger",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        460,
+        300
+      ],
+      "webhookId": "hbf-telegram-webhook"
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.message.voice ? 'voice' : ($json.message.photo ? 'photo' : 'text') }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "text",
+              "output": 0
+            },
+            {
+              "value2": "photo",
+              "output": 1
+            },
+            {
+              "value2": "voice",
+              "output": 2
+            }
+          ]
+        }
+      },
+      "id": "switch-type",
+      "name": "Check Type",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "key": "={{ $env.GOOGLE_API_KEY }}"
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"contents\": [{\n    \"parts\": [{\n      \"text\": \"Ты нутрициолог. Проанализируй этот текст и верни JSON с БЖУК. Формат: {\\\"dish\\\": \\\"Название\\\", \\\"calories\\\": 0, \\\"protein\\\": 0, \\\"fat\\\": 0, \\\"carbs\\\": 0}. Если это не еда, верни {\\\"error\\\": \\\"Не еда\\\". Текст: {{ $json.message.text }}\"\n    }]\n  }]\n}",
+        "options": {}
+      },
+      "id": "gemini-text",
+      "name": "Gemini (Text)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        960,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": "={{ $json.message.photo[$json.message.photo.length - 1].file_id }}"
+      },
+      "id": "get-photo",
+      "name": "Get Photo",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        960,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "key": "={{ $env.GOOGLE_API_KEY }}"
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"contents\": [{\n    \"parts\": [
+      {
+        \"text\": \"Ты нутрициолог. Оцени БЖУК по фото. Верни JSON: {\\\"dish\\\": \\\"Название\\\", \\\"calories\\\": 0, \\\"protein\\\": 0, \\\"fat\\\": 0, \\\"carbs\\\": 0}.\"
+      },
+      {
+        \"inline_data\": {
+          \"mime_type\": \"image/jpeg\",
+          \"data\": \"{{ $binary.data.data }}"
+        }
+      }
+    ]
+  }]
+}",
+        "options": {}
+      },
+      "id": "gemini-photo",
+      "name": "Gemini (Photo)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1180,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": "={{ $json.message.voice.file_id }}"
+      },
+      "id": "get-voice",
+      "name": "Get Voice",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        960,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.0-flash:generateContent",
+        "sendQuery": true,
+        "queryParameters": {
+          "key": "={{ $env.GOOGLE_API_KEY }}"
+        },
+        "sendBody": true,
+        "contentType": "json",
+        "body": "={\n  \"contents\": [{\n    \"parts\": [
+      {
+        \"text\": \"Ты нутрициолог. Послушай аудио и выдели съеденное. Верни JSON: {\\\"dish\\\": \\\"Название\\\", \\\"calories\\\": 0, \\\"protein\\\": 0, \\\"fat\\\": 0, \\\"carbs\\\": 0}.\"
+      },
+      {
+        \"inline_data\": {
+          \"mime_type\": \"{{ $binary.data.mime }}",
+          \"data\": \"{{ $binary.data.data }}"
+        }
+      }
+    ]
+  }]
+}",
+        "options": {}
+      },
+      "id": "gemini-voice",
+      "name": "Gemini (Voice)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        1180,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "table": "food_logs",
+        "columns": "user_id, dish_name, calories, protein, fat, carbs, log_text",
+        "options": {}
+      },
+      "id": "supabase-insert",
+      "name": "Supabase Insert",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1500,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $node[\"Telegram Trigger\"].json.message.chat.id }}",
+        "text": "=✅ Записано: {{ $json.dish_name }}\n🔥 {{ $json.calories }} ккал\n🥩 Б: {{ $json.protein }} | 🥑 Ж: {{ $json.fat }} | 🍞 У: {{ $json.carbs }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "telegram-reply",
+      "name": "Telegram Reply",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1720,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Check Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Type": {
+      "main": [
+        [
+          {
+            "node": "Gemini (Text)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Photo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Voice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Photo": {
+      "main": [
+        [
+          {
+            "node": "Gemini (Photo)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Voice": {
+      "main": [
+        [
+          {
+            "node": "Gemini (Voice)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini (Text)": {
+      "main": [
+        [
+          {
+            "node": "Supabase Insert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini (Photo)": {
+      "main": [
+        [
+          {
+            "node": "Supabase Insert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini (Voice)": {
+      "main": [
+        [
+          {
+            "node": "Supabase Insert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase Insert": {
+      "main": [
+        [
+          {
+            "node": "Telegram Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

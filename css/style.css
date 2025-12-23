@@ -1207,6 +1207,181 @@
             filter: blur(30px);
         }
 
+        /* ===== FAB (Floating Action Button) ===== */
+        .fab-btn {
+            position: fixed;
+            bottom: 85px; /* Above bottom nav */
+            right: 20px;
+            background: var(--sage-green);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 15px rgba(156, 180, 163, 0.4);
+            z-index: 100;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-family: inherit;
+        }
+
+        .fab-btn:active {
+            transform: scale(0.95);
+            background: var(--sage-green-dark);
+        }
+
+        /* ===== DIARY STYLES ===== */
+        .diary-summary {
+            background: rgba(156, 180, 163, 0.05);
+            border-radius: 16px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .diary-stats {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+        }
+
+        .progress-container {
+            height: 10px;
+            background: rgba(0,0,0,0.05);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--sage-green) 0%, var(--sage-green-dark) 100%);
+            width: 0%;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .food-log-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .food-log-info h4 {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 2px;
+        }
+
+        .food-log-info p {
+            font-size: 11px;
+            color: var(--text-muted);
+        }
+
+        .food-log-kcal {
+            font-weight: 800;
+            color: var(--sage-green-dark);
+            font-size: 14px;
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-card {
+            background: white;
+            padding: 25px;
+            border-radius: 20px;
+            width: 85%;
+            max-width: 320px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .modal-overlay.active .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-card h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+            color: var(--text-primary);
+        }
+
+        .modal-card p {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--bg-primary);
+            border-radius: 12px;
+            font-size: 16px;
+            margin-bottom: 20px;
+            font-family: inherit;
+            outline: none;
+        }
+
+        .modal-input:focus {
+            border-color: var(--sage-green);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: opacity 0.2s;
+        }
+
+        .modal-btn.cancel {
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+        }
+
+        .modal-btn.save {
+            background: var(--sage-green);
+            color: white;
+        }
+
+        .modal-btn:active {
+            opacity: 0.7;
+        }
+
         /* ===== ANIMATIONS ===== */
         @keyframes fadeInUp {
             from {
