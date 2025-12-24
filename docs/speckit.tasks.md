@@ -63,10 +63,10 @@
 *   [x] **TASK-6.4.2:** Настроить n8n на обработку Callback Query (нажатия кнопок Save/Cancel).
 
 ### Эпик 7: Water Tracker (Трекер воды)
-*   [ ] **TASK-7.1:** Database: Создать таблицу `water_logs` и добавить колонки в `users` (`water_goal`, `water_reminder_active`).
-*   [ ] **TASK-7.2:** Frontend (Logic): Создать модуль `WaterTracker` в `app.js` (addWater, getWater, renderWidget).
-*   [ ] **TASK-7.3:** Frontend (UI): Верстка виджета воды в Профиле (Progress Wave/Bar, Buttons +250/-250).
-*   [ ] **TASK-7.4:** Frontend (Settings): Добавить настройки воды в модальное окно настроек (Цель).
+*   [x] **TASK-7.1:** Database: Создать таблицу `water_logs` и добавить колонки в `users` (`water_goal`, `water_reminder_active`).
+*   [x] **TASK-7.2:** Frontend (Logic): Создать модуль `WaterTracker` в `app.js` (addWater, getWater, renderWidget).
+*   [x] **TASK-7.3:** Frontend (UI): Верстка виджета воды в Профиле (Progress Wave/Bar, Buttons +250/-250).
+*   [x] **TASK-7.4:** Frontend (Settings): Добавить настройки воды в модальное окно настроек (Цель).
 *   [ ] **TASK-7.5:** Backend (n8n): Создать Cron-workflow для напоминаний (раз в час проверять, пил ли пользователь).
 
 ### Эпик 8: Analytics & Dashboard (История и Аналитика)
@@ -77,7 +77,7 @@
 *   [ ] **TASK-8.5:** Logic: Сбор данных за период из Supabase (food_logs + weight_logs) для графиков.
 
 ### Эпик 9: Body Progress (Контроль веса)
-*   [ ] **TASK-9.1:** Database: Создать таблицу `weight_logs`.
-*   [ ] **TASK-9.2:** Frontend (UI): Верстка блока "Мое тело" (Вес + ИМТ) в профиле.
-*   [ ] **TASK-9.3:** Frontend (Action): Реализовать ввод веса (модалка + Supabase insert).
-*   [ ] **TASK-9.4:** Logic: Автоматический расчет динамики веса (разница с предыдущим значением).
+*   [x] **TASK-9.1:** Database: Создать таблицу `weight_logs`.
+*   [x] **TASK-9.2:** Frontend (UI): Верстка блока "Мое тело" (Вес + ИМТ) в профиле.
+*   [x] **TASK-9.3:** Frontend (Action): Реализовать ввод веса (модалка + Supabase insert).
+*   [x] **TASK-9.4:** Logic: Автоматический расчет динамики веса (разница с предыдущим значением).

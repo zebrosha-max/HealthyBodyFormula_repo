@@ -37,6 +37,11 @@ document.addEventListener('DOMContentLoaded', () => {
         activeTab: 'main',
         favorites: [],
         calorieGoal: parseInt(localStorage.getItem('hbf_calorie_goal')) || 2000,
+        waterGoal: parseInt(localStorage.getItem('hbf_water_goal')) || 2000,
+        waterToday: 0,
+        weightStart: parseFloat(localStorage.getItem('hbf_weight_start')) || 0,
+        weightGoal: parseFloat(localStorage.getItem('hbf_weight_goal')) || 0,
+        weightCurrent: 0,
         filters: {
             category: 'all',
             type: 'all',
@@ -69,9 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
             updateActiveTab(screenId);
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
 
-            // Refresh Diary when entering profile
+            // Refresh Diary and Water when entering profile
             if (screenId === 'profile') {
                 renderFoodDiary();
+                renderWaterTracker();
             }
         }
     }
@@ -96,12 +102,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const settingsBtn = document.getElementById('diary-settings-btn');
     const modal = document.getElementById('modal-diary-settings');
     const modalInput = document.getElementById('diary-goal-input');
+    const waterGoalInput = document.getElementById('water-goal-input');
+    const weightStartInput = document.getElementById('weight-start-input');
+    const weightGoalInput = document.getElementById('weight-goal-input');
     const modalCancel = document.getElementById('modal-cancel');
     const modalSave = document.getElementById('modal-save');
 
     if (settingsBtn && modal) {
         settingsBtn.addEventListener('click', () => {
             modalInput.value = state.calorieGoal;
+            if (waterGoalInput) waterGoalInput.value = state.waterGoal;
+            if (weightStartInput) weightStartInput.value = state.weightStart || '';
+            if (weightGoalInput) weightGoalInput.value = state.weightGoal || '';
+            
             modal.classList.add('active');
             if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
         });
@@ -114,12 +127,14 @@ document.addEventListener('DOMContentLoaded', () => {
             const btn = modalSave;
             const originalText = btn.textContent;
             const newGoal = parseInt(modalInput.value);
+            const newWaterGoal = parseInt(waterGoalInput.value);
+            const newWeightStart = parseFloat(weightStartInput.value);
+            const newWeightGoal = parseFloat(weightGoalInput.value);
             
             // Validation visual feedback
             if (!newGoal || newGoal < 500 || newGoal > 10000) {
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('error');
                 modalInput.style.borderColor = '#ff6b6b';
-                modalInput.style.transition = 'border-color 0.3s';
                 setTimeout(() => modalInput.style.borderColor = '', 1000);
                 return;
             }
@@ -130,23 +145,37 @@ document.addEventListener('DOMContentLoaded', () => {
             btn.disabled = true;
 
             state.calorieGoal = newGoal;
+            state.waterGoal = newWaterGoal;
+            if (!isNaN(newWeightStart)) state.weightStart = newWeightStart;
+            if (!isNaN(newWeightGoal)) state.weightGoal = newWeightGoal;
+
+            localStorage.setItem('hbf_calorie_goal', newGoal);
+            localStorage.setItem('hbf_water_goal', newWaterGoal);
+            localStorage.setItem('hbf_weight_start', state.weightStart);
+            localStorage.setItem('hbf_weight_goal', state.weightGoal);
 
             // Sync with Supabase
             if (state.user && supabase) {
                 try {
                     await supabase
                         .from('users')
-                        .update({ calorie_goal: newGoal })
+                        .update({ 
+                            calorie_goal: newGoal,
+                            water_goal: newWaterGoal,
+                            weight_start: state.weightStart,
+                            weight_goal: state.weightGoal
+                        })
                         .eq('telegram_id', state.user.telegram_id);
                 } catch (e) {
                     console.error("Failed to update goal:", e);
-                    // Even if DB fails, we update UI locally
                 }
             }
 
             // Success feedback
             modal.classList.remove('active');
             renderFoodDiary(); 
+            renderWaterTracker();
+            renderBodyStats();
             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
 
             // Reset button state
@@ -315,13 +344,19 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (user) {
                         state.user = user;
                         state.isPremium = user.is_premium;
-                        state.calorieGoal = user.calorie_goal || 2000; // Load from DB
+                        state.calorieGoal = user.calorie_goal || 2000;
+                        state.waterGoal = user.water_goal || 2000;
+                        state.weightStart = user.weight_start || 0;
+                        state.weightGoal = user.weight_goal || 0;
+                        
                         renderUserStatus();
                         await loadFavorites();
                         
                         // If we are in profile, render diary immediately to reflect goal
                         if (state.activeTab === 'profile') {
                             renderFoodDiary();
+                            renderWaterTracker();
+                            renderBodyStats();
                         }
                     }
                 } catch (e) {
@@ -343,8 +378,182 @@ document.addEventListener('DOMContentLoaded', () => {
             if (localFavs) state.favorites = JSON.parse(localFavs);
             renderRecipes();
             renderProfileFavorites();
+            renderWaterTracker();
+            renderBodyStats();
         }
     }
+
+    // ===== BODY PROGRESS LOGIC =====
+    async function renderBodyStats() {
+        const weightEl = document.getElementById('weight-current');
+        const diffEl = document.getElementById('weight-diff');
+        const progressBar = document.getElementById('weight-progress-bar');
+        
+        if (!weightEl) return;
+
+        // Fetch latest weight
+        if (state.user && supabase) {
+            try {
+                const { data, error } = await supabase
+                    .from('weight_logs')
+                    .select('weight_kg')
+                    .eq('user_id', state.user.telegram_id)
+                    .order('created_at', { ascending: false })
+                    .limit(1);
+
+                if (data && data.length > 0) {
+                    state.weightCurrent = data[0].weight_kg;
+                } else {
+                    state.weightCurrent = state.weightStart || 0;
+                }
+            } catch (e) {
+                console.error("Weight load error:", e);
+            }
+        }
+
+        // Update UI
+        weightEl.textContent = state.weightCurrent > 0 ? state.weightCurrent : '--';
+        
+        if (state.weightGoal > 0) {
+            diffEl.textContent = `Цель: ${state.weightGoal} кг`;
+            
+            if (state.weightStart > 0 && state.weightCurrent > 0) {
+                const totalDiff = Math.abs(state.weightStart - state.weightGoal);
+                const currentDiff = Math.abs(state.weightStart - state.weightCurrent);
+                // Calculate progress based on direction (loss or gain)
+                let progress = 0;
+                
+                // Weight Loss Scenario
+                if (state.weightStart > state.weightGoal) {
+                     progress = ((state.weightStart - state.weightCurrent) / totalDiff) * 100;
+                } 
+                // Weight Gain Scenario
+                else {
+                     progress = ((state.weightCurrent - state.weightStart) / totalDiff) * 100;
+                }
+                
+                progress = Math.max(0, Math.min(100, progress));
+                progressBar.style.width = `${progress}%`;
+            } else {
+                progressBar.style.width = '0%';
+            }
+        } else {
+            diffEl.textContent = 'Цель не задана';
+            progressBar.style.width = '0%';
+        }
+    }
+
+    const btnLogWeight = document.getElementById('btn-log-weight');
+    if (btnLogWeight) {
+        btnLogWeight.addEventListener('click', async () => {
+            const current = state.weightCurrent || state.weightStart || 65.0;
+            // Simple prompt for MVP
+            const input = prompt("Введите ваш текущий вес (кг):", current);
+            
+            if (input) {
+                const newWeight = parseFloat(input.replace(',', '.'));
+                if (!isNaN(newWeight) && newWeight > 20 && newWeight < 300) {
+                    state.weightCurrent = newWeight;
+                    renderBodyStats();
+                    
+                    if (state.user && supabase) {
+                        try {
+                            await supabase.from('weight_logs').insert({
+                                user_id: state.user.telegram_id,
+                                weight_kg: newWeight
+                            });
+                            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                        } catch (e) {
+                            console.error("Weight save error:", e);
+                        }
+                    }
+                } else {
+                    alert("Пожалуйста, введите корректное число.");
+                }
+            }
+        });
+    }
+
+    // ===== WATER TRACKER LOGIC =====
+    async function renderWaterTracker() {
+        const statsEl = document.getElementById('water-stats');
+        const progressBar = document.getElementById('water-progress-bar');
+        if (!statsEl || !progressBar) return;
+
+        // Fetch today's water from Supabase
+        if (state.user && supabase) {
+            try {
+                const startOfDay = new Date();
+                startOfDay.setHours(0, 0, 0, 0);
+
+                const { data, error } = await supabase
+                    .from('water_logs')
+                    .select('amount_ml')
+                    .eq('user_id', state.user.telegram_id)
+                    .gte('created_at', startOfDay.toISOString());
+
+                if (data) {
+                    state.waterToday = data.reduce((sum, log) => sum + log.amount_ml, 0);
+                }
+            } catch (e) {
+                console.error("Water load error:", e);
+            }
+        }
+
+        // Update UI
+        statsEl.textContent = `${state.waterToday} / ${state.waterGoal} мл`;
+        const progress = Math.min((state.waterToday / state.waterGoal) * 100, 100);
+        progressBar.style.width = `${progress}%`;
+    }
+
+    async function addWater(amount) {
+        // Optimistic update
+        state.waterToday = Math.max(0, state.waterToday + amount);
+        renderWaterTracker();
+
+        if (tg.HapticFeedback) {
+            if (amount > 0) tg.HapticFeedback.impactOccurred('medium');
+            else tg.HapticFeedback.impactOccurred('light');
+        }
+
+        // Sync with Supabase
+        if (state.user && supabase) {
+            try {
+                if (amount > 0) {
+                    await supabase.from('water_logs').insert({
+                        user_id: state.user.telegram_id,
+                        amount_ml: amount
+                    });
+                } else {
+                    // Logic for removing: delete latest log for today
+                    const startOfDay = new Date();
+                    startOfDay.setHours(0, 0, 0, 0);
+
+                    const { data } = await supabase
+                        .from('water_logs')
+                        .select('id')
+                        .eq('user_id', state.user.telegram_id)
+                        .gte('created_at', startOfDay.toISOString())
+                        .order('created_at', { ascending: false })
+                        .limit(1);
+
+                    if (data && data.length > 0) {
+                        await supabase.from('water_logs').delete().eq('id', data[0].id);
+                    }
+                }
+            } catch (e) {
+                console.error("Water sync error:", e);
+            }
+        }
+    }
+
+    // Event Listeners for Water Buttons
+    document.querySelectorAll('.water-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const amount = parseInt(btn.dataset.amount);
+            addWater(amount);
+        });
+    });
 
     function renderUserStatus() {
         const subInfoEl = document.getElementById('subscription-info');

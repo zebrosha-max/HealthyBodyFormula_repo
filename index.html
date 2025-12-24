@@ -641,6 +641,9 @@
                 <i class="fa-solid fa-chevron-left"></i>
             </button>
             <h2 class="page-title">Мой профиль</h2>
+            <button id="diary-settings-btn" class="header-action-btn">
+                <i class="fa-solid fa-gear"></i>
+            </button>
         </div>
 
         <div class="profile-section">
@@ -659,13 +662,48 @@
             </div>
         </div>
 
+        <!-- Трекер Веса -->
+        <div class="bio-card" id="weight-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin-bottom: 0;"><i class="fa-solid fa-scale-balanced"></i> Мой вес</h3>
+                <button id="btn-log-weight" class="guide-btn" style="padding: 5px 15px; font-size: 13px; height: auto;">
+                    <i class="fa-solid fa-pen"></i> Внести
+                </button>
+            </div>
+            
+            <div style="display: flex; align-items: flex-end; gap: 10px; margin-bottom: 10px;">
+                <span id="weight-current" style="font-size: 32px; font-weight: 800; color: var(--text-primary); line-height: 1;">--</span>
+                <span style="font-size: 16px; color: var(--text-secondary); margin-bottom: 4px;">кг</span>
+                <span id="weight-diff" style="margin-left: auto; font-size: 14px; color: var(--text-muted); margin-bottom: 6px;">Цель: --</span>
+            </div>
+
+            <div class="water-progress-bg">
+                <div id="weight-progress-bar" class="water-progress-fill" style="background: linear-gradient(90deg, #FDBA74, #FB923C); width: 0%;"></div>
+            </div>
+        </div>
+
+        <!-- Трекер Воды -->
+        <div class="bio-card" id="water-section">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                <h3 style="margin-bottom: 0;"><i class="fa-solid fa-droplet"></i> Трекер воды</h3>
+                <span id="water-stats" style="font-weight: bold; color: var(--text-primary);">0 / 2000 мл</span>
+            </div>
+            
+            <div class="water-container">
+                <div class="water-progress-bg">
+                    <div id="water-progress-bar" class="water-progress-fill"></div>
+                </div>
+                <div class="water-actions">
+                    <button class="water-btn minus" data-amount="-250">-250</button>
+                    <button class="water-btn plus" data-amount="250">+250 мл</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Дневник Питания -->
         <div class="bio-card" id="diary-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3 style="margin-bottom: 0;"><i class="fa-solid fa-utensils"></i> Дневник питания</h3>
-                <button id="diary-settings-btn" style="background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 10px; margin: -10px;">
-                    <i class="fa-solid fa-gear" style="font-size: 18px;"></i>
-                </button>
             </div>
             <div class="diary-summary">
                 <div class="diary-stats">
@@ -692,9 +730,24 @@
     <!-- ===== DIARY SETTINGS MODAL ===== -->
     <div id="modal-diary-settings" class="modal-overlay">
         <div class="modal-card">
-            <h3>Настройка цели</h3>
-            <p>Укажите вашу суточную норму калорий:</p>
-            <input type="number" id="diary-goal-input" placeholder="2000" class="modal-input">
+            <h3>Мои цели</h3>
+            <p>Суточная норма калорий:</p>
+            <input type="number" id="diary-goal-input" placeholder="2000" class="modal-input" style="margin-bottom: 15px;">
+            
+            <p>Суточная норма воды (мл):</p>
+            <input type="number" id="water-goal-input" placeholder="2000" class="modal-input" style="margin-bottom: 15px;">
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <div>
+                    <p>Вес старт (кг):</p>
+                    <input type="number" id="weight-start-input" placeholder="65.0" class="modal-input" step="0.1">
+                </div>
+                <div>
+                    <p>Вес цель (кг):</p>
+                    <input type="number" id="weight-goal-input" placeholder="60.0" class="modal-input" step="0.1">
+                </div>
+            </div>
+            
             <div class="modal-actions">
                 <button id="modal-cancel" class="modal-btn cancel">Отмена</button>
                 <button id="modal-save" class="modal-btn save">Сохранить</button>
