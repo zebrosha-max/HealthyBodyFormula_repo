@@ -313,6 +313,15 @@ document.addEventListener('DOMContentLoaded', () => {
         const userPhotoEl = document.getElementById('user-photo');
 
         if (userData) {
+            // 1. FAST RENDER from LocalStorage (Cache)
+            const cachedUser = localStorage.getItem(`hbf_user_${userData.id}`);
+            if (cachedUser) {
+                const user = JSON.parse(cachedUser);
+                applyUserState(user);
+                console.log("Loaded from cache");
+            }
+
+            // UI Basic Setup
             if (userNameEl) userNameEl.textContent = userData.first_name + (userData.last_name ? ' ' + userData.last_name : '');
             if (userStatusEl) userStatusEl.textContent = 'Пользователь HBF';
             
@@ -331,6 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
             
+            // 2. NETWORK REQUEST (Sync)
             if (supabase) {
                 try {
                     const { data: user, error } = await supabase
@@ -344,21 +354,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         .single();
 
                     if (user) {
-                        state.user = user;
-                        state.isPremium = user.is_premium;
-                        state.calorieGoal = user.calorie_goal || 2000;
-                        state.waterGoal = user.water_goal || 2000;
-                        state.weightStart = user.weight_start || 0;
-                        state.weightGoal = user.weight_goal || 0;
-                        
-                        renderUserStatus();
-                        
-                        // Parallel Loading
-                        if (state.activeTab === 'profile') {
-                            loadProfileData();
-                        } else {
-                            loadFavorites();
-                        }
+                        // Save to cache for next time
+                        localStorage.setItem(`hbf_user_${userData.id}`, JSON.stringify(user));
+                        applyUserState(user);
                     }
                 } catch (e) {
                     console.error("Supabase sync error:", e);
@@ -381,6 +379,22 @@ document.addEventListener('DOMContentLoaded', () => {
             renderProfileFavorites();
             renderWaterTracker();
             renderBodyStats();
+        }
+    }
+
+    function applyUserState(user) {
+        state.user = user;
+        state.isPremium = user.is_premium;
+        state.calorieGoal = user.calorie_goal || 2000;
+        state.waterGoal = user.water_goal || 2000;
+        state.weightStart = user.weight_start || 0;
+        state.weightGoal = user.weight_goal || 0;
+        
+        renderUserStatus();
+        loadFavorites();
+        
+        if (state.activeTab === 'profile') {
+            loadProfileData();
         }
     }
 

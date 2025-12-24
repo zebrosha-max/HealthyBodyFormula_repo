@@ -1,14 +1,13 @@
 # Startup Protocol
 > **CRITICAL INSTRUCTION FOR AI AGENTS:**
-> Before answering any user request, you MUST read the current project documentation located in the `docs/` folder.
-> 1. Check `docs/ROADMAP.md` (or `speckit.tasks.md`) for current progress.
-> 2. Check `docs/DOCUMENTATION.md` (or `speckit.constitution.md`) for architectural rules.
-> 3. Adhere to the Spec-Driven Development (SDD) workflow defined in `docs/`.
+> 1. Before answering, read documentation in `docs/` (Tasks, Constitution, Plan).
+> 2. **SECURITY:** NEVER commit or push `.json` files in the `backend/` directory. They are ignored via `.gitignore` to prevent API key leaks. Only `.sql` files are allowed in `backend/`.
+> 3. Adhere to the Spec-Driven Development (SDD) workflow.
 
 # Project Overview
 **Healthy Body Formula (HBF_web)** is a lightweight, single-page web application designed as a **Telegram Web App (TWA)** for a clinical nutritionist portfolio ("Yulia"). 
 
-It features a mobile-first design, smooth transitions, and an integrated document viewer for diplomas and certificates.
+It features a mobile-first design, smooth transitions, and an integrated body/food/water tracking system.
 
 ## 📂 Project Structure
 
@@ -18,8 +17,9 @@ D:\GpT_docs\HealthyBodyFormula\HBF_web\
 ├── css/
 │   └── style.css       # Styles
 ├── js/
-│   └── app.js          # Logic
+│   └── app.js          # Logic (Optimized parallel loading)
 ├── docs/               # Project Documentation (SDD)
+├── backend/            # SQL Schemas (JSON EXCLUDED from Git)
 ├── guides/             # HTML Guides & Protocols
 └── Recipes/            # Recipe images and metadata
 ```
