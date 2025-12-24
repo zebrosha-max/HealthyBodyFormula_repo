@@ -23,10 +23,16 @@
 *   `status` (Text) — 'pending'/'confirmed'.
 *   `created_at` (Timestamp).
 
-**Таблица `water_logs` (New):**
+**Таблица `water_logs`:**
 *   `id` (UUID, PK).
 *   `user_id` (FK -> users.telegram_id).
 *   `amount_ml` (Int).
+*   `created_at` (Timestamp).
+
+**Таблица `weight_logs` (New):**
+*   `id` (UUID, PK).
+*   `user_id` (FK -> users.telegram_id).
+*   `weight_kg` (Decimal/Float).
 *   `created_at` (Timestamp).
 
 ### 2.3 Спецификация Интерфейса (UI Spec)
@@ -38,11 +44,11 @@
     *   Action: `Telegram.WebApp.close()` (или switchInlineQuery) -> Переход в чат с ботом.
 3.  **Food Diary (in Profile):**
     *   **History Controls:** Навигация по датам (< Вчера | Сегодня >).
-    *   **Water Widget:** Прогресс-бар ("Волна"), кнопки быстрого добавления (+250мл), текущий объем.
+    *   **Body Widget:** Блок с текущим весом и расчетом ИМТ. Кнопка "Внести вес".
+    *   **Water Widget:** Прогресс-бар ("Волна"), кнопки быстрого добавления (+250мл).
     *   **Header:** Сводка за *выбранный* день (Progress Bar калорий).
-    *   **List:** Карточки приемов пищи (Время, Название, КБЖУ).
-    *   **Stats:** График калорийности за последние 7 дней (Popup).
-    *   **Empty State:** "Вы еще ничего не съели. Нажмите кнопку, чтобы записать".
+    *   **List:** Карточки приемов пищи.
+    *   **Analytics Screen:** Полноэкранный график (Chart.js) с переключателями ДЕНЬ / НЕДЕЛЯ / МЕСЯЦ. Комбинированный вид: Калории (bars) + Вес (line).
 
 ### 2.4 User Flow: Logging**
 1.  **WebApp:** User clicks "Записать". -> Redirect to Bot.

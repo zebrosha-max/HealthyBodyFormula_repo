@@ -18,30 +18,85 @@ create table if not exists public.food_logs (
 );
 
 -- 2. Create the table for water logs
+
 create table if not exists public.water_logs (
+
   id uuid not null default gen_random_uuid (),
+
   user_id bigint not null,
+
   amount_ml int not null,
+
   created_at timestamptz default now(),
+
   constraint water_logs_pkey primary key (id)
+
 );
 
--- 3. Update users table with goals and settings
--- (Assuming table 'users' exists, we use ALTER)
--- alter table public.users add column if not exists calorie_goal int default 2000;
--- alter table public.users add column if not exists water_goal int default 2000;
--- alter table public.users add column if not exists water_reminder_active boolean default false;
--- alter table public.users add column if not exists water_reminder_interval int default 60; -- minutes
 
--- 4. Enable RLS (Row Level Security) - Optional but recommended
+
+-- 3. Create the table for weight logs
+
+create table if not exists public.weight_logs (
+
+  id uuid not null default gen_random_uuid (),
+
+  user_id bigint not null,
+
+  weight_kg float not null,
+
+  created_at timestamptz default now(),
+
+  constraint weight_logs_pkey primary key (id)
+
+);
+
+
+
+-- 4. Update users table with goals and settings
+
+-- (Assuming table 'users' exists, we use ALTER)
+
+-- alter table public.users add column if not exists calorie_goal int default 2000;
+
+-- alter table public.users add column if not exists water_goal int default 2000;
+
+-- alter table public.users add column if not exists weight_start float null;
+
+-- alter table public.users add column if not exists weight_goal float null;
+
+
+
+-- 5. Enable RLS
+
 alter table public.food_logs enable row level security;
+
 alter table public.water_logs enable row level security;
 
--- 5. Policies
+alter table public.weight_logs enable row level security;
+
+
+
+-- 6. Policies
+
 create policy "Allow read access for all" on public.food_logs for select using (true);
+
 create policy "Allow insert access for all" on public.food_logs for insert with check (true);
+
 create policy "Allow update access for all" on public.food_logs for update using (true);
+
 create policy "Allow delete access for all" on public.food_logs for delete using (true);
 
+
+
 create policy "Allow read access for all" on public.water_logs for select using (true);
+
 create policy "Allow insert access for all" on public.water_logs for insert with check (true);
+
+
+
+create policy "Allow read access for all" on public.weight_logs for select using (true);
+
+create policy "Allow insert access for all" on public.weight_logs for insert with check (true);
+
+create policy "Allow delete access for all" on public.weight_logs for delete using (true);
