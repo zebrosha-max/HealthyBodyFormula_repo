@@ -76,9 +76,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Refresh Diary and Water when entering profile
             if (screenId === 'profile') {
-                renderFoodDiary();
-                renderWaterTracker();
+                loadProfileData();
             }
+        }
+    }
+
+    async function loadProfileData() {
+        if (!state.user) return;
+        try {
+            await Promise.all([
+                renderFoodDiary(),
+                renderWaterTracker(),
+                renderBodyStats()
+            ]);
+        } catch (e) {
+            console.error("Profile load error:", e);
         }
     }
 
@@ -126,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         modalSave.addEventListener('click', async () => {
             const btn = modalSave;
             const originalText = btn.textContent;
+            
             const newGoal = parseInt(modalInput.value);
             const newWaterGoal = parseInt(waterGoalInput.value);
             const newWeightStart = parseFloat(weightStartInput.value);
@@ -139,11 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Loading state
-            btn.textContent = 'Сохраняю...';
-            btn.style.opacity = '0.7';
-            btn.disabled = true;
-
+            // OPTIMISTIC UPDATE
             state.calorieGoal = newGoal;
             state.waterGoal = newWaterGoal;
             if (!isNaN(newWeightStart)) state.weightStart = newWeightStart;
@@ -154,7 +163,15 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('hbf_weight_start', state.weightStart);
             localStorage.setItem('hbf_weight_goal', state.weightGoal);
 
-            // Sync with Supabase
+            // UI Update
+            modal.classList.remove('active');
+            renderFoodDiary(); 
+            renderWaterTracker();
+            renderBodyStats();
+            
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+            // Background Sync
             if (state.user && supabase) {
                 try {
                     await supabase
@@ -170,20 +187,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.error("Failed to update goal:", e);
                 }
             }
-
-            // Success feedback
-            modal.classList.remove('active');
-            renderFoodDiary(); 
-            renderWaterTracker();
-            renderBodyStats();
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-
-            // Reset button state
-            setTimeout(() => {
-                btn.textContent = originalText;
-                btn.style.opacity = '1';
-                btn.disabled = false;
-            }, 300);
         });
         
         // Close on click outside
@@ -313,19 +316,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (userNameEl) userNameEl.textContent = userData.first_name + (userData.last_name ? ' ' + userData.last_name : '');
             if (userStatusEl) userStatusEl.textContent = 'Пользователь HBF';
             
-            // Set User Photo if available
+            // Set User Photo
             if (userPhotoEl) {
                 if (userData.photo_url) {
                     userPhotoEl.innerHTML = `<img src="${userData.photo_url}" alt="${userData.first_name}" class="profile-photo" style="margin-bottom: 0;">`;
-                    userPhotoEl.className = ''; // Remove placeholder styling wrapper
+                    userPhotoEl.className = ''; 
                     userPhotoEl.style.background = 'none';
                     userPhotoEl.style.boxShadow = 'none';
                     userPhotoEl.style.border = 'none';
                 } else {
-                    // Fallback to placeholder
                     userPhotoEl.className = 'profile-photo-placeholder';
                     userPhotoEl.innerHTML = '<i class="fa-solid fa-user"></i>';
-                    userPhotoEl.style = ''; // Reset inline styles
+                    userPhotoEl.style = ''; 
                 }
             }
             
@@ -350,13 +352,12 @@ document.addEventListener('DOMContentLoaded', () => {
                         state.weightGoal = user.weight_goal || 0;
                         
                         renderUserStatus();
-                        await loadFavorites();
                         
-                        // If we are in profile, render diary immediately to reflect goal
+                        // Parallel Loading
                         if (state.activeTab === 'profile') {
-                            renderFoodDiary();
-                            renderWaterTracker();
-                            renderBodyStats();
+                            loadProfileData();
+                        } else {
+                            loadFavorites();
                         }
                     }
                 } catch (e) {
@@ -364,11 +365,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } else {
+            // Guest Mode
             if (userNameEl) userNameEl.textContent = 'Гость';
             if (userStatusEl) userStatusEl.textContent = 'Web Preview';
             if (subInfoEl) subInfoEl.textContent = 'Войдите через Telegram для сохранения данных.';
             
-            // Guest photo placeholder
             if (userPhotoEl) {
                 userPhotoEl.className = 'profile-photo-placeholder';
                 userPhotoEl.innerHTML = '<i class="fa-solid fa-user"></i>';
@@ -391,9 +392,10 @@ document.addEventListener('DOMContentLoaded', () => {
         
         if (!weightEl) return;
 
-        // Fetch latest weight
-        if (state.user && supabase) {
-            try {
+        // Fetch latest weight ONLY if we haven't fetched it yet (0)
+        // AND we have a user.
+        if (state.user && supabase && state.weightCurrent === 0) {
+             try {
                 const { data, error } = await supabase
                     .from('weight_logs')
                     .select('weight_kg')
@@ -404,6 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (data && data.length > 0) {
                     state.weightCurrent = data[0].weight_kg;
                 } else {
+                    // If no logs, fallback to start weight
                     state.weightCurrent = state.weightStart || 0;
                 }
             } catch (e) {
@@ -411,25 +414,29 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        // Fallback logic
+        const displayWeight = state.weightCurrent > 0 ? state.weightCurrent : (state.weightStart > 0 ? state.weightStart : '--');
+        
         // Update UI
-        weightEl.textContent = state.weightCurrent > 0 ? state.weightCurrent : '--';
+        weightEl.textContent = displayWeight;
         
         if (state.weightGoal > 0) {
             diffEl.textContent = `Цель: ${state.weightGoal} кг`;
             
-            if (state.weightStart > 0 && state.weightCurrent > 0) {
+            const currentVal = (displayWeight === '--') ? 0 : parseFloat(displayWeight);
+
+            if (state.weightStart > 0 && currentVal > 0) {
                 const totalDiff = Math.abs(state.weightStart - state.weightGoal);
-                const currentDiff = Math.abs(state.weightStart - state.weightCurrent);
-                // Calculate progress based on direction (loss or gain)
-                let progress = 0;
                 
-                // Weight Loss Scenario
-                if (state.weightStart > state.weightGoal) {
-                     progress = ((state.weightStart - state.weightCurrent) / totalDiff) * 100;
-                } 
-                // Weight Gain Scenario
-                else {
-                     progress = ((state.weightCurrent - state.weightStart) / totalDiff) * 100;
+                let progress = 0;
+                if (totalDiff > 0) {
+                    if (state.weightStart > state.weightGoal) {
+                        progress = ((state.weightStart - currentVal) / totalDiff) * 100;
+                    } else {
+                        progress = ((currentVal - state.weightStart) / totalDiff) * 100;
+                    }
+                } else {
+                    progress = 100;
                 }
                 
                 progress = Math.max(0, Math.min(100, progress));
@@ -447,14 +454,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnLogWeight) {
         btnLogWeight.addEventListener('click', async () => {
             const current = state.weightCurrent || state.weightStart || 65.0;
-            // Simple prompt for MVP
             const input = prompt("Введите ваш текущий вес (кг):", current);
             
             if (input) {
                 const newWeight = parseFloat(input.replace(',', '.'));
                 if (!isNaN(newWeight) && newWeight > 20 && newWeight < 300) {
+                    // OPTIMISTIC UPDATE
                     state.weightCurrent = newWeight;
-                    renderBodyStats();
+                    renderBodyStats(); 
                     
                     if (state.user && supabase) {
                         try {
@@ -525,7 +532,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         amount_ml: amount
                     });
                 } else {
-                    // Logic for removing: delete latest log for today
                     const startOfDay = new Date();
                     startOfDay.setHours(0, 0, 0, 0);
 
