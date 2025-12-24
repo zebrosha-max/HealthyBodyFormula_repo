@@ -16,8 +16,20 @@
 ### 3. Taxonomy Rules
 *   **Food Types:** `meat`, `poultry`, `fish`, `vegetarian`.
 *   **Macros:** Всегда храним и отображаем в последовательности: Kcal, Protein, Fat, Carbs.
+*   **Water Units:** Храним в миллилитрах (ml). Шаг интерфейса: 250ml (стакан).
+*   **Timezones:** Клиент (WebApp) всегда отправляет и запрашивает даты в ISO формате. Считаем "днем" интервал 00:00-23:59 по локальному времени пользователя (передаем offset или считаем на клиенте).
 
 ### 4. AI & Bot Protocol (Smart Logger)
-*   **Workflow:** WebApp (Trigger) -> Bot (Input) -> n8n (AI Processing) -> Supabase (Storage) -> WebApp (Display).
-*   **Privacy:** Храним только результаты анализа (БЖУК + название), исходные фото/голос не сохраняем в БД для экономии места и приватности.
-*   **Consistency:** ИИ должен возвращать JSON строгого формата. Любой не-пищевой контент отклоняется.
+*   **Workflow Implementation (`backend/HBF Food Logger.json`):**
+    1.  **Trigger:** Telegram Message (Text/Photo) or Callback Query.
+    2.  **Routing:**
+        *   `/start` -> Welcome Message.
+        *   **Photo:** `Gemini 1.5 Flash` Vision Analysis -> JSON Extraction -> DB Insert (Pending).
+        *   **Text:** `Gemini 1.5 Flash` Text Analysis -> JSON Extraction -> DB Insert (Pending).
+        *   **Callback:** User confirms/deletes entry -> Update Supabase Status (`confirmed`/`deleted`).
+    3.  **Data Structure (AI Output):**
+        ```json
+        { "dish": "string", "calories": int, "protein": int, "fat": int, "carbs": int }
+        ```
+    4.  **Privacy:** Source photos are processed in-memory (base64) and not stored. Only the analysis result is saved to Supabase.
+    5.  **Consistency:** AI is strictly instructed to return JSON. Non-food content is handled by the AI prompt logic.

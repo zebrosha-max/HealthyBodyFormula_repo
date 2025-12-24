@@ -55,6 +55,7 @@ HBF_web/
 │   └── style.css       # Основные стили проекта
 ├── js/
 │   └── app.js          # Логика приложения (Auth, Navigation, Recipes)
+├── backend/            # Серверная логика (SQL Schema, n8n Workflows)
 ├── README.md           # Документация проекта
 ├── docs/               # SDD Документация (Requirements, Architecture)
 ├── guides/             # Папка с глубокими нутрициологическими протоколами (HTML)

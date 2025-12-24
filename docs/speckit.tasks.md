@@ -41,23 +41,36 @@
 
 #### 6.1 Database & Backend (Supabase + n8n)
 *   [x] **TASK-6.1.1:** Спроектировать SQL схему таблицы `food_logs`. (Готово в `backend/supabase_schema.sql`)
-*   [ ] **TASK-6.1.2:** Применить миграцию БД в Supabase.
+*   [x] **TASK-6.1.2:** Применить миграцию БД в Supabase.
 *   [x] **TASK-6.1.3:** Спроектировать n8n workflow для анализа. (Готово в `backend/hbf_workflow.json`)
-*   [ ] **TASK-6.1.4:** Доработать n8n workflow: добавить логику кнопок подтверждения (Inline Keyboard: "Save" / "Cancel").
-*   [ ] **TASK-6.1.5:** Доработать n8n workflow: финальная запись в Supabase только после нажатия "Save".
+*   [x] **TASK-6.1.4:** Доработать n8n workflow: добавить логику кнопок подтверждения (Inline Keyboard: "Save" / "Cancel").
+*   [x] **TASK-6.1.5:** Доработать n8n workflow: финальная запись в Supabase только после нажатия "Save".
 
 #### 6.2 Frontend: Точка входа и Навигация
-*   [ ] **TASK-6.2.1:** Добавить кнопку "Записать еду" (Floating Action Button или в шапке) на главном экране.
-*   [ ] **TASK-6.2.2:** Реализовать логику клика: закрытие WebApp или открытие чата с ботом (`Telegram.WebApp.openTelegramLink`).
+*   [x] **TASK-6.2.1:** Добавить кнопку "Записать еду" (Floating Action Button или в шапке) на главном экране.
+*   [x] **TASK-6.2.2:** Реализовать логику клика: закрытие WebApp или открытие чата с ботом (`Telegram.WebApp.openTelegramLink`).
 
 #### 6.3 Frontend: Раздел "Дневник Питания" (Profile)
-*   [ ] **TASK-6.3.1:** В файле `app.js` создать модуль `FoodDiary`.
-*   [ ] **TASK-6.3.2:** Верстка таба "Дневник" внутри секции `#screen-profile`.
+*   [x] **TASK-6.3.1:** В файле `app.js` создать модуль `FoodDiary`.
+*   [x] **TASK-6.3.2:** Верстка таба "Дневник" внутри секции `#screen-profile`.
     *   Компонент: `DiaryHeader` (Прогресс бар калорий, цель по умолчанию 2000).
     *   Компонент: `DiaryList` (Список карточек за текущую дату).
-*   [ ] **TASK-6.3.3:** Интеграция с Supabase: выборка данных (`select * from food_logs where user_id = eq.UID and created_at = today`).
-*   [ ] **TASK-6.3.4:** Реализовать авто-обновление списка при входе в профиль.
+*   [x] **TASK-6.3.3:** Интеграция с Supabase: выборка данных (`select * from food_logs where user_id = eq.UID and created_at = today`).
+*   [x] **TASK-6.3.4:** Реализовать авто-обновление списка при входе в профиль.
 
 #### 6.4 Telegram Bot UX
-*   [ ] **TASK-6.4.1:** Настроить BotFather: описание, аватарка.
-*   [ ] **TASK-6.4.2:** Настроить n8n на обработку Callback Query (нажатия кнопок Save/Cancel).
+*   [x] **TASK-6.4.1:** Настроить BotFather: описание, аватарка.
+*   [x] **TASK-6.4.2:** Настроить n8n на обработку Callback Query (нажатия кнопок Save/Cancel).
+
+### Эпик 7: Water Tracker (Трекер воды)
+*   [ ] **TASK-7.1:** Database: Создать таблицу `water_logs` и добавить колонки в `users` (`water_goal`, `water_reminder_active`).
+*   [ ] **TASK-7.2:** Frontend (Logic): Создать модуль `WaterTracker` в `app.js` (addWater, getWater, renderWidget).
+*   [ ] **TASK-7.3:** Frontend (UI): Верстка виджета воды в Профиле (Progress Wave/Bar, Buttons +250/-250).
+*   [ ] **TASK-7.4:** Frontend (Settings): Добавить настройки воды в модальное окно настроек (Цель).
+*   [ ] **TASK-7.5:** Backend (n8n): Создать Cron-workflow для напоминаний (раз в час проверять, пил ли пользователь).
+
+### Эпик 8: Diary History & Analytics (История и Графики)
+*   [ ] **TASK-8.1:** Frontend (Logic): Рефакторинг `renderFoodDiary` для поддержки аргумента `date` (вместо hardcode 'today').
+*   [ ] **TASK-8.2:** Frontend (UI): Добавить навигацию по датам (< Вчера | Сегодня | Завтра >) в шапку Дневника.
+*   [ ] **TASK-8.3:** Frontend (Stats): Реализовать модальное окно/виджет с графиком калорий за последние 7 дней (CSS Chart).
+*   [ ] **TASK-8.4:** Backend (Supabase): Оптимизация запросов (индексы на `created_at`).

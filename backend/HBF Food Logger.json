@@ -1,0 +1,728 @@
+{
+  "name": "HBF Food Logger",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "id": "7e11d6ad-2b02-4384-b773-1caef97a10bb",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1,
+      "position": [
+        -848,
+        -32
+      ],
+      "webhookId": "hbf-webhook",
+      "credentials": {
+        "telegramApi": {
+          "id": "b8gEQWCOtEXTw6YB",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.callback_query ? 'callback' : ($json.message?.text?.startsWith('/') ? 'command' : 'message') }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "command"
+            },
+            {
+              "value2": "message",
+              "output": 1
+            },
+            {
+              "value2": "callback",
+              "output": 2
+            }
+          ]
+        }
+      },
+      "id": "79c3e485-a13a-4917-a956-bf7a230345f6",
+      "name": "Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        -608,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "👋 Привет! Отправь фото еды или напиши, что ты съел.",
+        "additionalFields": {}
+      },
+      "id": "c80df112-aafe-439f-9d5b-b6ca4f433423",
+      "name": "Welcome Message",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -336,
+        -256
+      ],
+      "webhookId": "1450c4aa-37f9-4857-8866-cfab271759c9",
+      "credentials": {
+        "telegramApi": {
+          "id": "b8gEQWCOtEXTw6YB",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "food_logs",
+        "dataToSend": "autoMapInputData"
+      },
+      "id": "5455f133-0085-483b-aa1e-22630eb8b280",
+      "name": "DB Insert",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        672,
+        -48
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "vI5zzeJlsby2zl17",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $node['Telegram Trigger'].json.message.chat.id }}",
+        "text": "=🍽 {{ $json.dish_name }}\n🔥 {{ $json.calories }} ккал\n(Б: {{ $json.protein }} | Ж: {{ $json.fat }} | У: {{ $json.carbs }})",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Записать",
+                    "additionalFields": {
+                      "callback_data": "=confirm_{{ $json.id }}"
+                    }
+                  },
+                  {
+                    "text": "❌ Отмена",
+                    "additionalFields": {
+                      "callback_data": "=delete_{{ $json.id }}"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "id": "254951ee-70f5-4d19-a24e-5d5233942c15",
+      "name": "Ask Confirm",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        912,
+        -160
+      ],
+      "webhookId": "94a501d7-e7e5-400a-b61d-58935ffdd920",
+      "credentials": {
+        "telegramApi": {
+          "id": "b8gEQWCOtEXTw6YB",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "dataType": "string",
+        "value1": "={{ $json.action }}",
+        "rules": {
+          "rules": [
+            {
+              "value2": "confirm"
+            },
+            {
+              "value2": "delete",
+              "output": 1
+            }
+          ]
+        }
+      },
+      "id": "6476f844-dbd6-4558-ad0d-58b6035ddfa2",
+      "name": "Callback Router",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        192
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "449e6a79-fce8-4586-a4ea-91c610729e0b",
+      "name": "Prep Confirm",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1344,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "food_logs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.record_id }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "status",
+              "fieldValue": "confirmed"
+            }
+          ]
+        }
+      },
+      "id": "5f91591e-efe1-445b-9f1d-429c709f5552",
+      "name": "DB Confirm",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1520,
+        0
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "vI5zzeJlsby2zl17",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "editMessageText",
+        "chatId": "={{ $node['Telegram Trigger'].json.callback_query.message.chat.id }}",
+        "messageId": "={{ $node['Telegram Trigger'].json.callback_query.message.message_id }}",
+        "replyMarkup": "inlineKeyboard",
+        "text": "✅ Сохранено в дневник!",
+        "inlineKeyboard": {
+          "rows": [
+            {}
+          ]
+        },
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "addb9490-8c23-4061-a0bb-b33010d4ea1a",
+      "name": "Reply Saved",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1712,
+        0
+      ],
+      "webhookId": "6928280e-f76f-4a50-8fe1-7388673b70d1",
+      "credentials": {
+        "telegramApi": {
+          "id": "b8gEQWCOtEXTw6YB",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "food_logs",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ $json.record_id }}"
+            }
+          ]
+        }
+      },
+      "id": "bef1dc81-7e82-4a9c-898f-434c3cbc1b2e",
+      "name": "DB Delete",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1536,
+        224
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "vI5zzeJlsby2zl17",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "deleteMessage",
+        "chatId": "={{ $node['Telegram Trigger'].json.callback_query.message.chat.id }}",
+        "messageId": "={{ $node['Telegram Trigger'].json.callback_query.message.message_id }}"
+      },
+      "id": "4204089a-42ce-4fe3-b464-83b44e5ceb8b",
+      "name": "Delete Msg",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        1712,
+        224
+      ],
+      "webhookId": "ea386b69-87f6-42b1-84ec-4ba793ce472e",
+      "credentials": {
+        "telegramApi": {
+          "id": "b8gEQWCOtEXTw6YB",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "abe90359-c16d-488c-aef4-bf09bcd3bb26",
+      "name": "Prep Delete",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        224
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyDNJnrh8x6r5HdFLPCUVPhQ5zsfhQmvFnw",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"Ты нутрициолог. Распознай блюдо и КБЖУ. Только целое число, никаких знаков после запятой. Верни СТРОГО JSON формат (без ```json): {\\\"dish\\\": \\\"короткое название\\\", \\\"calories\\\": 0, \\\"protein\\\": 0, \\\"fat\\\": 0, \\\"carbs\\\": 0}. Текст пользователя: {{ $json.message.text }}\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "d6f0d486-499d-41c3-85dc-c59ae480b9ff",
+      "name": "AI Text",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        16,
+        -160
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.photo ? $json.message.photo[$json.message.photo.length - 1].file_id : '' }}",
+        "additionalFields": {}
+      },
+      "id": "5384e4a6-8a61-45a9-a0cb-c763f13713c6",
+      "name": "Get Photo",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        64
+      ],
+      "webhookId": "2223e90c-00a7-4965-a440-39a764e06bb4",
+      "credentials": {
+        "telegramApi": {
+          "id": "b8gEQWCOtEXTw6YB",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=AIzaSyDNJnrh8x6r5HdFLPCUVPhQ5zsfhQmvFnw",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\": \"Ты нутрициолог. Посмотри на фото. Определи блюдо и оцени КБЖУ. Только целые числа, никаких знаков после запятой. Верни СТРОГО JSON (без markdown): {\\\"dish\\\": \\\"название\\\", \\\"calories\\\": 0, \\\"protein\\\": 0, \\\"fat\\\": 0, \\\"carbs\\\": 0}\"\n        },\n        {\n          \"inline_data\": {\n            \"mime_type\": \"{{ $json.mime_type }}\",\n            \"data\": \"{{ $json.base64_image }}\"\n          }\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "aa3edcf3-ca85-4bf6-84a1-bd17ef4c92f2",
+      "name": "AI Photo",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.1,
+      "position": [
+        240,
+        64
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "8e542124-2da4-43b2-8eb2-93684a2c01d0",
+              "name": "=user_id",
+              "value": "={{ $('Telegram Trigger').first().json.message.chat.id }}",
+              "type": "number"
+            },
+            {
+              "id": "da928f33-9b0d-4bb8-a7f9-737ae63064fb",
+              "name": "=status",
+              "value": "pending",
+              "type": "string"
+            },
+            {
+              "id": "a72aee2a-f2b0-4802-ae1c-fbeb60697eac",
+              "name": "=log_text",
+              "value": "{{ $('Telegram Trigger').first().json.message.text}}",
+              "type": "string"
+            },
+            {
+              "id": "3792cd94-9bf2-4d5f-b767-3e9969408114",
+              "name": "=dish_name",
+              "value": "={{ JSON.parse($json.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim()).dish }}",
+              "type": "string"
+            },
+            {
+              "id": "0785c51c-f773-402d-8958-5cd3adce13df",
+              "name": "=calories",
+              "value": "={{ JSON.parse($json.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim()).calories }}",
+              "type": "number"
+            },
+            {
+              "id": "cac1aab0-e421-49d4-b168-272b99a7dd2a",
+              "name": "=protein",
+              "value": "={{ JSON.parse($json.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim()).protein }}",
+              "type": "number"
+            },
+            {
+              "id": "95ee0490-dd54-4c78-887c-754de8e08eaf",
+              "name": "=fat",
+              "value": "={{ JSON.parse($json.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim()).fat }}",
+              "type": "number"
+            },
+            {
+              "id": "4bdb3cb4-5ae4-47c7-9442-6e1d85a8b392",
+              "name": "=carbs",
+              "value": "={{ JSON.parse($json.candidates[0].content.parts[0].text.replace(/```json/g, '').replace(/```/g, '').trim()).carbs }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        -32
+      ],
+      "id": "6691e6e0-c4ce-42c6-ba71-5edd931428fa",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "21633f5f-1fd1-4ccc-b681-afd97776da72",
+              "name": "action",
+              "value": "={{ $json.callback_query.data.split('_')[0] }}",
+              "type": "string"
+            },
+            {
+              "id": "1e3b5b5b-e1a7-41fe-9d61-bcf1f3f8bef4",
+              "name": "record_id",
+              "value": "={{ $json.callback_query.data.split('_')[1] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        608,
+        400
+      ],
+      "id": "45439379-91df-4b95-aadd-08deaa615949",
+      "name": "Extract Fields"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0cb74a40-aa7e-41f6-9af8-8fb011467664",
+              "leftValue": "={{ $json.message.photo ? 'yes' : 'no' }}",
+              "rightValue": "yes",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -368,
+        32
+      ],
+      "id": "057b9ad4-3ad6-4366-86ff-c25e3b47e085",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Получаем доступ к первому элементу\nconst item = items[0];\n\n// Проверяем, есть ли бинарные данные (картинка)\nif (item.binary && item.binary.data) {\n  // ПРИНУДИТЕЛЬНО читаем файл с диска в буфер\n  const binaryData = await this.helpers.getBinaryDataBuffer(0, 'data');\n  \n  // Конвертируем в Base64 строку для Google\n  item.json.base64_image = binaryData.toString('base64');\n  item.json.mime_type = item.binary.data.mimeType;\n}\n\nreturn [item];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        64,
+        64
+      ],
+      "id": "0126ed82-197f-4fea-b57a-95e220d67fa6",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router": {
+      "main": [
+        [
+          {
+            "node": "Welcome Message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "DB Insert": {
+      "main": [
+        [
+          {
+            "node": "Ask Confirm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Callback Router": {
+      "main": [
+        [
+          {
+            "node": "Prep Confirm",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prep Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prep Confirm": {
+      "main": [
+        [
+          {
+            "node": "DB Confirm",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB Confirm": {
+      "main": [
+        [
+          {
+            "node": "Reply Saved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DB Delete": {
+      "main": [
+        [
+          {
+            "node": "Delete Msg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Confirm": {
+      "main": [
+        []
+      ]
+    },
+    "Prep Delete": {
+      "main": [
+        [
+          {
+            "node": "DB Delete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Text": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Photo": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Photo": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "DB Insert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Fields": {
+      "main": [
+        [
+          {
+            "node": "Callback Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get Photo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "AI Photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "13b79899-8c04-41ae-9187-fd89232ec0d8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4509b0b119b6c387044f8de30debaf2304498ce4db55cf233d22a2889584b231"
+  },
+  "id": "CLtORvhmZHH0fjSK",
+  "tags": []
+}
