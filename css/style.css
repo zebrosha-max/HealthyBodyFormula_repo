@@ -195,7 +195,8 @@
         .page-header {
             display: flex;
             align-items: center;
-            padding: var(--spacing-sm) 0;
+            justify-content: space-between; /* Distribute items */
+            padding: var(--spacing-sm) 5px; /* Add side padding */
             margin-bottom: var(--spacing-md);
             position: relative;
         }
@@ -214,6 +215,18 @@
             transition: all 0.2s ease;
             color: var(--text-primary);
             font-size: 18px;
+            flex-shrink: 0; /* Prevent shrinking */
+        }
+
+        .page-title {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-primary);
+            white-space: nowrap;
+            margin: 0; /* Remove default margin */
         }
 
         .back-button:active {
@@ -221,10 +234,7 @@
         }
 
 .header-action-btn {
-    position: absolute;
-    right: 20px;
-    top: 50%;
-    transform: translateY(-50%);
+    /* position: absolute; removed */
     background: none;
     border: none;
     color: var(--text-primary);
@@ -237,6 +247,15 @@
     cursor: pointer;
     border-radius: 50%;
     transition: background 0.2s;
+}
+
+.header-actions-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    /* Ensure it stays on the right */
+    margin-left: auto; 
+    z-index: 2; /* Clickable above title if overlap */
 }
 
 .header-action-btn:active {
