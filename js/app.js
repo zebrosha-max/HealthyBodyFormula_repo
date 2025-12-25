@@ -522,9 +522,9 @@ document.addEventListener('DOMContentLoaded', () => {
         renderUserStatus();
         loadFavorites();
         
-        if (state.activeTab === 'profile') {
-            loadProfileData();
-        }
+        // PREFETCH: Always load profile data to warm up the cache
+        // regardless of which tab we are on.
+        loadProfileData(); 
     }
 
     // ===== BODY PROGRESS LOGIC =====
@@ -615,21 +615,27 @@ document.addEventListener('DOMContentLoaded', () => {
             if (input) {
                 const newWeight = parseFloat(input.replace(',', '.'));
                 if (!isNaN(newWeight) && newWeight > 20 && newWeight < 300) {
-                    // OPTIMISTIC UPDATE
+                    // 1. OPTIMISTIC UPDATE (Instant)
                     state.weightCurrent = newWeight;
-                    renderBodyStats(); 
+                    saveCache('weight', state.currentDate, newWeight); // Save to cache immediately
+                    updateWeightUI(); 
                     
+                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+                    // 2. BACKGROUND SYNC (Fire and forget)
                     if (state.user && supabase) {
-                        try {
-                            await supabase.from('weight_logs').insert({
-                                user_id: state.user.telegram_id,
-                                weight_kg: newWeight
-                            });
-                            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-                        } catch (e) {
-                            console.error("Weight save error:", e);
-                            // Ideally revert state here on error, but for MVP keep it simple
-                        }
+                        // Create log date (selected date + current time)
+                        const logDate = new Date(state.currentDate);
+                        const now = new Date();
+                        logDate.setHours(now.getHours(), now.getMinutes(), now.getSeconds());
+
+                        supabase.from('weight_logs').insert({
+                            user_id: state.user.telegram_id,
+                            weight_kg: newWeight,
+                            created_at: logDate.toISOString()
+                        }).then(({ error }) => {
+                             if (error) console.error("Weight bg sync error:", error);
+                        });
                     }
                 } else {
                     alert("Пожалуйста, введите корректное число.");
@@ -1500,5 +1506,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         lastTouchEnd = now;
     }, false);
+
+    // Initial Render (Independent of User Auth)
+    // This ensures recipes are visible immediately, hearts will update later.
+    renderRecipes();
 
 });
