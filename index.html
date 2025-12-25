@@ -779,9 +779,9 @@
 
         <div style="padding: 15px;">
             <!-- Period Selector -->
-            <div class="filters-grid" style="margin-bottom: 20px;">
-                <button class="filter-select active" style="flex: 1; padding: 10px;">Неделя</button>
-                <button class="filter-select" style="flex: 1; padding: 10px; opacity: 0.5;" disabled>Месяц (PRO)</button>
+            <div class="segmented-control" style="display: flex; background: var(--sage-green-light); padding: 4px; border-radius: 12px; margin-bottom: 20px;">
+                <button id="analytics-week-btn" class="segment-btn active" style="flex: 1; border: none; background: #fff; border-radius: 8px; padding: 8px; font-weight: 600; color: var(--text-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.2s;">Неделя</button>
+                <button id="analytics-month-btn" class="segment-btn" style="flex: 1; border: none; background: transparent; border-radius: 8px; padding: 8px; font-weight: 600; color: var(--sage-green-dark); transition: all 0.2s;">Месяц</button>
             </div>
 
             <!-- Weight Chart -->
@@ -791,9 +791,15 @@
             </div>
 
             <!-- Calories Chart -->
-            <div class="bio-card">
-                <h3 style="font-size: 16px; margin-bottom: 15px;"><i class="fa-solid fa-fire"></i> Калории по дням</h3>
+            <div class="bio-card" style="margin-bottom: 20px;">
+                <h3 style="font-size: 16px; margin-bottom: 15px;"><i class="fa-solid fa-fire"></i> Калории</h3>
                 <canvas id="caloriesChart" width="400" height="250"></canvas>
+            </div>
+
+            <!-- Water Chart -->
+            <div class="bio-card">
+                <h3 style="font-size: 16px; margin-bottom: 15px;"><i class="fa-solid fa-droplet"></i> Водный баланс</h3>
+                <canvas id="waterChart" width="400" height="250"></canvas>
             </div>
         </div>
     </div>

@@ -1412,15 +1412,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== ANALYTICS LOGIC =====
     const openAnalyticsBtn = document.getElementById('open-analytics-btn');
     const closeAnalyticsBtn = document.getElementById('close-analytics');
+    const weekBtn = document.getElementById('analytics-week-btn');
+    const monthBtn = document.getElementById('analytics-month-btn');
     
     let weightChart = null;
     let caloriesChart = null;
+    let waterChart = null;
+    let currentPeriod = 'week'; // 'week' | 'month'
 
     if (openAnalyticsBtn) {
         openAnalyticsBtn.addEventListener('click', () => {
             showScreen('analytics');
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            renderAnalytics();
+            renderAnalytics(currentPeriod);
         });
 
         if (closeAnalyticsBtn) {
@@ -1430,79 +1434,156 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    async function renderAnalytics() {
-        if (!state.user || !supabase) return;
+    if (weekBtn && monthBtn) {
+        function switchPeriod(period) {
+            currentPeriod = period;
+            
+            // Visual Toggle
+            if (period === 'week') {
+                weekBtn.classList.add('active');
+                weekBtn.style.background = '#fff';
+                weekBtn.style.color = 'var(--text-primary)';
+                weekBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                
+                monthBtn.classList.remove('active');
+                monthBtn.style.background = 'transparent';
+                monthBtn.style.color = 'var(--sage-green-dark)';
+                monthBtn.style.boxShadow = 'none';
+            } else {
+                monthBtn.classList.add('active');
+                monthBtn.style.background = '#fff';
+                monthBtn.style.color = 'var(--text-primary)';
+                monthBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+                
+                weekBtn.classList.remove('active');
+                weekBtn.style.background = 'transparent';
+                weekBtn.style.color = 'var(--sage-green-dark)';
+                weekBtn.style.boxShadow = 'none';
+            }
 
-        // 1. Prepare Date Range (Last 7 days)
-        const days = [];
-        const labels = [];
-        for (let i = 6; i >= 0; i--) {
-            const d = new Date();
-            d.setDate(d.getDate() - i);
-            d.setHours(0,0,0,0);
-            days.push(d);
-            labels.push(d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }));
+            if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+            renderAnalytics(period);
         }
 
+        weekBtn.addEventListener('click', () => switchPeriod('week'));
+        monthBtn.addEventListener('click', () => switchPeriod('month'));
+    }
+
+    function getCalendarRange(type) {
+        const days = [];
+        const labels = [];
+        const now = new Date();
+        now.setHours(0,0,0,0); // normalize time
+
+        if (type === 'week') {
+            // Monday to Sunday of CURRENT week
+            const dayOfWeek = now.getDay() || 7; // Sunday is 0 -> 7
+            const monday = new Date(now);
+            monday.setDate(now.getDate() - dayOfWeek + 1);
+
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(monday);
+                d.setDate(monday.getDate() + i);
+                days.push(d);
+                labels.push(d.toLocaleDateString('ru-RU', { weekday: 'short' })); // Пн, Вт...
+            }
+        } else {
+            // 1st to End of CURRENT month
+            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            
+            for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
+                days.push(new Date(d));
+                // Show day number, simplify label density later if needed
+                labels.push(d.getDate()); 
+            }
+        }
+        return { days, labels };
+    }
+
+    async function renderAnalytics(period) {
+        if (!state.user || !supabase) return;
+
+        const { days, labels } = getCalendarRange(period);
         const start = days[0].toISOString();
-        const end = new Date().toISOString();
+        // End date should include the full last day
+        const endDay = new Date(days[days.length - 1]);
+        endDay.setHours(23, 59, 59, 999);
+        const end = endDay.toISOString();
 
         try {
-            // 2. Fetch Data in Parallel
-            const [weightRes, foodRes] = await Promise.all([
-                supabase.from('weight_logs').select('*').eq('user_id', state.user.telegram_id).gte('created_at', start).order('created_at', { ascending: true }),
-                supabase.from('food_logs').select('*').eq('user_id', state.user.telegram_id).eq('status', 'confirmed').gte('created_at', start)
+            // Fetch Data in Parallel (Weight, Food, Water)
+            const [weightRes, foodRes, waterRes] = await Promise.all([
+                supabase.from('weight_logs').select('*').eq('user_id', state.user.telegram_id).gte('created_at', start).lte('created_at', end).order('created_at', { ascending: true }),
+                supabase.from('food_logs').select('*').eq('user_id', state.user.telegram_id).eq('status', 'confirmed').gte('created_at', start).lte('created_at', end),
+                supabase.from('water_logs').select('*').eq('user_id', state.user.telegram_id).gte('created_at', start).lte('created_at', end)
             ]);
 
-            // 3. Process Weight Data
-            // We want one value per day. If multiple, take latest.
-            const weightValues = new Array(7).fill(null);
+            // Helper to find day index
+            const getDayIndex = (dateStr) => {
+                const target = new Date(dateStr).toDateString();
+                return days.findIndex(d => d.toDateString() === target);
+            };
+
+            // 1. Process Weight
+            const weightValues = new Array(days.length).fill(null);
             if (weightRes.data) {
                 weightRes.data.forEach(log => {
-                    const logDate = new Date(log.created_at).toDateString();
-                    const dayIdx = days.findIndex(d => d.toDateString() === logDate);
-                    if (dayIdx !== -1) weightValues[dayIdx] = log.weight_kg;
+                    const idx = getDayIndex(log.created_at);
+                    if (idx !== -1) weightValues[idx] = log.weight_kg;
                 });
-                
-                // Fill gaps (simple carry forward)
+                // Interpolate gaps (carry forward)
                 let lastKnown = null;
-                for (let i = 0; i < 7; i++) {
+                // Try to find previous weight from before this period? (For simplicity, start from first known in period or user current)
+                if (weightValues[0] === null) lastKnown = state.weightStart; 
+
+                for (let i = 0; i < weightValues.length; i++) {
                     if (weightValues[i] !== null) lastKnown = weightValues[i];
-                    else weightValues[i] = lastKnown;
+                    else weightValues[i] = lastKnown; // Propagate
                 }
             }
 
-            // 4. Process Calories Data
-            const caloriesValues = new Array(7).fill(0);
+            // 2. Process Calories
+            const caloriesValues = new Array(days.length).fill(0);
             if (foodRes.data) {
                 foodRes.data.forEach(log => {
-                    const logDate = new Date(log.created_at).toDateString();
-                    const dayIdx = days.findIndex(d => d.toDateString() === logDate);
-                    if (dayIdx !== -1) caloriesValues[dayIdx] += log.calories;
+                    const idx = getDayIndex(log.created_at);
+                    if (idx !== -1) caloriesValues[idx] += log.calories;
                 });
             }
 
-            // 5. Draw Charts
-            initCharts(labels, weightValues, caloriesValues);
+            // 3. Process Water
+            const waterValues = new Array(days.length).fill(0);
+            if (waterRes.data) {
+                waterRes.data.forEach(log => {
+                    const idx = getDayIndex(log.created_at);
+                    if (idx !== -1) waterValues[idx] += log.amount_ml;
+                });
+            }
+
+            // 4. Draw Charts
+            initCharts(labels, weightValues, caloriesValues, waterValues);
 
         } catch (e) {
             console.error("Analytics load error:", e);
         }
     }
 
-    function initCharts(labels, weights, calories) {
+    function initCharts(labels, weights, calories, water) {
         const weightCtx = document.getElementById('weightChart')?.getContext('2d');
         const calCtx = document.getElementById('caloriesChart')?.getContext('2d');
+        const waterCtx = document.getElementById('waterChart')?.getContext('2d');
 
-        if (!weightCtx || !calCtx) return;
+        if (!weightCtx || !calCtx || !waterCtx) return;
 
-        // Destroy existing if re-rendering
         if (weightChart) weightChart.destroy();
         if (caloriesChart) caloriesChart.destroy();
+        if (waterChart) waterChart.destroy();
 
         const chartColors = {
             sage: '#7DA691',
             peach: '#FDBA74',
+            blue: '#60A5FA', // Water color
             grid: '#F0F0F0'
         };
 
@@ -1512,7 +1593,7 @@ document.addEventListener('DOMContentLoaded', () => {
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Вес (кг)',
+                    label: 'Вес',
                     data: weights,
                     borderColor: chartColors.peach,
                     backgroundColor: 'rgba(253, 186, 116, 0.1)',
@@ -1520,7 +1601,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     tension: 0.4,
                     fill: true,
                     pointBackgroundColor: chartColors.peach,
-                    pointRadius: 4
+                    pointRadius: 3
                 }]
             },
             options: {
@@ -1542,27 +1623,43 @@ document.addEventListener('DOMContentLoaded', () => {
                     label: 'Ккал',
                     data: calories,
                     backgroundColor: chartColors.sage,
-                    borderRadius: 6
+                    borderRadius: 4
                 }]
             },
             options: {
                 responsive: true,
-                plugins: { 
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            afterBody: (context) => {
-                                const val = context[0].raw;
-                                return val > state.calorieGoal ? 'Превышение!' : 'В норме';
-                            }
-                        }
-                    }
-                },
+                plugins: { legend: { display: false } },
                 scales: {
                     y: { 
                         beginAtZero: true, 
                         grid: { color: chartColors.grid },
-                        max: Math.max(state.calorieGoal * 1.2, ...calories)
+                        suggestedMax: state.calorieGoal * 1.2
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Water Chart (Bar)
+        waterChart = new Chart(waterCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Вода (мл)',
+                    data: water,
+                    backgroundColor: chartColors.blue,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: chartColors.grid },
+                        suggestedMax: 2500 
                     },
                     x: { grid: { display: false } }
                 }
