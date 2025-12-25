@@ -410,15 +410,15 @@ document.addEventListener('DOMContentLoaded', () => {
     async function deleteFoodLog(logId) {
         if (!confirm("Удалить эту запись?")) return;
 
+        // Snapshot for rollback
+        const previousData = loadCache('food', state.currentDate) || [];
+
         // 1. Optimistic UI Update
-        const currentData = loadCache('food', state.currentDate) || [];
-        const newData = currentData.filter(item => item.id != logId);
+        const newData = previousData.filter(item => item.id != logId);
         
         saveCache('food', state.currentDate, newData);
         renderDiaryItems(newData);
         
-        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
-
         // 2. Background Sync
         if (state.user && supabase) {
             try {
@@ -429,11 +429,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (error) {
                     console.error("Delete error:", error);
-                    // Revert on error? For MVP, we'll assume success or user will refresh.
-                    // Ideally, show toast "Error deleting".
+                    alert("Не удалось удалить запись: " + error.message);
+                    // Rollback UI
+                    saveCache('food', state.currentDate, previousData);
+                    renderDiaryItems(previousData);
+                } else {
+                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                 }
             } catch (e) {
                 console.error("Delete exception:", e);
+                alert("Ошибка соединения при удалении.");
+                saveCache('food', state.currentDate, previousData);
+                renderDiaryItems(previousData);
             }
         }
     }
