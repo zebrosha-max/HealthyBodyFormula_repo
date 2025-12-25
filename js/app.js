@@ -1409,6 +1409,166 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    // ===== ANALYTICS LOGIC =====
+    const openAnalyticsBtn = document.getElementById('open-analytics-btn');
+    const closeAnalyticsBtn = document.getElementById('close-analytics');
+    const modalAnalytics = document.getElementById('modal-analytics');
+    
+    let weightChart = null;
+    let caloriesChart = null;
+
+    if (openAnalyticsBtn && modalAnalytics) {
+        openAnalyticsBtn.addEventListener('click', () => {
+            modalAnalytics.classList.add('active');
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            renderAnalytics();
+        });
+
+        closeAnalyticsBtn.addEventListener('click', () => {
+            modalAnalytics.classList.remove('active');
+        });
+    }
+
+    async function renderAnalytics() {
+        if (!state.user || !supabase) return;
+
+        // 1. Prepare Date Range (Last 7 days)
+        const days = [];
+        const labels = [];
+        for (let i = 6; i >= 0; i--) {
+            const d = new Date();
+            d.setDate(d.getDate() - i);
+            d.setHours(0,0,0,0);
+            days.push(d);
+            labels.push(d.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' }));
+        }
+
+        const start = days[0].toISOString();
+        const end = new Date().toISOString();
+
+        try {
+            // 2. Fetch Data in Parallel
+            const [weightRes, foodRes] = await Promise.all([
+                supabase.from('weight_logs').select('*').eq('user_id', state.user.telegram_id).gte('created_at', start).order('created_at', { ascending: true }),
+                supabase.from('food_logs').select('*').eq('user_id', state.user.telegram_id).eq('status', 'confirmed').gte('created_at', start)
+            ]);
+
+            // 3. Process Weight Data
+            // We want one value per day. If multiple, take latest.
+            const weightValues = new Array(7).fill(null);
+            if (weightRes.data) {
+                weightRes.data.forEach(log => {
+                    const logDate = new Date(log.created_at).toDateString();
+                    const dayIdx = days.findIndex(d => d.toDateString() === logDate);
+                    if (dayIdx !== -1) weightValues[dayIdx] = log.weight_kg;
+                });
+                
+                // Fill gaps (simple carry forward)
+                let lastKnown = null;
+                for (let i = 0; i < 7; i++) {
+                    if (weightValues[i] !== null) lastKnown = weightValues[i];
+                    else weightValues[i] = lastKnown;
+                }
+            }
+
+            // 4. Process Calories Data
+            const caloriesValues = new Array(7).fill(0);
+            if (foodRes.data) {
+                foodRes.data.forEach(log => {
+                    const logDate = new Date(log.created_at).toDateString();
+                    const dayIdx = days.findIndex(d => d.toDateString() === logDate);
+                    if (dayIdx !== -1) caloriesValues[dayIdx] += log.calories;
+                });
+            }
+
+            // 5. Draw Charts
+            initCharts(labels, weightValues, caloriesValues);
+
+        } catch (e) {
+            console.error("Analytics load error:", e);
+        }
+    }
+
+    function initCharts(labels, weights, calories) {
+        const weightCtx = document.getElementById('weightChart')?.getContext('2d');
+        const calCtx = document.getElementById('caloriesChart')?.getContext('2d');
+
+        if (!weightCtx || !calCtx) return;
+
+        // Destroy existing if re-rendering
+        if (weightChart) weightChart.destroy();
+        if (caloriesChart) caloriesChart.destroy();
+
+        const chartColors = {
+            sage: '#7DA691',
+            peach: '#FDBA74',
+            grid: '#F0F0F0'
+        };
+
+        // Weight Chart (Line)
+        weightChart = new Chart(weightCtx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Вес (кг)',
+                    data: weights,
+                    borderColor: chartColors.peach,
+                    backgroundColor: 'rgba(253, 186, 116, 0.1)',
+                    borderWidth: 3,
+                    tension: 0.4,
+                    fill: true,
+                    pointBackgroundColor: chartColors.peach,
+                    pointRadius: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: false, grid: { color: chartColors.grid } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Calories Chart (Bar)
+        caloriesChart = new Chart(calCtx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Ккал',
+                    data: calories,
+                    backgroundColor: chartColors.sage,
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { 
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            afterBody: (context) => {
+                                const val = context[0].raw;
+                                return val > state.calorieGoal ? 'Превышение!' : 'В норме';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: { 
+                        beginAtZero: true, 
+                        grid: { color: chartColors.grid },
+                        max: Math.max(state.calorieGoal * 1.2, ...calories)
+                    },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
     // ===== LIGHTBOX (GALLERY SUPPORT) =====
     const lightbox = document.getElementById('lightbox');
     const galleryWrapper = document.getElementById('galleryWrapper');

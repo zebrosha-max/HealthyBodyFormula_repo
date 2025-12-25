@@ -18,6 +18,10 @@
     
     <!-- Supabase CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body>
@@ -708,6 +712,9 @@
         <div class="bio-card" id="diary-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3 style="margin-bottom: 0;"><i class="fa-solid fa-utensils"></i> Дневник питания</h3>
+                <button id="open-analytics-btn" class="guide-btn" style="padding: 5px 12px; font-size: 12px; height: auto; background: var(--sage-green-light); color: var(--sage-green-dark); border: none;">
+                    <i class="fa-solid fa-chart-line"></i> Аналитика
+                </button>
             </div>
 
             <div class="diary-summary">
@@ -759,6 +766,36 @@
             </div>
         </div>
     </div>
+    <!-- ===== ANALYTICS MODAL ===== -->
+    <div id="modal-analytics" class="screen" style="z-index: 2000; background: var(--bg-color);">
+        <div class="page-header">
+            <button class="back-button" id="close-analytics">
+                <i class="fa-solid fa-chevron-left"></i>
+            </button>
+            <h2 class="page-title">Аналитика</h2>
+        </div>
+
+        <div style="padding: 15px;">
+            <!-- Period Selector -->
+            <div class="filters-grid" style="margin-bottom: 20px;">
+                <button class="filter-select active" style="flex: 1; padding: 10px;">Неделя</button>
+                <button class="filter-select" style="flex: 1; padding: 10px; opacity: 0.5;" disabled>Месяц (PRO)</button>
+            </div>
+
+            <!-- Weight Chart -->
+            <div class="bio-card" style="margin-bottom: 20px;">
+                <h3 style="font-size: 16px; margin-bottom: 15px;"><i class="fa-solid fa-scale-balanced"></i> Динамика веса</h3>
+                <canvas id="weightChart" width="400" height="250"></canvas>
+            </div>
+
+            <!-- Calories Chart -->
+            <div class="bio-card">
+                <h3 style="font-size: 16px; margin-bottom: 15px;"><i class="fa-solid fa-fire"></i> Калории по дням</h3>
+                <canvas id="caloriesChart" width="400" height="250"></canvas>
+            </div>
+        </div>
+    </div>
+
     <script src="js/app.js?v=4"></script>
 </body>
 </html>
