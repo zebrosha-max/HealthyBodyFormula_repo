@@ -63,6 +63,27 @@ document.addEventListener('DOMContentLoaded', () => {
         return { start: start.toISOString(), end: end.toISOString() };
     }
 
+    // ===== CACHE MANAGER =====
+    const CACHE_TTL = 1000 * 60 * 60; // 1 hour validity for read-heavy data (optional, currently unused but good practice)
+    
+    function getCacheKey(type, date) {
+        const dateStr = date.toISOString().split('T')[0];
+        return `hbf_cache_${type}_${state.user?.telegram_id}_${dateStr}`;
+    }
+
+    function loadCache(type, date) {
+        if (!state.user) return null;
+        const key = getCacheKey(type, date);
+        const cached = localStorage.getItem(key);
+        return cached ? JSON.parse(cached) : null;
+    }
+
+    function saveCache(type, date, data) {
+        if (!state.user) return;
+        const key = getCacheKey(type, date);
+        localStorage.setItem(key, JSON.stringify(data));
+    }
+
     // ===== SCREEN NAVIGATION =====
     const screens = document.querySelectorAll('.screen');
     const navCards = document.querySelectorAll('.nav-card[data-screen]');
@@ -294,6 +315,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update Goal Display
         if(goalDisplayEl) goalDisplayEl.textContent = state.calorieGoal;
 
+        // 1. Render from Cache FIRST (Instant UI)
+        const cachedData = loadCache('food', state.currentDate);
+        if (cachedData) {
+            renderDiaryItems(cachedData);
+            console.log("Food Diary rendered from cache");
+        }
+
         try {
             const { start, end } = getDateBoundaries(state.currentDate);
             
@@ -308,41 +336,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (error) throw error;
 
-            if (!data || data.length === 0) {
-                diaryList.innerHTML = '';
-                diaryEmpty.style.display = 'block';
-                kcalTotalEl.textContent = '0';
-                progressBar.style.width = '0%';
-                return;
+            // 2. Update UI with fresh data & Save to Cache
+            if (data) {
+                // Only re-render if data is different from cache to avoid flickering?
+                // For simplicity/robustness, we re-render always for now, or check length.
+                saveCache('food', state.currentDate, data);
+                renderDiaryItems(data);
             }
-
-            diaryEmpty.style.display = 'none';
-            diaryList.innerHTML = '';
-            
-            let totalKcal = 0;
-            data.forEach(log => {
-                totalKcal += log.calories;
-                const time = new Date(log.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-                
-                const item = document.createElement('div');
-                item.className = 'food-log-item';
-                item.innerHTML = `
-                    <div class="food-log-info">
-                        <h4>${log.dish_name || 'Прием пищи'}</h4>
-                        <p>${time} • Б:${log.protein} Ж:${log.fat} У:${log.carbs}</p>
-                    </div>
-                    <div class="food-log-kcal">${log.calories} ккал</div>
-                `;
-                diaryList.appendChild(item);
-            });
-
-            kcalTotalEl.textContent = totalKcal;
-            const progress = Math.min((totalKcal / state.calorieGoal) * 100, 100);
-            progressBar.style.width = `${progress}%`;
 
         } catch (e) {
             console.error("Diary load error:", e);
         }
+    }
+
+    function renderDiaryItems(data) {
+        const diaryList = document.getElementById('diary-list');
+        const diaryEmpty = document.getElementById('diary-empty');
+        const kcalTotalEl = document.getElementById('diary-kcal-total');
+        const progressBar = document.getElementById('diary-progress');
+
+        if (!data || data.length === 0) {
+            diaryList.innerHTML = '';
+            diaryEmpty.style.display = 'block';
+            kcalTotalEl.textContent = '0';
+            progressBar.style.width = '0%';
+            return;
+        }
+
+        diaryEmpty.style.display = 'none';
+        diaryList.innerHTML = '';
+        
+        let totalKcal = 0;
+        data.forEach(log => {
+            totalKcal += log.calories;
+            const time = new Date(log.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+            
+            const item = document.createElement('div');
+            item.className = 'food-log-item';
+            item.innerHTML = `
+                <div class="food-log-info">
+                    <h4>${log.dish_name || 'Прием пищи'}</h4>
+                    <p>${time} • Б:${log.protein} Ж:${log.fat} У:${log.carbs}</p>
+                </div>
+                <div class="food-log-kcal">${log.calories} ккал</div>
+            `;
+            diaryList.appendChild(item);
+        });
+
+        kcalTotalEl.textContent = totalKcal;
+        const progress = Math.min((totalKcal / state.calorieGoal) * 100, 100);
+        progressBar.style.width = `${progress}%`;
     }
 
     function updateActiveTab(tabId) {
@@ -486,12 +529,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== BODY PROGRESS LOGIC =====
     async function renderBodyStats() {
-        // ... (UI elements fetch) ...
         const weightEl = document.getElementById('weight-current');
-        const diffEl = document.getElementById('weight-diff');
-        const progressBar = document.getElementById('weight-progress-bar');
-        
         if (!weightEl) return;
+
+        // 1. Try Cache First
+        const cachedWeight = loadCache('weight', state.currentDate);
+        if (cachedWeight) {
+            state.weightCurrent = cachedWeight;
+            updateWeightUI();
+        }
 
         // Fetch latest weight up to end of selected day
         if (state.user && supabase) {
@@ -508,18 +554,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data && data.length > 0) {
                     state.weightCurrent = data[0].weight_kg;
+                    saveCache('weight', state.currentDate, state.weightCurrent);
+                    updateWeightUI();
                 } else {
-                    // If no logs ever, fallback to start. If no logs for this past date, maybe show previous?
-                    // For now simplicity: show what we have or start.
-                    state.weightCurrent = state.weightStart || 0;
+                    // Fallback to start if no logs
+                    // state.weightCurrent = state.weightStart || 0;
+                    // updateWeightUI();
                 }
             } catch (e) {
                 console.error("Weight load error:", e);
             }
         }
         
-        // ... (UI Rendering logic same as before, no changes needed) ...
-        // Re-injecting UI logic to ensure it's not lost
+        // Ensure UI is drawn at least once if no cache and waiting for network
+        updateWeightUI();
+    }
+
+    function updateWeightUI() {
+        const weightEl = document.getElementById('weight-current');
+        const diffEl = document.getElementById('weight-diff');
+        const progressBar = document.getElementById('weight-progress-bar');
+        
         const displayWeight = state.weightCurrent > 0 ? state.weightCurrent : (state.weightStart > 0 ? state.weightStart : '--');
         weightEl.textContent = displayWeight;
         
@@ -591,6 +646,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const progressBar = document.getElementById('water-progress-bar');
         if (!statsEl || !progressBar) return;
 
+        // 1. Load from Cache if state is zero (fresh load) and we are allowed to fetch
+        // Or simply always verify cache first? 
+        // Better: If we haven't loaded yet, try cache.
+        if (shouldFetch) {
+            const cachedWater = loadCache('water', state.currentDate);
+            if (cachedWater !== null) {
+                state.waterToday = cachedWater;
+                updateWaterUI();
+            }
+        }
+
+        updateWaterUI(); // Render immediately (optimistic or cached)
+
         // Fetch selected date's water
         if (shouldFetch && state.user && supabase) {
             try {
@@ -604,26 +672,29 @@ document.addEventListener('DOMContentLoaded', () => {
                     .gte('created_at', start)
                     .lte('created_at', end);
 
-                // If another operation (like addWater) started while we were fetching, discard this result
-                if (currentOpId !== waterOperationId) {
-                    console.log("Discarding stale water fetch");
-                    return; 
-                }
+                // If another operation started, discard this result
+                if (currentOpId !== waterOperationId) return;
 
                 if (data) {
-                    state.waterToday = data.reduce((sum, log) => sum + log.amount_ml, 0);
-                } else {
-                    state.waterToday = 0;
-                }
+                    const total = data.reduce((sum, log) => sum + log.amount_ml, 0);
+                    state.waterToday = total;
+                    saveCache('water', state.currentDate, total);
+                    updateWaterUI();
+                } 
             } catch (e) {
                 console.error("Water load error:", e);
             }
         }
+    }
 
-        // Update UI
-        statsEl.textContent = `${state.waterToday} / ${state.waterGoal} мл`;
-        const progress = Math.min((state.waterToday / state.waterGoal) * 100, 100);
-        progressBar.style.width = `${progress}%`;
+    function updateWaterUI() {
+        const statsEl = document.getElementById('water-stats');
+        const progressBar = document.getElementById('water-progress-bar');
+        if (statsEl && progressBar) {
+            statsEl.textContent = `${state.waterToday} / ${state.waterGoal} мл`;
+            const progress = Math.min((state.waterToday / state.waterGoal) * 100, 100);
+            progressBar.style.width = `${progress}%`;
+        }
     }
 
     async function addWater(amount) {
