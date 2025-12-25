@@ -1412,21 +1412,22 @@ document.addEventListener('DOMContentLoaded', () => {
     // ===== ANALYTICS LOGIC =====
     const openAnalyticsBtn = document.getElementById('open-analytics-btn');
     const closeAnalyticsBtn = document.getElementById('close-analytics');
-    const modalAnalytics = document.getElementById('modal-analytics');
     
     let weightChart = null;
     let caloriesChart = null;
 
-    if (openAnalyticsBtn && modalAnalytics) {
+    if (openAnalyticsBtn) {
         openAnalyticsBtn.addEventListener('click', () => {
-            modalAnalytics.classList.add('active');
+            showScreen('analytics');
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
             renderAnalytics();
         });
 
-        closeAnalyticsBtn.addEventListener('click', () => {
-            modalAnalytics.classList.remove('active');
-        });
+        if (closeAnalyticsBtn) {
+            closeAnalyticsBtn.addEventListener('click', () => {
+                showScreen('profile', true);
+            });
+        }
     }
 
     async function renderAnalytics() {
