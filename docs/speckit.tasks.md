@@ -72,9 +72,14 @@
 ### Эпик 8: Analytics & Dashboard (История и Аналитика)
 *   [x] **TASK-8.1:** Frontend (Logic): Рефакторинг `renderFoodDiary` для поддержки аргумента `date`.
 *   [x] **TASK-8.2:** Frontend (UI): Добавить навигацию по датам (< Вчера | Сегодня >) в шапку Дневника.
-*   [ ] **TASK-8.3:** Lib: Подключить `Chart.js` через CDN в `index.html`.
-*   [ ] **TASK-8.4:** UI: Реализовать экран/модалку "Аналитика" с переключением периодов (Week/Month).
-*   [ ] **TASK-8.5:** Logic: Сбор данных за период из Supabase (food_logs + weight_logs) для графиков.
+*   [x] **TASK-8.3:** Lib: Подключить `Chart.js` через CDN в `index.html`.
+*   [x] **TASK-8.4:** UI: Реализовать экран/модалку "Аналитика" с переключением периодов (Week/Month).
+*   [x] **TASK-8.5:** Logic: Сбор данных за период из Supabase (food_logs + weight_logs) для графиков.
+
+### Эпик 8.5: Analytics 2.0 (UX Refinement)
+*   [ ] **TASK-8.5.1:** State Management: Внедрить переменную состояния `analyticsDate` (независимо от основной даты) для навигации по истории.
+*   [ ] **TASK-8.5.2:** UI Refactor: Переделать интерфейс на Single Chart + Tabs (Вес / Калории / Вода) вместо скролла.
+*   [ ] **TASK-8.5.3:** Logic: Реализовать навигацию по периодам (стрелки `< >` для переключения недель/месяцев).
 
 ### Эпик 9: Body Progress (Контроль веса)
 *   [x] **TASK-9.1:** Database: Создать таблицу `weight_logs`.

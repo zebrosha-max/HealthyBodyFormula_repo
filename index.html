@@ -777,31 +777,36 @@
             <h2 class="page-title">Аналитика</h2>
         </div>
 
-        <div style="padding: 15px;">
-            <!-- Period Selector -->
-            <div class="segmented-control" style="display: flex; background: var(--sage-green-light); padding: 4px; border-radius: 12px; margin-bottom: 20px;">
+        <div style="padding: 15px; padding-bottom: 80px;">
+            <!-- Period Selector (Week/Month) -->
+            <div class="segmented-control" style="display: flex; background: var(--sage-green-light); padding: 4px; border-radius: 12px; margin-bottom: 15px;">
                 <button id="analytics-week-btn" class="segment-btn active" style="flex: 1; border: none; background: #fff; border-radius: 8px; padding: 8px; font-weight: 600; color: var(--text-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.2s;">Неделя</button>
                 <button id="analytics-month-btn" class="segment-btn" style="flex: 1; border: none; background: transparent; border-radius: 8px; padding: 8px; font-weight: 600; color: var(--sage-green-dark); transition: all 0.2s;">Месяц</button>
             </div>
 
-            <div id="analytics-period-info" style="text-align: center; font-size: 14px; font-weight: 700; color: var(--text-secondary); margin-bottom: 15px;">Загрузка...</div>
-
-            <!-- Weight Chart -->
-            <div class="bio-card" style="margin-bottom: 20px;">
-                <h3 style="font-size: 16px; margin-bottom: 15px;"><i class="fa-solid fa-scale-balanced"></i> Динамика веса</h3>
-                <canvas id="weightChart" width="400" height="250"></canvas>
+            <!-- Period Navigation Arrows -->
+            <div class="date-navigation" style="margin-bottom: 20px; background: transparent;">
+                <button id="analytics-prev-period" class="nav-arrow-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                <div id="analytics-period-info" style="text-align: center; font-size: 14px; font-weight: 700; color: var(--text-secondary);">...</div>
+                <button id="analytics-next-period" class="nav-arrow-btn"><i class="fa-solid fa-chevron-right"></i></button>
             </div>
 
-            <!-- Calories Chart -->
-            <div class="bio-card" style="margin-bottom: 20px;">
-                <h3 style="font-size: 16px; margin-bottom: 15px;"><i class="fa-solid fa-fire"></i> Калории</h3>
-                <canvas id="caloriesChart" width="400" height="250"></canvas>
+            <!-- Data Type Tabs (Weight/Food/Water) -->
+            <div class="tabs-control" style="display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;">
+                <button class="filter-select active" data-type="weight" style="flex: 1; min-width: 80px; white-space: nowrap;">Вес</button>
+                <button class="filter-select" data-type="calories" style="flex: 1; min-width: 80px; white-space: nowrap;">Калории</button>
+                <button class="filter-select" data-type="water" style="flex: 1; min-width: 80px; white-space: nowrap;">Вода</button>
             </div>
 
-            <!-- Water Chart -->
-            <div class="bio-card">
-                <h3 style="font-size: 16px; margin-bottom: 15px;"><i class="fa-solid fa-droplet"></i> Водный баланс</h3>
-                <canvas id="waterChart" width="400" height="250"></canvas>
+            <!-- Single Consolidated Chart -->
+            <div class="bio-card" style="padding: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h3 id="chart-title" style="font-size: 16px; margin-bottom: 0;">Динамика веса</h3>
+                    <span id="chart-average" style="font-size: 12px; font-weight: 700; color: var(--sage-green-dark); background: var(--sage-green-light); padding: 2px 8px; border-radius: 10px;">...</span>
+                </div>
+                <div style="position: relative; height: 300px; width: 100%;">
+                    <canvas id="mainChart"></canvas>
+                </div>
             </div>
         </div>
     </div>

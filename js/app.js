@@ -43,6 +43,9 @@ document.addEventListener('DOMContentLoaded', () => {
         weightGoal: parseFloat(localStorage.getItem('hbf_weight_goal')) || 0,
         weightCurrent: 0,
         currentDate: new Date(), // Current selected date
+        analyticsDate: new Date(), // Date for analytics navigation
+        analyticsType: 'weight', // 'weight' | 'calories' | 'water'
+        analyticsPeriod: 'week', // 'week' | 'month'
         filters: {
             category: 'all',
             type: 'all',
@@ -1414,17 +1417,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeAnalyticsBtn = document.getElementById('close-analytics');
     const weekBtn = document.getElementById('analytics-week-btn');
     const monthBtn = document.getElementById('analytics-month-btn');
+    const prevPeriodBtn = document.getElementById('analytics-prev-period');
+    const nextPeriodBtn = document.getElementById('analytics-next-period');
+    const typeTabs = document.querySelectorAll('.tabs-control .filter-select');
     
-    let weightChart = null;
-    let caloriesChart = null;
-    let waterChart = null;
-    let currentPeriod = 'week'; // 'week' | 'month'
+    let mainChart = null;
 
     if (openAnalyticsBtn) {
         openAnalyticsBtn.addEventListener('click', () => {
+            state.analyticsDate = new Date(); // Reset to today on open
             showScreen('analytics');
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            renderAnalytics(currentPeriod);
+            renderAnalytics();
         });
 
         if (closeAnalyticsBtn) {
@@ -1435,56 +1439,72 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (weekBtn && monthBtn) {
-        function switchPeriod(period) {
-            currentPeriod = period;
-            
-            // Visual Toggle
-            if (period === 'week') {
-                weekBtn.classList.add('active');
-                weekBtn.style.background = '#fff';
-                weekBtn.style.color = 'var(--text-primary)';
-                weekBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-                
-                monthBtn.classList.remove('active');
-                monthBtn.style.background = 'transparent';
-                monthBtn.style.color = 'var(--sage-green-dark)';
-                monthBtn.style.boxShadow = 'none';
-            } else {
-                monthBtn.classList.add('active');
-                monthBtn.style.background = '#fff';
-                monthBtn.style.color = 'var(--text-primary)';
-                monthBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
-                
-                weekBtn.classList.remove('active');
-                weekBtn.style.background = 'transparent';
-                weekBtn.style.color = 'var(--sage-green-dark)';
-                weekBtn.style.boxShadow = 'none';
-            }
-
-            if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-            renderAnalytics(period);
-        }
-
-        weekBtn.addEventListener('click', () => switchPeriod('week'));
-        monthBtn.addEventListener('click', () => switchPeriod('month'));
+        weekBtn.addEventListener('click', () => switchAnalyticsPeriod('week'));
+        monthBtn.addEventListener('click', () => switchAnalyticsPeriod('month'));
     }
 
-    function getCalendarRange(type) {
+    function switchAnalyticsPeriod(period) {
+        state.analyticsPeriod = period;
+        // Visual Toggle
+        [weekBtn, monthBtn].forEach(btn => {
+            const isActive = (btn.id === `analytics-${period}-btn`);
+            btn.classList.toggle('active', isActive);
+            btn.style.background = isActive ? '#fff' : 'transparent';
+            btn.style.color = isActive ? 'var(--text-primary)' : 'var(--sage-green-dark)';
+            btn.style.boxShadow = isActive ? '0 2px 4px rgba(0,0,0,0.1)' : 'none';
+        });
+
+        if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+        renderAnalytics();
+    }
+
+    // Period Navigation
+    if (prevPeriodBtn && nextPeriodBtn) {
+        prevPeriodBtn.addEventListener('click', () => navigatePeriod(-1));
+        nextPeriodBtn.addEventListener('click', () => navigatePeriod(1));
+    }
+
+    function navigatePeriod(direction) {
+        const d = new Date(state.analyticsDate);
+        if (state.analyticsPeriod === 'week') {
+            d.setDate(d.getDate() + (direction * 7));
+        } else {
+            d.setMonth(d.getMonth() + direction);
+        }
+        
+        // Prevent going into future
+        if (d > new Date() && direction > 0) return;
+
+        state.analyticsDate = d;
+        if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+        renderAnalytics();
+    }
+
+    // Data Type Switching
+    typeTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            typeTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            state.analyticsType = this.dataset.type;
+            
+            if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+            renderAnalytics();
+        });
+    });
+
+    function getCalendarRange(type, referenceDate) {
         const days = [];
         const labels = [];
-        const now = new Date();
-        now.setHours(0,0,0,0); // normalize time
+        const baseDate = new Date(referenceDate);
+        baseDate.setHours(0,0,0,0);
 
         const periodInfo = document.getElementById('analytics-period-info');
-        
-        // Helper to capitalize month
         const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
         if (type === 'week') {
-            // Monday to Sunday of CURRENT week
-            const dayOfWeek = now.getDay() || 7; 
-            const monday = new Date(now);
-            monday.setDate(now.getDate() - dayOfWeek + 1);
+            const dayOfWeek = baseDate.getDay() || 7; 
+            const monday = new Date(baseDate);
+            monday.setDate(baseDate.getDate() - dayOfWeek + 1);
 
             for (let i = 0; i < 7; i++) {
                 const d = new Date(monday);
@@ -1494,177 +1514,140 @@ document.addEventListener('DOMContentLoaded', () => {
                 labels.push(`${d.getDate()} ${d.toLocaleDateString('ru-RU', { weekday: 'short' })}`); 
             }
             if (periodInfo) {
-                 const monthName = days[6].toLocaleDateString('ru-RU', { month: 'long' });
-                 periodInfo.textContent = `Неделя: ${days[0].getDate()} - ${days[6].getDate()} ${capitalize(monthName)}`;
+                const m = days[6].toLocaleDateString('ru-RU', { month: 'long' });
+                periodInfo.textContent = `${days[0].getDate()} - ${days[6].getDate()} ${capitalize(m)}`;
             }
         } else {
-            // 1st to End of CURRENT month
-            const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-            const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+            const firstDay = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
+            const lastDay = new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, 0);
             
             for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
                 days.push(new Date(d));
                 labels.push(d.getDate()); 
             }
             if (periodInfo) {
-                const monthName = now.toLocaleDateString('ru-RU', { month: 'long' });
-                periodInfo.textContent = `${capitalize(monthName)} ${now.getFullYear()}`;
+                const m = baseDate.toLocaleDateString('ru-RU', { month: 'long' });
+                periodInfo.textContent = `${capitalize(m)} ${baseDate.getFullYear()}`;
             }
         }
         return { days, labels };
     }
 
-    async function renderAnalytics(period) {
+    async function renderAnalytics() {
         if (!state.user || !supabase) return;
 
-        const { days, labels } = getCalendarRange(period);
+        const { days, labels } = getCalendarRange(state.analyticsPeriod, state.analyticsDate);
         const start = days[0].toISOString();
         const endDay = new Date(days[days.length - 1]);
         endDay.setHours(23, 59, 59, 999);
         const end = endDay.toISOString();
 
+        // Update UI Disable Next button if in current period
+        const todayStr = new Date().toDateString();
+        const containsToday = days.some(d => d.toDateString() === todayStr);
+        if(nextPeriodBtn) {
+            nextPeriodBtn.disabled = containsToday;
+            nextPeriodBtn.style.opacity = containsToday ? '0.3' : '1';
+        }
+
         try {
-            const [weightRes, foodRes, waterRes] = await Promise.all([
-                supabase.from('weight_logs').select('*').eq('user_id', state.user.telegram_id).gte('created_at', start).lte('created_at', end).order('created_at', { ascending: true }),
-                supabase.from('food_logs').select('*').eq('user_id', state.user.telegram_id).eq('status', 'confirmed').gte('created_at', start).lte('created_at', end),
-                supabase.from('water_logs').select('*').eq('user_id', state.user.telegram_id).gte('created_at', start).lte('created_at', end)
-            ]);
+            let dataRes;
+            if (state.analyticsType === 'weight') {
+                dataRes = await supabase.from('weight_logs').select('*').eq('user_id', state.user.telegram_id).gte('created_at', start).lte('created_at', end).order('created_at', { ascending: true });
+            } else if (state.analyticsType === 'calories') {
+                dataRes = await supabase.from('food_logs').select('*').eq('user_id', state.user.telegram_id).eq('status', 'confirmed').gte('created_at', start).lte('created_at', end);
+            } else {
+                dataRes = await supabase.from('water_logs').select('*').eq('user_id', state.user.telegram_id).gte('created_at', start).lte('created_at', end);
+            }
 
-            const getDayIndex = (dateStr) => {
-                const target = new Date(dateStr).toDateString();
-                return days.findIndex(d => d.toDateString() === target);
-            };
-
-            // 1. Process Weight (Strict: no interpolation)
-            const weightValues = new Array(days.length).fill(null);
-            if (weightRes.data) {
-                weightRes.data.forEach(log => {
-                    const idx = getDayIndex(log.created_at);
-                    if (idx !== -1) weightValues[idx] = log.weight_kg;
+            const values = new Array(days.length).fill(state.analyticsType === 'weight' ? null : 0);
+            
+            if (dataRes.data) {
+                dataRes.data.forEach(log => {
+                    const logDate = new Date(log.created_at).toDateString();
+                    const targetIdx = days.findIndex(d => d.toDateString() === logDate);
+                    if (targetIdx !== -1) {
+                        if (state.analyticsType === 'weight') values[targetIdx] = log.weight_kg;
+                        else if (state.analyticsType === 'calories') values[targetIdx] += log.calories;
+                        else values[targetIdx] += log.amount_ml;
+                    }
                 });
             }
 
-            // 2. Process Calories
-            const caloriesValues = new Array(days.length).fill(0);
-            if (foodRes.data) {
-                foodRes.data.forEach(log => {
-                    const idx = getDayIndex(log.created_at);
-                    if (idx !== -1) caloriesValues[idx] += log.calories;
-                });
+            // Calculate average/total
+            let avgText = '';
+            const filtered = values.filter(v => v !== null && v !== 0);
+            if (filtered.length > 0) {
+                const sum = filtered.reduce((a, b) => a + b, 0);
+                const avg = Math.round(sum / filtered.length);
+                if (state.analyticsType === 'weight') avgText = `Средний: ${avg} кг`;
+                else if (state.analyticsType === 'calories') avgText = `Средний: ${avg} ккал`;
+                else avgText = `Всего: ${sum} мл`;
+            } else {
+                avgText = 'Нет данных';
             }
+            document.getElementById('chart-average').textContent = avgText;
+            document.getElementById('chart-title').textContent = {weight:'Динамика веса', calories:'Потребление калорий', water:'Водный баланс'}[state.analyticsType];
 
-            // 3. Process Water
-            const waterValues = new Array(days.length).fill(0);
-            if (waterRes.data) {
-                waterRes.data.forEach(log => {
-                    const idx = getDayIndex(log.created_at);
-                    if (idx !== -1) waterValues[idx] += log.amount_ml;
-                });
-            }
-
-            initCharts(labels, weightValues, caloriesValues, waterValues);
+            initMainChart(labels, values, state.analyticsType);
 
         } catch (e) {
             console.error("Analytics load error:", e);
         }
     }
 
-    function initCharts(labels, weights, calories, water) {
-        const weightCtx = document.getElementById('weightChart')?.getContext('2d');
-        const calCtx = document.getElementById('caloriesChart')?.getContext('2d');
-        const waterCtx = document.getElementById('waterChart')?.getContext('2d');
+    function initMainChart(labels, values, type) {
+        const ctx = document.getElementById('mainChart')?.getContext('2d');
+        if (!ctx) return;
 
-        if (!weightCtx || !calCtx || !waterCtx) return;
+        if (mainChart) mainChart.destroy();
 
-        if (weightChart) weightChart.destroy();
-        if (caloriesChart) caloriesChart.destroy();
-        if (waterChart) waterChart.destroy();
+        const config = {
+            weight: {
+                type: 'line',
+                color: '#FDBA74',
+                bg: 'rgba(253, 186, 116, 0.1)',
+                spanGaps: false
+            },
+            calories: {
+                type: 'bar',
+                color: '#7DA691',
+                bg: '#7DA691',
+                spanGaps: true
+            },
+            water: {
+                type: 'bar',
+                color: '#60A5FA',
+                bg: '#60A5FA',
+                spanGaps: true
+            }
+        }[type];
 
-        const chartColors = {
-            sage: '#7DA691',
-            peach: '#FDBA74',
-            blue: '#60A5FA', 
-            grid: '#F0F0F0'
-        };
-
-        // Weight Chart (Line - now strict)
-        weightChart = new Chart(weightCtx, {
-            type: 'line',
+        mainChart = new Chart(ctx, {
+            type: config.type,
             data: {
                 labels: labels,
                 datasets: [{
-                    label: 'Вес',
-                    data: weights,
-                    borderColor: chartColors.peach,
-                    backgroundColor: 'rgba(253, 186, 116, 0.1)',
-                    borderWidth: 3,
-                    tension: 0, // removed curve for more "honest" scientific look
-                    fill: false,
-                    pointBackgroundColor: chartColors.peach,
+                    data: values,
+                    borderColor: config.color,
+                    backgroundColor: config.bg,
+                    borderWidth: type === 'weight' ? 3 : 0,
+                    borderRadius: 4,
+                    tension: 0,
+                    fill: type === 'weight',
+                    pointBackgroundColor: config.color,
                     pointRadius: 4,
-                    spanGaps: false // Do NOT connect gaps
+                    spanGaps: config.spanGaps
                 }]
             },
             options: {
                 responsive: true,
+                maintainAspectRatio: false,
                 plugins: { legend: { display: false } },
                 scales: {
                     y: { 
-                        beginAtZero: false, 
-                        grid: { color: chartColors.grid },
-                        ticks: { stepSize: 0.5 }
-                    },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
-
-        // Calories Chart (Bar)
-        caloriesChart = new Chart(calCtx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Ккал',
-                    data: calories,
-                    backgroundColor: chartColors.sage,
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { 
-                        beginAtZero: true, 
-                        grid: { color: chartColors.grid },
-                        suggestedMax: state.calorieGoal * 1.2
-                    },
-                    x: { grid: { display: false } }
-                }
-            }
-        });
-
-        // Water Chart (Bar)
-        waterChart = new Chart(waterCtx, {
-            type: 'bar',
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Вода (мл)',
-                    data: water,
-                    backgroundColor: chartColors.blue,
-                    borderRadius: 4
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: { legend: { display: false } },
-                scales: {
-                    y: { 
-                        beginAtZero: true, 
-                        grid: { color: chartColors.grid },
-                        suggestedMax: 2500 
+                        beginAtZero: type !== 'weight', 
+                        grid: { color: '#F0F0F0' } 
                     },
                     x: { grid: { display: false } }
                 }
