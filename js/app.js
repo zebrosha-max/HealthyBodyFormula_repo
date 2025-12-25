@@ -1477,6 +1477,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const periodInfo = document.getElementById('analytics-period-info');
         
+        // Helper to capitalize month
+        const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
         if (type === 'week') {
             // Monday to Sunday of CURRENT week
             const dayOfWeek = now.getDay() || 7; 
@@ -1487,10 +1490,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 const d = new Date(monday);
                 d.setDate(monday.getDate() + i);
                 days.push(d);
-                // "Пн\n25" style
-                labels.push([d.toLocaleDateString('ru-RU', { weekday: 'short' }), d.getDate()]); 
+                // "25 Пн" style
+                labels.push(`${d.getDate()} ${d.toLocaleDateString('ru-RU', { weekday: 'short' })}`); 
             }
-            if (periodInfo) periodInfo.textContent = `Неделя: ${days[0].getDate()} - ${days[6].getDate()} ${days[6].toLocaleDateString('ru-RU', { month: 'long' })}`;
+            if (periodInfo) {
+                 const monthName = days[6].toLocaleDateString('ru-RU', { month: 'long' });
+                 periodInfo.textContent = `Неделя: ${days[0].getDate()} - ${days[6].getDate()} ${capitalize(monthName)}`;
+            }
         } else {
             // 1st to End of CURRENT month
             const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -1500,7 +1506,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 days.push(new Date(d));
                 labels.push(d.getDate()); 
             }
-            if (periodInfo) periodInfo.textContent = now.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
+            if (periodInfo) {
+                const monthName = now.toLocaleDateString('ru-RU', { month: 'long' });
+                periodInfo.textContent = `${capitalize(monthName)} ${now.getFullYear()}`;
+            }
         }
         return { days, labels };
     }
@@ -1593,7 +1602,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     fill: false,
                     pointBackgroundColor: chartColors.peach,
                     pointRadius: 4,
-                    spanGaps: true // Connect dots but don't invent values
+                    spanGaps: false // Do NOT connect gaps
                 }]
             },
             options: {
