@@ -108,8 +108,24 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextDayBtn = document.getElementById('next-day');
     const dateLabel = document.getElementById('current-date-label');
     const dateInput = document.getElementById('date-picker-input');
+    const dateTrigger = document.getElementById('date-picker-trigger');
 
     if (prevDayBtn && nextDayBtn && dateLabel && dateInput) {
+        
+        // Open native date picker when clicking the label area
+        if (dateTrigger) {
+            dateTrigger.addEventListener('click', () => {
+                try {
+                    if (typeof dateInput.showPicker === 'function') {
+                        dateInput.showPicker();
+                    } else {
+                        dateInput.click();
+                    }
+                } catch (e) {
+                    dateInput.focus();
+                }
+            });
+        }
         
         function updateDateUI() {
             const now = new Date();

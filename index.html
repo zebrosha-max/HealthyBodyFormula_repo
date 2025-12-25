@@ -654,11 +654,15 @@
             <p id="user-status" class="profile-title">Обновление данных...</p>
         </div>
 
-        <div class="bio-card">
-            <h3><i class="fa-solid fa-crown"></i> Подписка</h3>
-            <p id="subscription-info" class="bio-text">Проверка статуса подписки...</p>
-            <div id="subscribe-actions" style="margin-top: 15px; display: none;">
-                <button class="guide-btn" style="color: var(--peach-dark)">Улучшить до PRO <i class="fa-solid fa-star"></i></button>
+        <!-- Глобальная навигация по датам -->
+        <div class="bio-card" style="margin-bottom: 15px; padding: 12px 15px;">
+            <div class="date-navigation">
+                <button id="prev-day" class="nav-arrow-btn"><i class="fa-solid fa-chevron-left"></i></button>
+                <div class="date-picker-wrapper" id="date-picker-trigger">
+                    <span id="current-date-label">Сегодня</span>
+                    <input type="date" id="date-picker-input">
+                </div>
+                <button id="next-day" class="nav-arrow-btn" disabled><i class="fa-solid fa-chevron-right"></i></button>
             </div>
         </div>
 
@@ -704,16 +708,6 @@
         <div class="bio-card" id="diary-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
                 <h3 style="margin-bottom: 0;"><i class="fa-solid fa-utensils"></i> Дневник питания</h3>
-            </div>
-
-            <!-- Date Navigation -->
-            <div class="date-navigation">
-                <button id="prev-day" class="nav-arrow-btn"><i class="fa-solid fa-chevron-left"></i></button>
-                <div class="date-picker-wrapper">
-                    <span id="current-date-label">Сегодня</span>
-                    <input type="date" id="date-picker-input">
-                </div>
-                <button id="next-day" class="nav-arrow-btn" disabled><i class="fa-solid fa-chevron-right"></i></button>
             </div>
 
             <div class="diary-summary">

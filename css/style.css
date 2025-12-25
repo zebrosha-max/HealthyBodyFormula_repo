@@ -1317,10 +1317,39 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background: #F8F9FA;
+    width: 100%;
+}
+
+.date-picker-wrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    cursor: pointer;
+    padding: 8px 16px;
     border-radius: 12px;
-    padding: 5px;
-    margin-bottom: 15px;
+    transition: background 0.2s;
+}
+
+.date-picker-wrapper:active {
+    background: rgba(0,0,0,0.05);
+}
+
+#current-date-label {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--sage-green-dark);
+}
+
+#date-picker-input {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    pointer-events: auto;
 }
 
 .nav-arrow-btn {
