@@ -1482,7 +1482,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Data Type Switching
     typeTabs.forEach(tab => {
-        tab.addEventListener('click', function() {
+        tab.addEventListener('click', function(e) {
+            e.preventDefault(); // Prevent default behavior
+            
             // Visual Reset & Set
             typeTabs.forEach(t => {
                 t.classList.remove('active');
@@ -1491,15 +1493,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 t.style.boxShadow = 'none';
             });
             
-            this.classList.add('active');
-            this.style.background = '#fff';
-            this.style.color = 'var(--text-primary)';
-            this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+            // Use currentTarget to ensure we target the button, not the icon
+            const currentBtn = e.currentTarget;
+            currentBtn.classList.add('active');
+            currentBtn.style.background = '#fff';
+            currentBtn.style.color = 'var(--text-primary)';
+            currentBtn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
 
-            state.analyticsType = this.dataset.type;
-            
-            if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
-            renderAnalytics();
+            if (currentBtn.dataset.type) {
+                state.analyticsType = currentBtn.dataset.type;
+                
+                if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+                
+                // Render analytics safely
+                setTimeout(() => {
+                    renderAnalytics();
+                }, 10);
+            }
         });
     });
 
