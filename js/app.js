@@ -42,6 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
         weightStart: parseFloat(localStorage.getItem('hbf_weight_start')) || 0,
         weightGoal: parseFloat(localStorage.getItem('hbf_weight_goal')) || 0,
         weightCurrent: 0,
+        currentDate: new Date(), // Current selected date
         filters: {
             category: 'all',
             type: 'all',
@@ -50,6 +51,17 @@ document.addEventListener('DOMContentLoaded', () => {
             onlyFavorites: false
         }
     };
+
+    // Helper to get date boundaries
+    function getDateBoundaries(date) {
+        const start = new Date(date);
+        start.setHours(0, 0, 0, 0);
+        
+        const end = new Date(date);
+        end.setHours(23, 59, 59, 999);
+        
+        return { start: start.toISOString(), end: end.toISOString() };
+    }
 
     // ===== SCREEN NAVIGATION =====
     const screens = document.querySelectorAll('.screen');
@@ -74,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
             updateActiveTab(screenId);
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
 
-            // Refresh Diary and Water when entering profile
+            // Refresh Diary and Water when entering profile (Parallel)
             if (screenId === 'profile') {
                 loadProfileData();
             }
@@ -83,15 +95,73 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function loadProfileData() {
         if (!state.user) return;
-        try {
-            await Promise.all([
-                renderFoodDiary(),
-                renderWaterTracker(),
-                renderBodyStats()
-            ]);
-        } catch (e) {
-            console.error("Profile load error:", e);
+        // Parallel data fetching for speed
+        await Promise.all([
+            renderFoodDiary(),
+            renderWaterTracker(),
+            renderBodyStats()
+        ]);
+    }
+
+    // ===== DATE NAVIGATION LOGIC =====
+    const prevDayBtn = document.getElementById('prev-day');
+    const nextDayBtn = document.getElementById('next-day');
+    const dateLabel = document.getElementById('current-date-label');
+    const dateInput = document.getElementById('date-picker-input');
+
+    if (prevDayBtn && nextDayBtn && dateLabel && dateInput) {
+        
+        function updateDateUI() {
+            const now = new Date();
+            const isToday = state.currentDate.toDateString() === now.toDateString();
+            
+            // Format Label
+            if (isToday) {
+                dateLabel.textContent = 'Сегодня';
+            } else {
+                dateLabel.textContent = state.currentDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', weekday: 'short' });
+            }
+
+            // Sync Input (YYYY-MM-DD)
+            // Adjust for timezone offset to show correct local date in input
+            const localDate = new Date(state.currentDate.getTime() - (state.currentDate.getTimezoneOffset() * 60000)).toISOString().split('T')[0];
+            dateInput.value = localDate;
+            dateInput.max = new Date().toISOString().split('T')[0]; // Block future
+
+            // Disable Next button if today
+            nextDayBtn.disabled = isToday;
+            nextDayBtn.style.opacity = isToday ? '0.3' : '1';
         }
+
+        function changeDate(delta) {
+            const newDate = new Date(state.currentDate);
+            newDate.setDate(newDate.getDate() + delta);
+            
+            // Block future
+            if (newDate > new Date()) return;
+
+            state.currentDate = newDate;
+            updateDateUI();
+            
+            if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
+            
+            // Reload Data
+            loadProfileData(); 
+        }
+
+        prevDayBtn.addEventListener('click', () => changeDate(-1));
+        nextDayBtn.addEventListener('click', () => changeDate(1));
+
+        dateInput.addEventListener('change', (e) => {
+            if (e.target.value) {
+                state.currentDate = new Date(e.target.value);
+                updateDateUI();
+                loadProfileData();
+            }
+        });
+
+        // Init UI
+        updateDateUI();
     }
 
     // ===== SMART LOGGER (FAB) =====
@@ -138,7 +208,6 @@ document.addEventListener('DOMContentLoaded', () => {
         modalSave.addEventListener('click', async () => {
             const btn = modalSave;
             const originalText = btn.textContent;
-            
             const newGoal = parseInt(modalInput.value);
             const newWaterGoal = parseInt(waterGoalInput.value);
             const newWeightStart = parseFloat(weightStartInput.value);
@@ -152,7 +221,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // OPTIMISTIC UPDATE
+            // OPTIMISTIC UPDATE (Instant UI feedback)
             state.calorieGoal = newGoal;
             state.waterGoal = newWaterGoal;
             if (!isNaN(newWeightStart)) state.weightStart = newWeightStart;
@@ -163,8 +232,10 @@ document.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('hbf_weight_start', state.weightStart);
             localStorage.setItem('hbf_weight_goal', state.weightGoal);
 
-            // UI Update
+            // Close modal immediately
             modal.classList.remove('active');
+            
+            // Update UI widgets
             renderFoodDiary(); 
             renderWaterTracker();
             renderBodyStats();
@@ -184,7 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         })
                         .eq('telegram_id', state.user.telegram_id);
                 } catch (e) {
-                    console.error("Failed to update goal:", e);
+                    console.error("Failed to update goal (Background):", e);
                 }
             }
         });
@@ -208,16 +279,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if(goalDisplayEl) goalDisplayEl.textContent = state.calorieGoal;
 
         try {
-            // Get today's start and end timestamps
-            const startOfDay = new Date();
-            startOfDay.setHours(0, 0, 0, 0);
+            const { start, end } = getDateBoundaries(state.currentDate);
             
             const { data, error } = await supabase
                 .from('food_logs')
                 .select('*')
                 .eq('user_id', state.user.telegram_id)
-                .eq('status', 'confirmed') // Show only confirmed logs
-                .gte('created_at', startOfDay.toISOString())
+                .eq('status', 'confirmed')
+                .gte('created_at', start)
+                .lte('created_at', end) // Added LTE
                 .order('created_at', { ascending: false });
 
             if (error) throw error;
@@ -400,48 +470,49 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== BODY PROGRESS LOGIC =====
     async function renderBodyStats() {
+        // ... (UI elements fetch) ...
         const weightEl = document.getElementById('weight-current');
         const diffEl = document.getElementById('weight-diff');
         const progressBar = document.getElementById('weight-progress-bar');
         
         if (!weightEl) return;
 
-        // Fetch latest weight ONLY if we haven't fetched it yet (0)
-        // AND we have a user.
-        if (state.user && supabase && state.weightCurrent === 0) {
+        // Fetch latest weight up to end of selected day
+        if (state.user && supabase) {
              try {
+                const { end } = getDateBoundaries(state.currentDate);
+                
                 const { data, error } = await supabase
                     .from('weight_logs')
                     .select('weight_kg')
                     .eq('user_id', state.user.telegram_id)
+                    .lte('created_at', end) // Get latest weight relative to that date
                     .order('created_at', { ascending: false })
                     .limit(1);
 
                 if (data && data.length > 0) {
                     state.weightCurrent = data[0].weight_kg;
                 } else {
-                    // If no logs, fallback to start weight
+                    // If no logs ever, fallback to start. If no logs for this past date, maybe show previous?
+                    // For now simplicity: show what we have or start.
                     state.weightCurrent = state.weightStart || 0;
                 }
             } catch (e) {
                 console.error("Weight load error:", e);
             }
         }
-
-        // Fallback logic
-        const displayWeight = state.weightCurrent > 0 ? state.weightCurrent : (state.weightStart > 0 ? state.weightStart : '--');
         
-        // Update UI
+        // ... (UI Rendering logic same as before, no changes needed) ...
+        // Re-injecting UI logic to ensure it's not lost
+        const displayWeight = state.weightCurrent > 0 ? state.weightCurrent : (state.weightStart > 0 ? state.weightStart : '--');
         weightEl.textContent = displayWeight;
         
         if (state.weightGoal > 0) {
             diffEl.textContent = `Цель: ${state.weightGoal} кг`;
-            
             const currentVal = (displayWeight === '--') ? 0 : parseFloat(displayWeight);
 
             if (state.weightStart > 0 && currentVal > 0) {
                 const totalDiff = Math.abs(state.weightStart - state.weightGoal);
-                
                 let progress = 0;
                 if (totalDiff > 0) {
                     if (state.weightStart > state.weightGoal) {
@@ -452,7 +523,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     progress = 100;
                 }
-                
                 progress = Math.max(0, Math.min(100, progress));
                 progressBar.style.width = `${progress}%`;
             } else {
@@ -468,6 +538,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnLogWeight) {
         btnLogWeight.addEventListener('click', async () => {
             const current = state.weightCurrent || state.weightStart || 65.0;
+            // Simple prompt for MVP
             const input = prompt("Введите ваш текущий вес (кг):", current);
             
             if (input) {
@@ -486,6 +557,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
                         } catch (e) {
                             console.error("Weight save error:", e);
+                            // Ideally revert state here on error, but for MVP keep it simple
                         }
                     }
                 } else {
@@ -501,20 +573,22 @@ document.addEventListener('DOMContentLoaded', () => {
         const progressBar = document.getElementById('water-progress-bar');
         if (!statsEl || !progressBar) return;
 
-        // Fetch today's water from Supabase
+        // Fetch selected date's water
         if (state.user && supabase) {
             try {
-                const startOfDay = new Date();
-                startOfDay.setHours(0, 0, 0, 0);
+                const { start, end } = getDateBoundaries(state.currentDate);
 
                 const { data, error } = await supabase
                     .from('water_logs')
                     .select('amount_ml')
                     .eq('user_id', state.user.telegram_id)
-                    .gte('created_at', startOfDay.toISOString());
+                    .gte('created_at', start)
+                    .lte('created_at', end); // Added LTE
 
                 if (data) {
                     state.waterToday = data.reduce((sum, log) => sum + log.amount_ml, 0);
+                } else {
+                    state.waterToday = 0;
                 }
             } catch (e) {
                 console.error("Water load error:", e);
@@ -528,6 +602,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function addWater(amount) {
+        // Block updates for future dates? No, because we already block nav.
+        // But we should check if current date is today to allow edits.
+        
+        const now = new Date();
+        const isToday = state.currentDate.toDateString() === now.toDateString();
+        
+        if (!isToday) {
+            // Optional: prevent editing past? Or allow?
+            // Let's allow for now, but usually people log for today.
+            // If they are on yesterday, log for yesterday.
+        }
+
         // Optimistic update
         state.waterToday = Math.max(0, state.waterToday + amount);
         renderWaterTracker();
@@ -541,19 +627,28 @@ document.addEventListener('DOMContentLoaded', () => {
         if (state.user && supabase) {
             try {
                 if (amount > 0) {
+                    // Create date for the log based on currently selected day + current time
+                    // Or just use the selected date at noon?
+                    // Better: Use selected date + current HH:MM to keep order
+                    const logDate = new Date(state.currentDate);
+                    const currentTime = new Date();
+                    logDate.setHours(currentTime.getHours(), currentTime.getMinutes(), currentTime.getSeconds());
+
                     await supabase.from('water_logs').insert({
                         user_id: state.user.telegram_id,
-                        amount_ml: amount
+                        amount_ml: amount,
+                        created_at: logDate.toISOString()
                     });
                 } else {
-                    const startOfDay = new Date();
-                    startOfDay.setHours(0, 0, 0, 0);
+                    // Remove latest log for THAT day
+                    const { start, end } = getDateBoundaries(state.currentDate);
 
                     const { data } = await supabase
                         .from('water_logs')
                         .select('id')
                         .eq('user_id', state.user.telegram_id)
-                        .gte('created_at', startOfDay.toISOString())
+                        .gte('created_at', start)
+                        .lte('created_at', end)
                         .order('created_at', { ascending: false })
                         .limit(1);
 

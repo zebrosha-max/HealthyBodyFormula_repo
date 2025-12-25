@@ -63,15 +63,15 @@
 *   [x] **TASK-6.4.2:** Настроить n8n на обработку Callback Query (нажатия кнопок Save/Cancel).
 
 ### Эпик 7: Water Tracker (Трекер воды)
-*   [x] **TASK-7.1:** Database: Создать таблицу `water_logs` и добавить колонки в `users` (`water_goal`, `water_reminder_active`).
+*   [x] **TASK-7.1:** Database: Создать таблицу `water_logs` и добавить колонки в `users` (`water_goal`).
 *   [x] **TASK-7.2:** Frontend (Logic): Создать модуль `WaterTracker` в `app.js` (addWater, getWater, renderWidget).
-*   [x] **TASK-7.3:** Frontend (UI): Верстка виджета воды в Профиле (Progress Wave/Bar, Buttons +250/-250).
+*   [x] **TASK-7.3:** Frontend (UI): Верстка виджета воды в Профиле (Progress Bar, Buttons +250/-250).
 *   [x] **TASK-7.4:** Frontend (Settings): Добавить настройки воды в модальное окно настроек (Цель).
-*   [ ] **TASK-7.5:** Backend (n8n): Создать Cron-workflow для напоминаний (раз в час проверять, пил ли пользователь).
+*   [ ] **TASK-7.5:** Backend (n8n): Создать Cron-workflow для напоминаний.
 
 ### Эпик 8: Analytics & Dashboard (История и Аналитика)
-*   [ ] **TASK-8.1:** Frontend (Logic): Рефакторинг `renderFoodDiary` для поддержки аргумента `date`.
-*   [ ] **TASK-8.2:** Frontend (UI): Добавить навигацию по датам (< Вчера | Сегодня >) в шапку Дневника.
+*   [x] **TASK-8.1:** Frontend (Logic): Рефакторинг `renderFoodDiary` для поддержки аргумента `date`.
+*   [x] **TASK-8.2:** Frontend (UI): Добавить навигацию по датам (< Вчера | Сегодня >) в шапку Дневника.
 *   [ ] **TASK-8.3:** Lib: Подключить `Chart.js` через CDN в `index.html`.
 *   [ ] **TASK-8.4:** UI: Реализовать экран/модалку "Аналитика" с переключением периодов (Week/Month).
 *   [ ] **TASK-8.5:** Logic: Сбор данных за период из Supabase (food_logs + weight_logs) для графиков.
@@ -81,3 +81,9 @@
 *   [x] **TASK-9.2:** Frontend (UI): Верстка блока "Мое тело" (Вес + ИМТ) в профиле.
 *   [x] **TASK-9.3:** Frontend (Action): Реализовать ввод веса (модалка + Supabase insert).
 *   [x] **TASK-9.4:** Logic: Автоматический расчет динамики веса (разница с предыдущим значением).
+
+### ТЕХНИЧЕСКИЙ ЭПИК: Оптимизация и Стабильность (Repair Sprint)
+*   [x] **FIX-1:** Исправить RLS политики для таблиц `water_logs`, `weight_logs`, `users` (публичный доступ для MVP).
+*   [x] **FIX-2:** Реализовать **Offline-First Cache**: сохранение состояния `state.user` в `localStorage` для мгновенного старта.
+*   [x] **FIX-3:** Внедрить **Optimistic UI**: мгновенное обновление интерфейса в настройках и при вводе веса без ожидания ответа сервера.
+*   [x] **FIX-4:** Рефакторинг `initUser`: параллельная загрузка данных через `Promise.all`.
