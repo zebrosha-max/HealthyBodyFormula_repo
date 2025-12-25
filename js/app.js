@@ -1475,9 +1475,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const now = new Date();
         now.setHours(0,0,0,0); // normalize time
 
+        const periodInfo = document.getElementById('analytics-period-info');
+        
         if (type === 'week') {
             // Monday to Sunday of CURRENT week
-            const dayOfWeek = now.getDay() || 7; // Sunday is 0 -> 7
+            const dayOfWeek = now.getDay() || 7; 
             const monday = new Date(now);
             monday.setDate(now.getDate() - dayOfWeek + 1);
 
@@ -1485,8 +1487,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const d = new Date(monday);
                 d.setDate(monday.getDate() + i);
                 days.push(d);
-                labels.push(d.toLocaleDateString('ru-RU', { weekday: 'short' })); // Пн, Вт...
+                // "Пн\n25" style
+                labels.push([d.toLocaleDateString('ru-RU', { weekday: 'short' }), d.getDate()]); 
             }
+            if (periodInfo) periodInfo.textContent = `Неделя: ${days[0].getDate()} - ${days[6].getDate()} ${days[6].toLocaleDateString('ru-RU', { month: 'long' })}`;
         } else {
             // 1st to End of CURRENT month
             const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -1494,9 +1498,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
                 days.push(new Date(d));
-                // Show day number, simplify label density later if needed
                 labels.push(d.getDate()); 
             }
+            if (periodInfo) periodInfo.textContent = now.toLocaleDateString('ru-RU', { month: 'long', year: 'numeric' });
         }
         return { days, labels };
     }
@@ -1506,41 +1510,29 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const { days, labels } = getCalendarRange(period);
         const start = days[0].toISOString();
-        // End date should include the full last day
         const endDay = new Date(days[days.length - 1]);
         endDay.setHours(23, 59, 59, 999);
         const end = endDay.toISOString();
 
         try {
-            // Fetch Data in Parallel (Weight, Food, Water)
             const [weightRes, foodRes, waterRes] = await Promise.all([
                 supabase.from('weight_logs').select('*').eq('user_id', state.user.telegram_id).gte('created_at', start).lte('created_at', end).order('created_at', { ascending: true }),
                 supabase.from('food_logs').select('*').eq('user_id', state.user.telegram_id).eq('status', 'confirmed').gte('created_at', start).lte('created_at', end),
                 supabase.from('water_logs').select('*').eq('user_id', state.user.telegram_id).gte('created_at', start).lte('created_at', end)
             ]);
 
-            // Helper to find day index
             const getDayIndex = (dateStr) => {
                 const target = new Date(dateStr).toDateString();
                 return days.findIndex(d => d.toDateString() === target);
             };
 
-            // 1. Process Weight
+            // 1. Process Weight (Strict: no interpolation)
             const weightValues = new Array(days.length).fill(null);
             if (weightRes.data) {
                 weightRes.data.forEach(log => {
                     const idx = getDayIndex(log.created_at);
                     if (idx !== -1) weightValues[idx] = log.weight_kg;
                 });
-                // Interpolate gaps (carry forward)
-                let lastKnown = null;
-                // Try to find previous weight from before this period? (For simplicity, start from first known in period or user current)
-                if (weightValues[0] === null) lastKnown = state.weightStart; 
-
-                for (let i = 0; i < weightValues.length; i++) {
-                    if (weightValues[i] !== null) lastKnown = weightValues[i];
-                    else weightValues[i] = lastKnown; // Propagate
-                }
             }
 
             // 2. Process Calories
@@ -1561,7 +1553,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             }
 
-            // 4. Draw Charts
             initCharts(labels, weightValues, caloriesValues, waterValues);
 
         } catch (e) {
@@ -1583,11 +1574,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const chartColors = {
             sage: '#7DA691',
             peach: '#FDBA74',
-            blue: '#60A5FA', // Water color
+            blue: '#60A5FA', 
             grid: '#F0F0F0'
         };
 
-        // Weight Chart (Line)
+        // Weight Chart (Line - now strict)
         weightChart = new Chart(weightCtx, {
             type: 'line',
             data: {
@@ -1598,17 +1589,22 @@ document.addEventListener('DOMContentLoaded', () => {
                     borderColor: chartColors.peach,
                     backgroundColor: 'rgba(253, 186, 116, 0.1)',
                     borderWidth: 3,
-                    tension: 0.4,
-                    fill: true,
+                    tension: 0, // removed curve for more "honest" scientific look
+                    fill: false,
                     pointBackgroundColor: chartColors.peach,
-                    pointRadius: 3
+                    pointRadius: 4,
+                    spanGaps: true // Connect dots but don't invent values
                 }]
             },
             options: {
                 responsive: true,
                 plugins: { legend: { display: false } },
                 scales: {
-                    y: { beginAtZero: false, grid: { color: chartColors.grid } },
+                    y: { 
+                        beginAtZero: false, 
+                        grid: { color: chartColors.grid },
+                        ticks: { stepSize: 0.5 }
+                    },
                     x: { grid: { display: false } }
                 }
             }
