@@ -62,6 +62,11 @@
 *   [x] **TASK-6.4.1:** Настроить BotFather: описание, аватарка.
 *   [x] **TASK-6.4.2:** Настроить n8n на обработку Callback Query (нажатия кнопок Save/Cancel).
 
+### Эпик 6.5: Diary UX Refinement (Улучшение Дневника)
+*   [x] **TASK-6.5.1:** UI/Logic: Добавить кнопку "+" (Записать еду) в заголовок виджета Дневника.
+*   [x] **TASK-6.5.2:** UI: Добавить иконку удаления (Trash) для каждой записи еды.
+*   [x] **TASK-6.5.3:** Logic: Реализовать функцию удаления в `app.js` (Supabase DELETE + Cache update).
+
 ### Эпик 7: Water Tracker (Трекер воды)
 *   [x] **TASK-7.1:** Database: Создать таблицу `water_logs` и добавить колонки в `users` (`water_goal`).
 *   [x] **TASK-7.2:** Frontend (Logic): Создать модуль `WaterTracker` в `app.js` (addWater, getWater, renderWidget).
@@ -77,9 +82,9 @@
 *   [x] **TASK-8.5:** Logic: Сбор данных за период из Supabase (food_logs + weight_logs) для графиков.
 
 ### Эпик 8.5: Analytics 2.0 (UX Refinement)
-*   [ ] **TASK-8.5.1:** State Management: Внедрить переменную состояния `analyticsDate` (независимо от основной даты) для навигации по истории.
-*   [ ] **TASK-8.5.2:** UI Refactor: Переделать интерфейс на Single Chart + Tabs (Вес / Калории / Вода) вместо скролла.
-*   [ ] **TASK-8.5.3:** Logic: Реализовать навигацию по периодам (стрелки `< >` для переключения недель/месяцев).
+*   [x] **TASK-8.5.1:** State Management: Внедрить переменную состояния `analyticsDate` (независимо от основной даты) для навигации по истории.
+*   [x] **TASK-8.5.2:** UI Refactor: Переделать интерфейс на Single Chart + Tabs (Вес / Калории / Вода) вместо скролла.
+*   [x] **TASK-8.5.3:** Logic: Реализовать навигацию по периодам (стрелки `< >` для переключения недель/месяцев).
 
 ### Эпик 9: Body Progress (Контроль веса)
 *   [x] **TASK-9.1:** Database: Создать таблицу `weight_logs`.

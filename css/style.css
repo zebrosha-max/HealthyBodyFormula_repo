@@ -1330,6 +1330,23 @@
             color: var(--sage-green-dark);
             font-size: 14px;
         }
+        
+        /* New Delete Button Style */
+        .delete-log-btn {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            padding: 8px;
+            margin-left: 10px;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+            font-size: 14px;
+        }
+        
+        .delete-log-btn:active, .delete-log-btn:hover {
+            opacity: 1;
+        }
 
         /* ===== DATE NAVIGATION ===== */
 .date-navigation {

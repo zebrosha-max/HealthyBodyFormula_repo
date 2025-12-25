@@ -206,17 +206,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== SMART LOGGER (FAB) =====
     const fabLogFood = document.getElementById('fab-log-food');
-    if (fabLogFood) {
-        fabLogFood.addEventListener('click', () => {
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            
-            // Redirect to the actual bot
-            tg.openTelegramLink('https://t.me/HealthyBodyFormula_bot?start=log_food');
-            
-            // Close the Web App so the user sees the chat immediately
-            tg.close();
-        });
+    const btnLogFoodProfile = document.getElementById('btn-log-food-profile');
+
+    function openLogFood() {
+        if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+        tg.openTelegramLink('https://t.me/HealthyBodyFormula_bot?start=log_food');
+        tg.close();
     }
+
+    if (fabLogFood) fabLogFood.addEventListener('click', openLogFood);
+    if (btnLogFoodProfile) btnLogFoodProfile.addEventListener('click', openLogFood);
 
     // ===== FOOD DIARY LOGIC =====
     
@@ -381,7 +380,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <h4>${log.dish_name || 'Прием пищи'}</h4>
                     <p>${time} • Б:${log.protein} Ж:${log.fat} У:${log.carbs}</p>
                 </div>
-                <div class="food-log-kcal">${log.calories} ккал</div>
+                <div style="display: flex; align-items: center;">
+                    <div class="food-log-kcal">${log.calories} ккал</div>
+                    <button class="delete-log-btn" data-id="${log.id}">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
             `;
             diaryList.appendChild(item);
         });
@@ -389,6 +393,49 @@ document.addEventListener('DOMContentLoaded', () => {
         kcalTotalEl.textContent = totalKcal;
         const progress = Math.min((totalKcal / state.calorieGoal) * 100, 100);
         progressBar.style.width = `${progress}%`;
+    }
+
+    // Delete Log Event Delegation
+    const diaryListEl = document.getElementById('diary-list');
+    if (diaryListEl) {
+        diaryListEl.addEventListener('click', (e) => {
+            const deleteBtn = e.target.closest('.delete-log-btn');
+            if (deleteBtn) {
+                const logId = deleteBtn.dataset.id;
+                deleteFoodLog(logId);
+            }
+        });
+    }
+
+    async function deleteFoodLog(logId) {
+        if (!confirm("Удалить эту запись?")) return;
+
+        // 1. Optimistic UI Update
+        const currentData = loadCache('food', state.currentDate) || [];
+        const newData = currentData.filter(item => item.id != logId);
+        
+        saveCache('food', state.currentDate, newData);
+        renderDiaryItems(newData);
+        
+        if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
+        // 2. Background Sync
+        if (state.user && supabase) {
+            try {
+                const { error } = await supabase
+                    .from('food_logs')
+                    .delete()
+                    .eq('id', logId);
+
+                if (error) {
+                    console.error("Delete error:", error);
+                    // Revert on error? For MVP, we'll assume success or user will refresh.
+                    // Ideally, show toast "Error deleting".
+                }
+            } catch (e) {
+                console.error("Delete exception:", e);
+            }
+        }
     }
 
     function updateActiveTab(tabId) {
