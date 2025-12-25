@@ -584,13 +584,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== WATER TRACKER LOGIC =====
-    async function renderWaterTracker() {
+    async function renderWaterTracker(shouldFetch = true) {
         const statsEl = document.getElementById('water-stats');
         const progressBar = document.getElementById('water-progress-bar');
         if (!statsEl || !progressBar) return;
 
         // Fetch selected date's water
-        if (state.user && supabase) {
+        if (shouldFetch && state.user && supabase) {
             try {
                 const { start, end } = getDateBoundaries(state.currentDate);
 
@@ -632,7 +632,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Optimistic update
         state.waterToday = Math.max(0, state.waterToday + amount);
-        renderWaterTracker();
+        renderWaterTracker(false); // Do not re-fetch, trust the state
 
         if (tg.HapticFeedback) {
             if (amount > 0) tg.HapticFeedback.impactOccurred('medium');
