@@ -584,6 +584,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== WATER TRACKER LOGIC =====
+    let waterOperationId = 0; // Token to prevent race conditions
+
     async function renderWaterTracker(shouldFetch = true) {
         const statsEl = document.getElementById('water-stats');
         const progressBar = document.getElementById('water-progress-bar');
@@ -592,6 +594,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // Fetch selected date's water
         if (shouldFetch && state.user && supabase) {
             try {
+                const currentOpId = ++waterOperationId; // Start new operation
                 const { start, end } = getDateBoundaries(state.currentDate);
 
                 const { data, error } = await supabase
@@ -599,7 +602,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     .select('amount_ml')
                     .eq('user_id', state.user.telegram_id)
                     .gte('created_at', start)
-                    .lte('created_at', end); // Added LTE
+                    .lte('created_at', end);
+
+                // If another operation (like addWater) started while we were fetching, discard this result
+                if (currentOpId !== waterOperationId) {
+                    console.log("Discarding stale water fetch");
+                    return; 
+                }
 
                 if (data) {
                     state.waterToday = data.reduce((sum, log) => sum + log.amount_ml, 0);
@@ -619,18 +628,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function addWater(amount) {
         // Block updates for future dates? No, because we already block nav.
-        // But we should check if current date is today to allow edits.
         
         const now = new Date();
         const isToday = state.currentDate.toDateString() === now.toDateString();
         
-        if (!isToday) {
-            // Optional: prevent editing past? Or allow?
-            // Let's allow for now, but usually people log for today.
-            // If they are on yesterday, log for yesterday.
-        }
-
         // Optimistic update
+        waterOperationId++; // Invalidate any pending fetches
         state.waterToday = Math.max(0, state.waterToday + amount);
         renderWaterTracker(false); // Do not re-fetch, trust the state
 
