@@ -1419,7 +1419,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const monthBtn = document.getElementById('analytics-month-btn');
     const prevPeriodBtn = document.getElementById('analytics-prev-period');
     const nextPeriodBtn = document.getElementById('analytics-next-period');
-    const typeTabs = document.querySelectorAll('.tabs-control .filter-select');
+    const typeTabs = document.querySelectorAll('.tab-btn'); // Updated selector
     
     let mainChart = null;
 
@@ -1483,8 +1483,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // Data Type Switching
     typeTabs.forEach(tab => {
         tab.addEventListener('click', function() {
-            typeTabs.forEach(t => t.classList.remove('active'));
+            // Visual Reset & Set
+            typeTabs.forEach(t => {
+                t.classList.remove('active');
+                t.style.background = 'transparent';
+                t.style.color = 'var(--sage-green-dark)';
+                t.style.boxShadow = 'none';
+            });
+            
             this.classList.add('active');
+            this.style.background = '#fff';
+            this.style.color = 'var(--text-primary)';
+            this.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+
             state.analyticsType = this.dataset.type;
             
             if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();

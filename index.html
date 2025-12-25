@@ -792,10 +792,16 @@
             </div>
 
             <!-- Data Type Tabs (Weight/Food/Water) -->
-            <div class="tabs-control" style="display: flex; gap: 8px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px;">
-                <button class="filter-select active" data-type="weight" style="flex: 1; min-width: 80px; white-space: nowrap;">Вес</button>
-                <button class="filter-select" data-type="calories" style="flex: 1; min-width: 80px; white-space: nowrap;">Калории</button>
-                <button class="filter-select" data-type="water" style="flex: 1; min-width: 80px; white-space: nowrap;">Вода</button>
+            <div class="segmented-control" style="display: flex; background: var(--sage-green-light); padding: 4px; border-radius: 12px; margin-bottom: 20px; gap: 4px;">
+                <button class="tab-btn active" data-type="weight" style="flex: 1; border: none; background: #fff; border-radius: 8px; padding: 8px; font-weight: 600; color: var(--text-primary); box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="fa-solid fa-scale-balanced"></i> Вес
+                </button>
+                <button class="tab-btn" data-type="calories" style="flex: 1; border: none; background: transparent; border-radius: 8px; padding: 8px; font-weight: 600; color: var(--sage-green-dark); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="fa-solid fa-fire"></i> Ккал
+                </button>
+                <button class="tab-btn" data-type="water" style="flex: 1; border: none; background: transparent; border-radius: 8px; padding: 8px; font-weight: 600; color: var(--sage-green-dark); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="fa-solid fa-droplet"></i> Вода
+                </button>
             </div>
 
             <!-- Single Consolidated Chart -->
