@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HBF Recipe Knowledge Base</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #F8F9FA;
+            color: #2D3436;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #7A9484;
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+        }
+        .category {
+            background: #E8F0EB;
+            color: #7A9484;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        .title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        .meta {
+            font-size: 14px;
+            color: #636E72;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 15px;
+        }
+        .section {
+            margin-bottom: 15px;
+        }
+        .section-title {
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 5px;
+            color: #E8A9A5;
+        }
+        ul, ol {
+            padding-left: 20px;
+            margin: 0;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        .prompt-box {
+            background: #2D3436;
+            color: #A0A8AB;
+            padding: 10px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            margin-top: 15px;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Recipe Knowledge Base</h1>
+        <div class="grid" id="recipe-grid">
+            <!-- Example Card -->
+            <div class="card">
+                <span class="category">Завтрак</span>
+                <div class="title">Сырники с бананом</div>
+                <div class="meta">
+                    <span><i class="fa fa-clock"></i> 20 мин</span>
+                    <span><i class="fa fa-fire"></i> ~200 ккал</span>
+                </div>
+                
+                <div class="section">
+                    <div class="section-title">Ингредиенты</div>
+                    <ul>
+                        <li>Творог 5% — 150-200 г</li>
+                        <li>Мука (рисовая) — 50 г</li>
+                        <li>Яйцо — 1 шт.</li>
+                        <li>Банан — 1 шт.</li>
+                        <li>Корица — по вкусу</li>
+                    </ul>
+                </div>
+
+                <div class="section">
+                    <div class="section-title">Приготовление</div>
+                    <ol>
+                        <li>Смешать блендером яйцо, муку, банан и творог.</li>
+                        <li>Сформировать влажными руками сырники.</li>
+                        <li>Выпекать на масле гхи до золотистой корочки.</li>
+                    </ol>
+                </div>
+
+                <div class="prompt-box">
+                    Professional food photography of fluffy syrniki stacked on a ceramic plate. Golden-brown crust... --ar 1:1
+                </div>
+            </div>
+            
+            <!-- More cards can be added here dynamically or statically -->
+        </div>
+    </div>
+</body>
+</html>

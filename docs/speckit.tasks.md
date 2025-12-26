@@ -65,7 +65,7 @@
 ### Эпик 6.5: Diary UX Refinement (Улучшение Дневника)
 *   [x] **TASK-6.5.1:** UI/Logic: Добавить кнопку "+" (Записать еду) в заголовок виджета Дневника.
 *   [x] **TASK-6.5.2:** UI: Добавить иконку удаления (Trash) для каждой записи еды.
-*   [x] **TASK-6.5.3:** Logic: Реализовать функцию удаления в `app.js` (Supabase DELETE + Cache update).
+*   [x] **TASK-6.5.3:** Logic: Реализовать функцию удаления в `app.js` (Supabase DELETE + Cache update + Rollback on error).
 
 ### Эпик 7: Water Tracker (Трекер воды)
 *   [x] **TASK-7.1:** Database: Создать таблицу `water_logs` и добавить колонки в `users` (`water_goal`).
@@ -91,6 +91,15 @@
 *   [x] **TASK-9.2:** Frontend (UI): Верстка блока "Мое тело" (Вес + ИМТ) в профиле.
 *   [x] **TASK-9.3:** Frontend (Action): Реализовать ввод веса (модалка + Supabase insert).
 *   [x] **TASK-9.4:** Logic: Автоматический расчет динамики веса (разница с предыдущим значением).
+
+### Эпик 10: Recipe Knowledge Base (Разбор и Структурирование)
+*   [x] **TASK-10.1:** Setup: Создать директорию `Recipes_KB` и структуру.
+*   [ ] **TASK-10.2:** Extraction: Прочитать PDF, извлечь сырой текст. (BLOCKED: Encoding issues, requires OCR).
+*   [ ] **TASK-10.3:** Parsing: Разобрать текст на структурированные блоки (Category, Title, Ingredients, Steps).
+*   [ ] **TASK-10.4:** Prompt Engineering: Сгенерировать AI-промпты для фото (Sage Green aesthetic) для каждого рецепта.
+*   [ ] **TASK-10.5:** Markdown Generation: Сохранить каждый рецепт как отдельный `.md` файл с метаданными. (Started: `syrniki.md` created).
+*   [ ] **TASK-10.6:** ToV Refinement: Переписать тексты в стиле бренда (заботливый, экспертный).
+*   [x] **TASK-10.7:** Viewer: Создать `recipes_catalog.html` для удобного просмотра базы.
 
 ### ТЕХНИЧЕСКИЙ ЭПИК: Оптимизация и Стабильность (Repair Sprint)
 *   [x] **FIX-1:** Исправить RLS политики для таблиц `water_logs`, `weight_logs`, `users` (публичный доступ для MVP).
