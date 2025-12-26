@@ -56,6 +56,26 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ===== FETCH WITH TIMEOUT & RETRY =====
+    async function fetchWithTimeout(promiseFn, timeoutMs = 10000, retries = 2) {
+        for (let attempt = 0; attempt <= retries; attempt++) {
+            try {
+                const result = await Promise.race([
+                    promiseFn(),
+                    new Promise((_, reject) =>
+                        setTimeout(() => reject(new Error('Request timeout')), timeoutMs)
+                    )
+                ]);
+                return result;
+            } catch (e) {
+                debugLog(`Fetch attempt ${attempt + 1}/${retries + 1} failed: ${e.message}`, 'warn');
+                if (attempt === retries) throw e;
+                // Exponential backoff: 1s, 2s
+                await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+            }
+        }
+    }
+
     // State Management
     const state = {
         user: null,
@@ -772,15 +792,15 @@ document.addEventListener('DOMContentLoaded', () => {
         renderDiaryItems(newData);
         debugLog('deleteFoodLog: optimistic UI done');
 
-        // 2. Background Sync
+        // 2. Background Sync with timeout & retry
         if (state.user && supabase) {
             debugLog(`deleteFoodLog: syncing to supabase...`);
             try {
-                // Request count to verify actual deletion
-                const { error, count } = await supabase
-                    .from('food_logs')
-                    .delete({ count: 'exact' })
-                    .eq('id', logId);
+                // Request count to verify actual deletion (10s timeout, 2 retries)
+                const { error, count } = await fetchWithTimeout(
+                    () => supabase.from('food_logs').delete({ count: 'exact' }).eq('id', logId),
+                    10000, 2
+                );
 
                 debugLog(`deleteFoodLog: response count=${count}, error=${error?.message || 'none'}`, error ? 'error' : 'success');
 
@@ -1992,7 +2012,12 @@ document.addEventListener('DOMContentLoaded', () => {
         endDay.setHours(23, 59, 59, 999);
         const end = endDay.toISOString();
 
-        // Update UI Disable Next button if in current period
+        // Update UI - show loading, disable next button if current period
+        const chartAvgEl = document.getElementById('chart-average');
+        const chartTitleEl = document.getElementById('chart-title');
+        if (chartAvgEl) chartAvgEl.textContent = 'Загрузка...';
+        chartTitleEl.textContent = {weight:'Динамика веса', calories:'Потребление калорий', water:'Водный баланс'}[state.analyticsType];
+
         const todayStr = new Date().toDateString();
         const containsToday = days.some(d => d.toDateString() === todayStr);
         if(nextPeriodBtn) {
@@ -2002,12 +2027,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         try {
             let dataRes;
+            const userId = state.user.telegram_id;
+
+            // Fetch with 10s timeout and 2 retries
             if (state.analyticsType === 'weight') {
-                dataRes = await supabase.from('weight_logs').select('*').eq('user_id', state.user.telegram_id).gte('created_at', start).lte('created_at', end).order('created_at', { ascending: true });
+                dataRes = await fetchWithTimeout(
+                    () => supabase.from('weight_logs').select('*').eq('user_id', userId).gte('created_at', start).lte('created_at', end).order('created_at', { ascending: true }),
+                    10000, 2
+                );
             } else if (state.analyticsType === 'calories') {
-                dataRes = await supabase.from('food_logs').select('*').eq('user_id', state.user.telegram_id).eq('status', 'confirmed').gte('created_at', start).lte('created_at', end);
+                dataRes = await fetchWithTimeout(
+                    () => supabase.from('food_logs').select('*').eq('user_id', userId).eq('status', 'confirmed').gte('created_at', start).lte('created_at', end),
+                    10000, 2
+                );
             } else {
-                dataRes = await supabase.from('water_logs').select('*').eq('user_id', state.user.telegram_id).gte('created_at', start).lte('created_at', end);
+                dataRes = await fetchWithTimeout(
+                    () => supabase.from('water_logs').select('*').eq('user_id', userId).gte('created_at', start).lte('created_at', end),
+                    10000, 2
+                );
             }
 
             debugLog(`Analytics query done: ${dataRes.data?.length || 0} records, error: ${dataRes.error?.message || 'none'}`, dataRes.error ? 'error' : 'success');
@@ -2019,32 +2056,47 @@ document.addEventListener('DOMContentLoaded', () => {
                     const logDate = new Date(log.created_at).toDateString();
                     const targetIdx = days.findIndex(d => d.toDateString() === logDate);
                     if (targetIdx !== -1) {
-                        if (state.analyticsType === 'weight') values[targetIdx] = log.weight_kg;
-                        else if (state.analyticsType === 'calories') values[targetIdx] += log.calories;
-                        else values[targetIdx] += log.amount_ml;
+                        // NaN protection: ensure numeric values
+                        if (state.analyticsType === 'weight') {
+                            const val = parseFloat(log.weight_kg);
+                            if (!isNaN(val)) values[targetIdx] = val;
+                        } else if (state.analyticsType === 'calories') {
+                            const val = parseInt(log.calories) || 0;
+                            values[targetIdx] += val;
+                        } else {
+                            const val = parseInt(log.amount_ml) || 0;
+                            values[targetIdx] += val;
+                        }
                     }
                 });
             }
 
-            // Calculate average/total
+            // Calculate average/total with NaN protection
             let avgText = '';
-            const filtered = values.filter(v => v !== null && v !== 0);
+            const filtered = values.filter(v => v !== null && v !== 0 && !isNaN(v));
             if (filtered.length > 0) {
                 const sum = filtered.reduce((a, b) => a + b, 0);
                 const avg = Math.round(sum / filtered.length);
-                if (state.analyticsType === 'weight') avgText = `Средний: ${avg} кг`;
-                else if (state.analyticsType === 'calories') avgText = `Средний: ${avg} ккал`;
-                else avgText = `Всего: ${sum} мл`;
+                if (isNaN(sum) || isNaN(avg)) {
+                    avgText = 'Нет данных';
+                } else if (state.analyticsType === 'weight') {
+                    avgText = `Средний: ${avg} кг`;
+                } else if (state.analyticsType === 'calories') {
+                    avgText = `Средний: ${avg} ккал`;
+                } else {
+                    avgText = `Всего: ${sum} мл`;
+                }
             } else {
                 avgText = 'Нет данных';
             }
-            document.getElementById('chart-average').textContent = avgText;
-            document.getElementById('chart-title').textContent = {weight:'Динамика веса', calories:'Потребление калорий', water:'Водный баланс'}[state.analyticsType];
+            if (chartAvgEl) chartAvgEl.textContent = avgText;
 
             initMainChart(labels, values, state.analyticsType);
 
         } catch (e) {
+            debugLog(`Analytics error: ${e.message}`, 'error');
             console.error("Analytics load error:", e);
+            if (chartAvgEl) chartAvgEl.textContent = 'Ошибка загрузки';
         }
     }
 
