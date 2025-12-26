@@ -94,11 +94,11 @@
 
 ### Эпик 10: Recipe Knowledge Base (Разбор и Структурирование)
 *   [x] **TASK-10.1:** Setup: Создать директорию `Recipes_KB` и структуру.
-*   [ ] **TASK-10.2:** Extraction: Прочитать PDF, извлечь сырой текст. (BLOCKED: Encoding issues, requires OCR).
-*   [ ] **TASK-10.3:** Parsing: Разобрать текст на структурированные блоки (Category, Title, Ingredients, Steps).
-*   [ ] **TASK-10.4:** Prompt Engineering: Сгенерировать AI-промпты для фото (Sage Green aesthetic) для каждого рецепта.
-*   [ ] **TASK-10.5:** Markdown Generation: Сохранить каждый рецепт как отдельный `.md` файл с метаданными. (Started: `syrniki.md` created).
-*   [ ] **TASK-10.6:** ToV Refinement: Переписать тексты в стиле бренда (заботливый, экспертный).
+*   [x] **TASK-10.2:** Extraction: Прочитать PDF, извлечь сырой текст. (OCR Success via Tesseract).
+*   [x] **TASK-10.3:** Parsing: Разобрать текст на структурированные блоки (Category, Title, Ingredients, Steps).
+*   [x] **TASK-10.4:** Prompt Engineering: Сгенерировать AI-промпты для фото (Sage Green aesthetic) для каждого рецепта.
+*   [x] **TASK-10.5:** Markdown Generation: Сохранить каждый рецепт как отдельный `.md` файл с метаданными.
+*   [x] **TASK-10.6:** ToV Refinement: Переписать тексты в стиле бренда (Первичный рерайтинг при парсинге).
 *   [x] **TASK-10.7:** Viewer: Создать `recipes_catalog.html` для удобного просмотра базы.
 
 ### ТЕХНИЧЕСКИЙ ЭПИК: Оптимизация и Стабильность (Repair Sprint)

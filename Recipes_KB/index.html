@@ -5,127 +5,188 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HBF Recipe Knowledge Base</title>
     <style>
+        :root {
+            --sage-green: #7A9484;
+            --peach: #E8A9A5;
+            --text-dark: #2D3436;
+            --bg-light: #F8F9FA;
+        }
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #F8F9FA;
-            color: #2D3436;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
             margin: 0;
             padding: 20px;
         }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
+        .container { max-width: 1400px; margin: 0 auto; }
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { color: var(--sage-green); font-size: 2.5rem; }
+        
+        .filters {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            justify-content: center;
         }
-        h1 {
-            color: #7A9484;
-            text-align: center;
-            margin-bottom: 40px;
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: 1px solid var(--sage-green);
+            background: white;
+            color: var(--sage-green);
+            cursor: pointer;
+            font-weight: 600;
         }
+        .filter-btn.active {
+            background: var(--sage-green);
+            color: white;
+        }
+
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
         }
         .card {
             background: white;
-            border-radius: 12px;
-            padding: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
-        }
-        .card:hover {
-            transform: translateY(-5px);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            border: 1px solid rgba(0,0,0,0.02);
         }
         .category {
             background: #E8F0EB;
-            color: #7A9484;
-            padding: 4px 10px;
+            color: var(--sage-green);
+            padding: 4px 12px;
             border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
+            font-size: 11px;
+            font-weight: 800;
             text-transform: uppercase;
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-        .title {
-            font-size: 20px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-        .meta {
-            font-size: 14px;
-            color: #636E72;
-            margin-bottom: 15px;
-            display: flex;
-            gap: 15px;
-        }
-        .section {
+            align-self: flex-start;
             margin-bottom: 15px;
         }
+        .title { font-size: 22px; font-weight: 700; margin-bottom: 15px; line-height: 1.2; }
+        
         .section-title {
             font-size: 14px;
             font-weight: 700;
-            margin-bottom: 5px;
-            color: #E8A9A5;
+            color: var(--peach);
+            margin: 15px 0 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        ul, ol {
-            padding-left: 20px;
-            margin: 0;
+        .ingredients {
             font-size: 14px;
-            line-height: 1.5;
+            white-space: pre-wrap;
+            color: #636E72;
+            line-height: 1.6;
         }
-        .prompt-box {
-            background: #2D3436;
-            color: #A0A8AB;
-            padding: 10px;
-            border-radius: 8px;
-            font-family: monospace;
+        
+        .prompt-container {
+            margin-top: auto;
+            background: #f1f3f2;
+            padding: 15px;
+            border-radius: 12px;
+            position: relative;
+        }
+        .prompt-text {
+            font-family: 'Courier New', Courier, monospace;
             font-size: 12px;
-            margin-top: 15px;
-            word-wrap: break-word;
+            color: #4a4a4a;
+            display: block;
+            margin-bottom: 10px;
+        }
+        .copy-btn {
+            background: var(--sage-green);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            cursor: pointer;
+            width: 100%;
+            font-weight: 600;
+        }
+        .copy-btn:hover { opacity: 0.9; }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Recipe Knowledge Base</h1>
-        <div class="grid" id="recipe-grid">
-            <!-- Example Card -->
-            <div class="card">
-                <span class="category">Завтрак</span>
-                <div class="title">Сырники с бананом</div>
-                <div class="meta">
-                    <span><i class="fa fa-clock"></i> 20 мин</span>
-                    <span><i class="fa fa-fire"></i> ~200 ккал</span>
-                </div>
-                
-                <div class="section">
-                    <div class="section-title">Ингредиенты</div>
-                    <ul>
-                        <li>Творог 5% — 150-200 г</li>
-                        <li>Мука (рисовая) — 50 г</li>
-                        <li>Яйцо — 1 шт.</li>
-                        <li>Банан — 1 шт.</li>
-                        <li>Корица — по вкусу</li>
-                    </ul>
-                </div>
+        <header>
+            <h1>Recipe Knowledge Base</h1>
+            <p id="stats">Загрузка рецептов...</p>
+        </header>
 
-                <div class="section">
-                    <div class="section-title">Приготовление</div>
-                    <ol>
-                        <li>Смешать блендером яйцо, муку, банан и творог.</li>
-                        <li>Сформировать влажными руками сырники.</li>
-                        <li>Выпекать на масле гхи до золотистой корочки.</li>
-                    </ol>
-                </div>
-
-                <div class="prompt-box">
-                    Professional food photography of fluffy syrniki stacked on a ceramic plate. Golden-brown crust... --ar 1:1
-                </div>
-            </div>
-            
-            <!-- More cards can be added here dynamically or statically -->
+        <div class="filters" id="category-filters">
+            <button class="filter-btn active" onclick="filterCategory('all')">Все</button>
         </div>
+
+        <div class="grid" id="recipe-grid"></div>
     </div>
+
+    <script src="recipes_data.js"></script>
+    <script>
+        const grid = document.getElementById('recipe-grid');
+        const stats = document.getElementById('stats');
+        const filterContainer = document.getElementById('category-filters');
+
+        function init() {
+            // Stats
+            stats.textContent = `Всего в базе: ${recipesData.length} рецептов`;
+            
+            // Build filters
+            const categories = ['all', ...new Set(recipesData.map(r => r.category))];
+            filterContainer.innerHTML = categories.map(cat => 
+                `<button class="filter-btn ${cat === 'all' ? 'active' : ''}" onclick="filterCategory('${cat}', this)">${cat === 'all' ? 'Все' : cat}</button>`
+            ).join('');
+
+            render(recipesData);
+        }
+
+        function render(data) {
+            grid.innerHTML = data.map(r => `
+                <div class="card">
+                    <span class="category">${r.category}</span>
+                    <div class="title">${r.title}</div>
+                    
+                    <div class="section-title">Ингредиенты</div>
+                    <div class="ingredients">${r.ingredients || 'См. MD файл'}</div>
+
+                    <div class="prompt-container">
+                        <span class="section-title" style="color: #7A9484; margin-top: 0">AI Image Prompt</span>
+                        <code class="prompt-text">${r.prompt}</code>
+                        <button class="copy-btn" onclick="copyPrompt('${r.prompt.replace(/'/g, "\'"')}')">Копировать промпт</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCategory(cat, btn) {
+            // UI Toggle
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+
+            if (cat === 'all') {
+                render(recipesData);
+            } else {
+                render(recipesData.filter(r => r.category === cat));
+            }
+        }
+
+        function copyPrompt(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Промпт скопирован!');
+            });
+        }
+
+        init();
+    </script>
 </body>
 </html>

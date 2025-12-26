@@ -30,6 +30,32 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Supabase init error:", e);
     }
 
+    // ===== DEBUG LOG (временный, для отладки) =====
+    const debugLogEl = document.getElementById('debug-log');
+    let debugEnabled = true; // Включить визуальный лог
+
+    function debugLog(message, type = 'info') {
+        const timestamp = new Date().toLocaleTimeString();
+        const prefix = { info: 'ℹ️', error: '❌', success: '✅', warn: '⚠️' }[type] || '';
+        const logMessage = `${timestamp} ${prefix} ${message}`;
+
+        console.log(`[DEBUG] ${logMessage}`);
+
+        if (debugEnabled && debugLogEl) {
+            debugLogEl.style.display = 'block';
+            const line = document.createElement('div');
+            line.style.color = { info: '#0f0', error: '#f55', success: '#5f5', warn: '#ff5' }[type] || '#0f0';
+            line.textContent = logMessage;
+            debugLogEl.appendChild(line);
+            debugLogEl.scrollTop = debugLogEl.scrollHeight;
+
+            // Ограничить до 50 строк
+            while (debugLogEl.children.length > 50) {
+                debugLogEl.removeChild(debugLogEl.firstChild);
+            }
+        }
+    }
+
     // State Management
     const state = {
         user: null,
@@ -97,7 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Инициализация Realtime подписок
         init() {
+            debugLog('RealtimeManager.init called');
             if (!supabase || !state.user) {
+                debugLog('Realtime skipped: no supabase/user', 'warn');
                 console.log('[Realtime] Skipped: no supabase or user');
                 return;
             }
@@ -153,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 )
                 .subscribe((status, err) => {
                     console.log('[Realtime] Status:', status);
+                    debugLog(`Realtime: ${status}`, status === 'SUBSCRIBED' ? 'success' : (status === 'CHANNEL_ERROR' ? 'error' : 'info'));
 
                     if (status === 'SUBSCRIBED') {
                         this.isConnected = true;
@@ -161,6 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
 
                     if (status === 'CHANNEL_ERROR') {
+                        debugLog(`Realtime error: ${err?.message || err}`, 'error');
                         console.error('[Realtime] Channel error:', err);
                         this.isConnected = false;
                         this.scheduleReconnect();
@@ -322,18 +352,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Очистка подписок
         cleanup() {
-            if (this.channel) {
-                this.channel.unsubscribe();
-                supabase.removeChannel(this.channel);
-                this.channel = null;
-            }
+            debugLog('RealtimeManager.cleanup called');
+            try {
+                if (this.channel && supabase) {
+                    this.channel.unsubscribe();
+                    supabase.removeChannel(this.channel);
+                    this.channel = null;
+                }
 
-            if (this.pollingInterval) {
-                clearInterval(this.pollingInterval);
-                this.pollingInterval = null;
-            }
+                if (this.pollingInterval) {
+                    clearInterval(this.pollingInterval);
+                    this.pollingInterval = null;
+                }
 
-            this.isConnected = false;
+                this.isConnected = false;
+                debugLog('RealtimeManager.cleanup done', 'success');
+            } catch (e) {
+                debugLog(`RealtimeManager.cleanup error: ${e.message}`, 'error');
+                console.warn('[Realtime] Cleanup error:', e);
+            }
         }
     };
 
@@ -721,19 +758,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function deleteFoodLog(logId) {
+        debugLog(`deleteFoodLog: id=${logId}`);
         if (!confirm("Удалить эту запись?")) return;
 
         // Snapshot for rollback
         const previousData = loadCache('food', state.currentDate) || [];
+        debugLog(`deleteFoodLog: previousData.length=${previousData.length}`);
 
         // 1. Optimistic UI Update
         const newData = previousData.filter(item => item.id != logId);
-        
+
         saveCache('food', state.currentDate, newData);
         renderDiaryItems(newData);
-        
+        debugLog('deleteFoodLog: optimistic UI done');
+
         // 2. Background Sync
         if (state.user && supabase) {
+            debugLog(`deleteFoodLog: syncing to supabase...`);
             try {
                 // Request count to verify actual deletion
                 const { error, count } = await supabase
@@ -741,24 +782,30 @@ document.addEventListener('DOMContentLoaded', () => {
                     .delete({ count: 'exact' })
                     .eq('id', logId);
 
+                debugLog(`deleteFoodLog: response count=${count}, error=${error?.message || 'none'}`, error ? 'error' : 'success');
+
                 if (error) {
                     throw error;
                 }
-                
+
                 if (count === 0) {
                     throw new Error("Сервер не подтвердил удаление (возможно, нет прав).");
                 }
 
+                debugLog('deleteFoodLog: success', 'success');
                 if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
 
             } catch (e) {
+                debugLog(`deleteFoodLog: FAILED - ${e.message}`, 'error');
                 console.error("Delete failed:", e);
                 alert("Не удалось удалить: " + (e.message || "Ошибка сети"));
-                
+
                 // Rollback UI
                 saveCache('food', state.currentDate, previousData);
                 renderDiaryItems(previousData);
             }
+        } else {
+            debugLog('deleteFoodLog: no user or supabase', 'warn');
         }
     }
 
@@ -1932,7 +1979,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function renderAnalytics() {
-        if (!state.user || !supabase) return;
+        debugLog(`renderAnalytics: type=${state.analyticsType}, period=${state.analyticsPeriod}`);
+
+        if (!state.user || !supabase) {
+            debugLog('renderAnalytics: no user or supabase', 'warn');
+            return;
+        }
 
         const { days, labels } = getCalendarRange(state.analyticsPeriod, state.analyticsDate);
         const start = days[0].toISOString();
@@ -1958,8 +2010,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 dataRes = await supabase.from('water_logs').select('*').eq('user_id', state.user.telegram_id).gte('created_at', start).lte('created_at', end);
             }
 
+            debugLog(`Analytics query done: ${dataRes.data?.length || 0} records, error: ${dataRes.error?.message || 'none'}`, dataRes.error ? 'error' : 'success');
+
             const values = new Array(days.length).fill(state.analyticsType === 'weight' ? null : 0);
-            
+
             if (dataRes.data) {
                 dataRes.data.forEach(log => {
                     const logDate = new Date(log.created_at).toDateString();
