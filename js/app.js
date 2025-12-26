@@ -422,23 +422,27 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. Background Sync
         if (state.user && supabase) {
             try {
-                const { error } = await supabase
+                // Request count to verify actual deletion
+                const { error, count } = await supabase
                     .from('food_logs')
-                    .delete()
+                    .delete({ count: 'exact' })
                     .eq('id', logId);
 
                 if (error) {
-                    console.error("Delete error:", error);
-                    alert("Не удалось удалить запись: " + error.message);
-                    // Rollback UI
-                    saveCache('food', state.currentDate, previousData);
-                    renderDiaryItems(previousData);
-                } else {
-                    if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+                    throw error;
                 }
+                
+                if (count === 0) {
+                    throw new Error("Сервер не подтвердил удаление (возможно, нет прав).");
+                }
+
+                if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
+
             } catch (e) {
-                console.error("Delete exception:", e);
-                alert("Ошибка соединения при удалении.");
+                console.error("Delete failed:", e);
+                alert("Не удалось удалить: " + (e.message || "Ошибка сети"));
+                
+                // Rollback UI
                 saveCache('food', state.currentDate, previousData);
                 renderDiaryItems(previousData);
             }
