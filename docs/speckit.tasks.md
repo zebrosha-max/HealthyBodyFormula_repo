@@ -106,3 +106,26 @@
 *   [x] **FIX-2:** Реализовать **Offline-First Cache**: сохранение состояния `state.user` в `localStorage` для мгновенного старта.
 *   [x] **FIX-3:** Внедрить **Optimistic UI**: мгновенное обновление интерфейса в настройках и при вводе веса без ожидания ответа сервера.
 *   [x] **FIX-4:** Рефакторинг `initUser`: параллельная загрузка данных через `Promise.all`.
+
+### Эпик 11: Mobile Performance (Telegram WebApp Optimization)
+
+**Проблема:** На мобильном TG WebApp запросы к Supabase таймаутятся (10-30 сек) или падают. Desktop работает стабильно.
+
+#### 11.1 Realtime & Lifecycle
+*   [x] **TASK-11.1.1:** RealtimeManager: WebSocket подписки на postgres_changes (food_logs, water_logs, weight_logs, users).
+*   [x] **TASK-11.1.2:** SQL миграция `enable_realtime.sql` для включения publication в Supabase.
+*   [x] **TASK-11.1.3:** LifecycleManager: обработка visibilitychange для refresh после 30+ сек в фоне.
+*   [x] **TASK-11.1.4:** Graceful degradation: fallback на polling если WebSocket недоступен.
+
+#### 11.2 Network Resilience
+*   [x] **TASK-11.2.1:** fetchWithTimeout(): обёртка с retry (3 попытки) и exponential backoff.
+*   [x] **TASK-11.2.2:** debugLog(): визуальный лог для отладки без DevTools (мобильный TG).
+
+#### 11.3 Cache-First Architecture
+*   [x] **TASK-11.3.1:** AnalyticsCache модуль: localStorage для обработанных данных аналитики.
+*   [x] **TASK-11.3.2:** Рефакторинг renderAnalytics(): cache-first → background fetch → silent update.
+*   [x] **TASK-11.3.3:** preloadAnalyticsCache(): фоновая предзагрузка weight/calories/water при старте.
+*   [x] **TASK-11.3.4:** UX индикатор "⟳" для показа фонового обновления.
+
+#### 11.4 Delete Validation
+*   [x] **TASK-11.4.1:** deleteFoodLog(): rollback если Supabase вернул 0 affected rows (RLS блокировка).

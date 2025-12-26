@@ -88,7 +88,77 @@ const state = {
 - **Water Tracker:** `addWater()`, `updateWaterUI()` — +250ml increments
 - **Body Progress:** `renderBodyStats()`, `updateWeightUI()` — weight tracking
 - **Recipes:** `renderRecipes()`, `toggleFavorite()` — 21 рецептов с фильтрацией
-- **Analytics:** `initMainChart()` — Chart.js графики
+- **Analytics:** `initMainChart()`, `renderAnalytics()` — Chart.js графики с cache-first
+
+### Mobile Performance Modules (app.js)
+
+**Проблема:** Telegram WebApp на мобильном имеет нестабильное соединение с Supabase (таймауты 10-30 сек, частые ошибки). Решение — многоуровневая оптимизация:
+
+#### 1. RealtimeManager — WebSocket подписки
+```javascript
+RealtimeManager.init()      // Инициализация при старте
+RealtimeManager.cleanup()   // Очистка при закрытии
+```
+- Подписка на `postgres_changes` для food_logs, water_logs, weight_logs, users
+- Автоматическое обновление UI при изменениях в БД
+- Graceful degradation: если WebSocket недоступен — fallback на polling
+- **SQL миграция:** `backend/enable_realtime.sql` (выполнить в Supabase Dashboard)
+
+#### 2. LifecycleManager — App Resume Handler
+```javascript
+LifecycleManager.init()     // Слушает visibilitychange
+```
+- При возврате из фона (после 30+ сек) — refresh данных
+- Reconnect Realtime каналов после длительного простоя
+- Предотвращает показ устаревших данных
+
+#### 3. AnalyticsCache — Cache-First для аналитики
+```javascript
+AnalyticsCache.save(type, period, date, processedData)
+AnalyticsCache.load(type, period, date) // → processedData | null
+```
+- Кэширует **обработанные** данные (labels, values, avgText), не сырые
+- Лимит 20 записей в localStorage (`hbf_analytics_v1`)
+- При открытии аналитики: мгновенно из кэша → fetch в фоне → тихое обновление
+
+#### 4. preloadAnalyticsCache() — Фоновая предзагрузка
+```javascript
+setTimeout(() => preloadAnalyticsCache(), 3000)  // в applyUserState()
+```
+- Загружает weight, calories, water за текущую неделю
+- Запускается через 3 сек после старта (не блокирует UI)
+- При открытии Analytics — данные уже в кэше
+
+#### 5. fetchWithTimeout() — Retry с таймаутами
+```javascript
+fetchWithTimeout(queryFn, timeout=10000, retries=3)
+```
+- Обёртка над Supabase запросами
+- Автоматический retry при таймауте
+- Exponential backoff между попытками
+
+#### 6. debugLog() — Отладка на мобильном
+```javascript
+debugLog(message, type='info')  // info | success | warn | error
+```
+- Визуальный лог в `#debug-log` div (виден без DevTools)
+- Автоскролл к последнему сообщению
+- Цветовая кодировка по типу
+
+### Cache-First Strategy (Архитектура)
+
+```
+Юзер открывает Аналитику
+        ↓
+[1] Показать данные из localStorage МГНОВЕННО
+        ↓
+[2] Запустить fetch в ФОНЕ (не блокируя UI)
+        ↓
+[3] Если успех → тихо обновить UI + сохранить в кэш
+    Если ошибка → юзер НЕ ВИДИТ ошибку (данные уже показаны)
+```
+
+**UX индикатор:** `⟳` рядом с данными показывает, что идёт фоновое обновление
 
 ## Core Principles
 
