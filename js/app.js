@@ -32,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ===== DEBUG LOG (временный, для отладки) =====
     const debugLogEl = document.getElementById('debug-log');
-    let debugEnabled = true; // Включить визуальный лог
+    let debugEnabled = false; // true = показать визуальный лог для отладки
 
     function debugLog(message, type = 'info') {
         const timestamp = new Date().toLocaleTimeString();
