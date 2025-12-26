@@ -76,6 +76,52 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // ===== ANALYTICS CACHE (Cache-First Strategy) =====
+    const AnalyticsCache = {
+        KEY: 'hbf_analytics_v1',
+        MAX_ENTRIES: 20,
+
+        getKey(type, period, date) {
+            const dateStr = date.toISOString().split('T')[0];
+            return `${type}_${period}_${dateStr}`;
+        },
+
+        save(type, period, date, processedData) {
+            try {
+                const cache = JSON.parse(localStorage.getItem(this.KEY) || '{}');
+                cache[this.getKey(type, period, date)] = {
+                    data: processedData,
+                    timestamp: Date.now()
+                };
+                // Лимит записей - удаляем старые
+                const keys = Object.keys(cache);
+                while (keys.length > this.MAX_ENTRIES) {
+                    const oldestKey = keys.shift();
+                    delete cache[oldestKey];
+                }
+                localStorage.setItem(this.KEY, JSON.stringify(cache));
+                debugLog(`AnalyticsCache: saved ${type}/${period}`, 'success');
+            } catch (e) {
+                console.warn('AnalyticsCache save error:', e);
+            }
+        },
+
+        load(type, period, date) {
+            try {
+                const cache = JSON.parse(localStorage.getItem(this.KEY) || '{}');
+                const entry = cache[this.getKey(type, period, date)];
+                if (entry?.data) {
+                    debugLog(`AnalyticsCache: HIT ${type}/${period}`, 'success');
+                    return entry.data;
+                }
+                debugLog(`AnalyticsCache: MISS ${type}/${period}`, 'info');
+                return null;
+            } catch (e) {
+                return null;
+            }
+        }
+    };
+
     // State Management
     const state = {
         user: null,
@@ -972,6 +1018,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Initialize Lifecycle management for background/foreground handling
         LifecycleManager.init();
+
+        // Preload analytics cache in background (after 3s delay to not block UI)
+        setTimeout(() => preloadAnalyticsCache(), 3000);
     }
 
     // ===== BODY PROGRESS LOGIC =====
@@ -1998,26 +2047,80 @@ document.addEventListener('DOMContentLoaded', () => {
         return { days, labels };
     }
 
+    // Helper: Render chart from processed data (no fetch)
+    function renderAnalyticsFromData(processedData) {
+        const chartAvgEl = document.getElementById('chart-average');
+        const chartTitleEl = document.getElementById('chart-title');
+
+        if (chartTitleEl) chartTitleEl.textContent = processedData.title;
+        if (chartAvgEl) chartAvgEl.textContent = processedData.avgText;
+
+        initMainChart(processedData.labels, processedData.values, processedData.type);
+    }
+
+    // Helper: Process raw Supabase data into chart format
+    function processAnalyticsData(rawData, days, labels, type) {
+        const values = new Array(days.length).fill(type === 'weight' ? null : 0);
+
+        if (rawData) {
+            rawData.forEach(log => {
+                const logDate = new Date(log.created_at).toDateString();
+                const targetIdx = days.findIndex(d => d.toDateString() === logDate);
+                if (targetIdx !== -1) {
+                    if (type === 'weight') {
+                        const val = parseFloat(log.weight_kg);
+                        if (!isNaN(val)) values[targetIdx] = val;
+                    } else if (type === 'calories') {
+                        const val = parseInt(log.calories) || 0;
+                        values[targetIdx] += val;
+                    } else {
+                        const val = parseInt(log.amount_ml) || 0;
+                        values[targetIdx] += val;
+                    }
+                }
+            });
+        }
+
+        // Calculate average/total
+        let avgText = '';
+        const filtered = values.filter(v => v !== null && v !== 0 && !isNaN(v));
+        if (filtered.length > 0) {
+            const sum = filtered.reduce((a, b) => a + b, 0);
+            const avg = Math.round(sum / filtered.length);
+            if (isNaN(sum) || isNaN(avg)) {
+                avgText = 'Нет данных';
+            } else if (type === 'weight') {
+                avgText = `Средний: ${avg} кг`;
+            } else if (type === 'calories') {
+                avgText = `Средний: ${avg} ккал`;
+            } else {
+                avgText = `Всего: ${sum} мл`;
+            }
+        } else {
+            avgText = 'Нет данных';
+        }
+
+        const title = {weight:'Динамика веса', calories:'Потребление калорий', water:'Водный баланс'}[type];
+
+        return { labels, values, avgText, title, type };
+    }
+
+    // Main function: Cache-First Strategy
     async function renderAnalytics() {
         debugLog(`renderAnalytics: type=${state.analyticsType}, period=${state.analyticsPeriod}`);
 
-        if (!state.user || !supabase) {
-            debugLog('renderAnalytics: no user or supabase', 'warn');
+        if (!state.user) {
+            debugLog('renderAnalytics: no user', 'warn');
             return;
         }
 
-        const { days, labels } = getCalendarRange(state.analyticsPeriod, state.analyticsDate);
-        const start = days[0].toISOString();
-        const endDay = new Date(days[days.length - 1]);
-        endDay.setHours(23, 59, 59, 999);
-        const end = endDay.toISOString();
+        const type = state.analyticsType;
+        const period = state.analyticsPeriod;
+        const date = state.analyticsDate;
 
-        // Update UI - show loading, disable next button if current period
-        const chartAvgEl = document.getElementById('chart-average');
-        const chartTitleEl = document.getElementById('chart-title');
-        if (chartAvgEl) chartAvgEl.textContent = 'Загрузка...';
-        chartTitleEl.textContent = {weight:'Динамика веса', calories:'Потребление калорий', water:'Водный баланс'}[state.analyticsType];
+        const { days, labels } = getCalendarRange(period, date);
 
+        // Update navigation buttons
         const todayStr = new Date().toDateString();
         const containsToday = days.some(d => d.toDateString() === todayStr);
         if(nextPeriodBtn) {
@@ -2025,79 +2128,138 @@ document.addEventListener('DOMContentLoaded', () => {
             nextPeriodBtn.style.opacity = containsToday ? '0.3' : '1';
         }
 
-        try {
-            let dataRes;
-            const userId = state.user.telegram_id;
+        const chartAvgEl = document.getElementById('chart-average');
+        const chartTitleEl = document.getElementById('chart-title');
 
-            // Fetch with 10s timeout and 2 retries
-            if (state.analyticsType === 'weight') {
-                dataRes = await fetchWithTimeout(
-                    () => supabase.from('weight_logs').select('*').eq('user_id', userId).gte('created_at', start).lte('created_at', end).order('created_at', { ascending: true }),
-                    10000, 2
-                );
-            } else if (state.analyticsType === 'calories') {
-                dataRes = await fetchWithTimeout(
-                    () => supabase.from('food_logs').select('*').eq('user_id', userId).eq('status', 'confirmed').gte('created_at', start).lte('created_at', end),
-                    10000, 2
-                );
-            } else {
-                dataRes = await fetchWithTimeout(
-                    () => supabase.from('water_logs').select('*').eq('user_id', userId).gte('created_at', start).lte('created_at', end),
-                    10000, 2
-                );
+        // ========== STEP 1: Show cached data INSTANTLY ==========
+        const cached = AnalyticsCache.load(type, period, date);
+        if (cached) {
+            renderAnalyticsFromData(cached);
+            // Show subtle "updating" indicator
+            if (chartAvgEl && supabase) {
+                chartAvgEl.textContent = cached.avgText + ' ⟳';
             }
-
-            debugLog(`Analytics query done: ${dataRes.data?.length || 0} records, error: ${dataRes.error?.message || 'none'}`, dataRes.error ? 'error' : 'success');
-
-            const values = new Array(days.length).fill(state.analyticsType === 'weight' ? null : 0);
-
-            if (dataRes.data) {
-                dataRes.data.forEach(log => {
-                    const logDate = new Date(log.created_at).toDateString();
-                    const targetIdx = days.findIndex(d => d.toDateString() === logDate);
-                    if (targetIdx !== -1) {
-                        // NaN protection: ensure numeric values
-                        if (state.analyticsType === 'weight') {
-                            const val = parseFloat(log.weight_kg);
-                            if (!isNaN(val)) values[targetIdx] = val;
-                        } else if (state.analyticsType === 'calories') {
-                            const val = parseInt(log.calories) || 0;
-                            values[targetIdx] += val;
-                        } else {
-                            const val = parseInt(log.amount_ml) || 0;
-                            values[targetIdx] += val;
-                        }
-                    }
-                });
-            }
-
-            // Calculate average/total with NaN protection
-            let avgText = '';
-            const filtered = values.filter(v => v !== null && v !== 0 && !isNaN(v));
-            if (filtered.length > 0) {
-                const sum = filtered.reduce((a, b) => a + b, 0);
-                const avg = Math.round(sum / filtered.length);
-                if (isNaN(sum) || isNaN(avg)) {
-                    avgText = 'Нет данных';
-                } else if (state.analyticsType === 'weight') {
-                    avgText = `Средний: ${avg} кг`;
-                } else if (state.analyticsType === 'calories') {
-                    avgText = `Средний: ${avg} ккал`;
-                } else {
-                    avgText = `Всего: ${sum} мл`;
-                }
-            } else {
-                avgText = 'Нет данных';
-            }
-            if (chartAvgEl) chartAvgEl.textContent = avgText;
-
-            initMainChart(labels, values, state.analyticsType);
-
-        } catch (e) {
-            debugLog(`Analytics error: ${e.message}`, 'error');
-            console.error("Analytics load error:", e);
-            if (chartAvgEl) chartAvgEl.textContent = 'Ошибка загрузки';
+        } else {
+            // No cache - show loading
+            if (chartTitleEl) chartTitleEl.textContent = {weight:'Динамика веса', calories:'Потребление калорий', water:'Водный баланс'}[type];
+            if (chartAvgEl) chartAvgEl.textContent = 'Загрузка...';
         }
+
+        // ========== STEP 2: Fetch fresh data in BACKGROUND ==========
+        if (!supabase) {
+            debugLog('renderAnalytics: no supabase, using cache only', 'warn');
+            return;
+        }
+
+        // Non-blocking background fetch
+        (async () => {
+            try {
+                const start = days[0].toISOString();
+                const endDay = new Date(days[days.length - 1]);
+                endDay.setHours(23, 59, 59, 999);
+                const end = endDay.toISOString();
+                const userId = state.user.telegram_id;
+
+                let dataRes;
+                if (type === 'weight') {
+                    dataRes = await fetchWithTimeout(
+                        () => supabase.from('weight_logs').select('*').eq('user_id', userId).gte('created_at', start).lte('created_at', end).order('created_at', { ascending: true }),
+                        10000, 2
+                    );
+                } else if (type === 'calories') {
+                    dataRes = await fetchWithTimeout(
+                        () => supabase.from('food_logs').select('*').eq('user_id', userId).eq('status', 'confirmed').gte('created_at', start).lte('created_at', end),
+                        10000, 2
+                    );
+                } else {
+                    dataRes = await fetchWithTimeout(
+                        () => supabase.from('water_logs').select('*').eq('user_id', userId).gte('created_at', start).lte('created_at', end),
+                        10000, 2
+                    );
+                }
+
+                debugLog(`Analytics fetch: ${dataRes.data?.length || 0} records, error: ${dataRes.error?.message || 'none'}`, dataRes.error ? 'error' : 'success');
+
+                if (dataRes.error) throw dataRes.error;
+
+                // Process and cache
+                const processed = processAnalyticsData(dataRes.data, days, labels, type);
+                AnalyticsCache.save(type, period, date, processed);
+
+                // Update UI only if user is still viewing this type/period
+                if (state.analyticsType === type && state.analyticsPeriod === period) {
+                    renderAnalyticsFromData(processed);
+                }
+
+            } catch (e) {
+                debugLog(`Analytics fetch failed: ${e.message}`, 'error');
+                // If we had cache - user already sees data, don't show error
+                // If no cache - show error
+                if (!cached && chartAvgEl) {
+                    chartAvgEl.textContent = 'Ошибка загрузки';
+                }
+            }
+        })();
+    }
+
+    // ===== PRELOAD ANALYTICS CACHE =====
+    // Preloads weight, calories, water for current week in background
+    // So when user opens Analytics tab, data is already cached
+    async function preloadAnalyticsCache() {
+        if (!supabase || !state.user) {
+            debugLog('preloadAnalyticsCache: skipped (no supabase/user)', 'warn');
+            return;
+        }
+
+        debugLog('preloadAnalyticsCache: starting background preload...', 'info');
+        const types = ['weight', 'calories', 'water'];
+        const period = 'week';
+        const date = new Date();
+        const { days, labels } = getCalendarRange(period, date);
+
+        const start = days[0].toISOString();
+        const endDay = new Date(days[days.length - 1]);
+        endDay.setHours(23, 59, 59, 999);
+        const end = endDay.toISOString();
+        const userId = state.user.telegram_id;
+
+        for (const type of types) {
+            // Skip if already cached
+            if (AnalyticsCache.load(type, period, date)) {
+                debugLog(`preloadAnalyticsCache: ${type} already cached`, 'info');
+                continue;
+            }
+
+            try {
+                let dataRes;
+                if (type === 'weight') {
+                    dataRes = await fetchWithTimeout(
+                        () => supabase.from('weight_logs').select('*').eq('user_id', userId).gte('created_at', start).lte('created_at', end).order('created_at', { ascending: true }),
+                        8000, 1
+                    );
+                } else if (type === 'calories') {
+                    dataRes = await fetchWithTimeout(
+                        () => supabase.from('food_logs').select('*').eq('user_id', userId).eq('status', 'confirmed').gte('created_at', start).lte('created_at', end),
+                        8000, 1
+                    );
+                } else {
+                    dataRes = await fetchWithTimeout(
+                        () => supabase.from('water_logs').select('*').eq('user_id', userId).gte('created_at', start).lte('created_at', end),
+                        8000, 1
+                    );
+                }
+
+                if (!dataRes.error) {
+                    const processed = processAnalyticsData(dataRes.data, days, labels, type);
+                    AnalyticsCache.save(type, period, date, processed);
+                    debugLog(`preloadAnalyticsCache: ${type} preloaded (${dataRes.data?.length || 0} records)`, 'success');
+                }
+            } catch (e) {
+                debugLog(`preloadAnalyticsCache: ${type} failed - ${e.message}`, 'warn');
+                // Silently fail - this is just a preload
+            }
+        }
+        debugLog('preloadAnalyticsCache: completed', 'success');
     }
 
     function initMainChart(labels, values, type) {
