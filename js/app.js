@@ -87,6 +87,319 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem(key, JSON.stringify(data));
     }
 
+    // ===== REALTIME MANAGER =====
+    const RealtimeManager = {
+        channel: null,
+        isConnected: false,
+        reconnectAttempts: 0,
+        maxReconnectAttempts: 5,
+        pollingInterval: null,
+
+        // Инициализация Realtime подписок
+        init() {
+            if (!supabase || !state.user) {
+                console.log('[Realtime] Skipped: no supabase or user');
+                return;
+            }
+
+            // Graceful degradation: проверка WebSocket
+            if (typeof WebSocket === 'undefined') {
+                console.warn('[Realtime] WebSocket not supported, falling back to polling');
+                this.startPolling();
+                return;
+            }
+
+            this.cleanup(); // Очистить старые подписки
+
+            const userId = state.user.telegram_id;
+
+            this.channel = supabase
+                .channel(`user-${userId}-changes`)
+                .on('postgres_changes',
+                    {
+                        event: '*',
+                        schema: 'public',
+                        table: 'food_logs',
+                        filter: `user_id=eq.${userId}`
+                    },
+                    (payload) => this.handleFoodChange(payload)
+                )
+                .on('postgres_changes',
+                    {
+                        event: '*',
+                        schema: 'public',
+                        table: 'water_logs',
+                        filter: `user_id=eq.${userId}`
+                    },
+                    (payload) => this.handleWaterChange(payload)
+                )
+                .on('postgres_changes',
+                    {
+                        event: '*',
+                        schema: 'public',
+                        table: 'weight_logs',
+                        filter: `user_id=eq.${userId}`
+                    },
+                    (payload) => this.handleWeightChange(payload)
+                )
+                .on('postgres_changes',
+                    {
+                        event: 'UPDATE',
+                        schema: 'public',
+                        table: 'users',
+                        filter: `telegram_id=eq.${userId}`
+                    },
+                    (payload) => this.handleUserChange(payload)
+                )
+                .subscribe((status, err) => {
+                    console.log('[Realtime] Status:', status);
+
+                    if (status === 'SUBSCRIBED') {
+                        this.isConnected = true;
+                        this.reconnectAttempts = 0;
+                        console.log('[Realtime] Connected successfully');
+                    }
+
+                    if (status === 'CHANNEL_ERROR') {
+                        console.error('[Realtime] Channel error:', err);
+                        this.isConnected = false;
+                        this.scheduleReconnect();
+                    }
+
+                    if (status === 'TIMED_OUT') {
+                        console.warn('[Realtime] Connection timed out');
+                        this.isConnected = false;
+                        this.scheduleReconnect();
+                    }
+
+                    if (status === 'CLOSED') {
+                        console.warn('[Realtime] Channel closed');
+                        this.isConnected = false;
+                    }
+                });
+        },
+
+        // Обработчик изменений food_logs
+        handleFoodChange(payload) {
+            console.log('[Realtime] Food change:', payload.eventType);
+
+            const { eventType, new: newRecord, old: oldRecord } = payload;
+            const currentDateStr = state.currentDate.toISOString().split('T')[0];
+
+            // Проверяем, относится ли изменение к текущей дате
+            const recordDate = newRecord?.created_at || oldRecord?.created_at;
+            if (recordDate) {
+                const recordDateStr = new Date(recordDate).toISOString().split('T')[0];
+                if (recordDateStr !== currentDateStr) {
+                    console.log('[Realtime] Food change for different date, skipping UI update');
+                    return;
+                }
+            }
+
+            // Обновляем кэш и UI
+            const cachedData = loadCache('food', state.currentDate) || [];
+            let updatedData;
+
+            switch (eventType) {
+                case 'INSERT':
+                    // Проверяем, нет ли уже этой записи (optimistic update)
+                    if (!cachedData.find(item => item.id === newRecord.id)) {
+                        updatedData = [newRecord, ...cachedData];
+                    } else {
+                        return; // Уже есть, пропускаем
+                    }
+                    break;
+
+                case 'UPDATE':
+                    updatedData = cachedData.map(item =>
+                        item.id === newRecord.id ? newRecord : item
+                    );
+                    break;
+
+                case 'DELETE':
+                    updatedData = cachedData.filter(item => item.id !== oldRecord.id);
+                    break;
+
+                default:
+                    return;
+            }
+
+            saveCache('food', state.currentDate, updatedData);
+            renderDiaryItems(updatedData);
+
+            // Haptic feedback для внешних изменений
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        },
+
+        // Обработчик изменений water_logs
+        handleWaterChange(payload) {
+            console.log('[Realtime] Water change:', payload.eventType);
+
+            const { eventType, new: newRecord, old: oldRecord } = payload;
+            const currentDateStr = state.currentDate.toISOString().split('T')[0];
+
+            // Проверяем дату
+            const recordDate = newRecord?.created_at || oldRecord?.created_at;
+            if (recordDate) {
+                const recordDateStr = new Date(recordDate).toISOString().split('T')[0];
+                if (recordDateStr !== currentDateStr) return;
+            }
+
+            // Пересчитываем сумму воды за день
+            renderWaterTracker(true);
+        },
+
+        // Обработчик изменений weight_logs
+        handleWeightChange(payload) {
+            console.log('[Realtime] Weight change:', payload.eventType);
+
+            const { eventType, new: newRecord } = payload;
+
+            if (eventType === 'INSERT' || eventType === 'UPDATE') {
+                state.weightCurrent = newRecord.weight_kg;
+                saveCache('weight', state.currentDate, newRecord.weight_kg);
+                updateWeightUI();
+
+                if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            }
+        },
+
+        // Обработчик изменений users (настройки)
+        handleUserChange(payload) {
+            console.log('[Realtime] User settings change');
+
+            const { new: newUser } = payload;
+            if (newUser) {
+                state.calorieGoal = newUser.calorie_goal || 2000;
+                state.waterGoal = newUser.water_goal || 2000;
+                state.weightStart = newUser.weight_start || 0;
+                state.weightGoal = newUser.weight_goal || 0;
+
+                // Сохраняем в localStorage
+                localStorage.setItem('hbf_calorie_goal', state.calorieGoal);
+                localStorage.setItem('hbf_water_goal', state.waterGoal);
+                localStorage.setItem('hbf_weight_start', state.weightStart);
+                localStorage.setItem('hbf_weight_goal', state.weightGoal);
+
+                // Обновляем UI
+                renderFoodDiary();
+                renderWaterTracker();
+                renderBodyStats();
+            }
+        },
+
+        // Переподключение с exponential backoff
+        scheduleReconnect() {
+            if (this.reconnectAttempts >= this.maxReconnectAttempts) {
+                console.error('[Realtime] Max reconnect attempts reached, falling back to polling');
+                this.startPolling();
+                return;
+            }
+
+            const delay = Math.min(1000 * Math.pow(2, this.reconnectAttempts), 30000);
+            this.reconnectAttempts++;
+
+            console.log(`[Realtime] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts})`);
+
+            setTimeout(() => {
+                if (!this.isConnected) {
+                    this.init();
+                }
+            }, delay);
+        },
+
+        // Fallback polling для устройств без стабильного WebSocket
+        startPolling() {
+            if (this.pollingInterval) return;
+
+            console.log('[Realtime] Starting polling fallback (30s interval)');
+            this.pollingInterval = setInterval(() => {
+                if (state.user && document.visibilityState === 'visible') {
+                    loadProfileData();
+                }
+            }, 30000);
+        },
+
+        // Очистка подписок
+        cleanup() {
+            if (this.channel) {
+                this.channel.unsubscribe();
+                supabase.removeChannel(this.channel);
+                this.channel = null;
+            }
+
+            if (this.pollingInterval) {
+                clearInterval(this.pollingInterval);
+                this.pollingInterval = null;
+            }
+
+            this.isConnected = false;
+        }
+    };
+
+    // ===== LIFECYCLE MANAGER =====
+    const LifecycleManager = {
+        lastVisibleTime: Date.now(),
+        STALE_THRESHOLD: 30000, // 30 секунд
+        initialized: false,
+
+        init() {
+            if (this.initialized) return;
+            this.initialized = true;
+
+            // Обработка возврата из фона
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') {
+                    this.handleResume();
+                } else {
+                    this.handlePause();
+                }
+            });
+
+            // Обработка фокуса окна (для iOS Safari)
+            window.addEventListener('focus', () => this.handleResume());
+            window.addEventListener('blur', () => this.handlePause());
+
+            // Обработка online/offline
+            window.addEventListener('online', () => {
+                console.log('[Lifecycle] Back online');
+                this.handleResume();
+            });
+
+            window.addEventListener('offline', () => {
+                console.log('[Lifecycle] Went offline');
+                RealtimeManager.isConnected = false;
+            });
+
+            console.log('[Lifecycle] Initialized');
+        },
+
+        handlePause() {
+            this.lastVisibleTime = Date.now();
+            console.log('[Lifecycle] App paused');
+        },
+
+        handleResume() {
+            const elapsed = Date.now() - this.lastVisibleTime;
+            console.log(`[Lifecycle] App resumed after ${elapsed}ms`);
+
+            // Если прошло больше порога - данные могут быть устаревшими
+            if (elapsed > this.STALE_THRESHOLD) {
+                console.log('[Lifecycle] Data may be stale, refreshing...');
+
+                // Переподключаем Realtime если нужно
+                if (!RealtimeManager.isConnected && state.user) {
+                    RealtimeManager.init();
+                }
+
+                // Принудительно обновляем данные
+                if (state.user) {
+                    loadProfileData();
+                }
+            }
+        }
+    };
+
     // ===== SCREEN NAVIGATION =====
     const screens = document.querySelectorAll('.screen');
     const navCards = document.querySelectorAll('.nav-card[data-screen]');
@@ -585,7 +898,13 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // PREFETCH: Always load profile data to warm up the cache
         // regardless of which tab we are on.
-        loadProfileData(); 
+        loadProfileData();
+
+        // Initialize Realtime subscriptions for instant updates
+        RealtimeManager.init();
+
+        // Initialize Lifecycle management for background/foreground handling
+        LifecycleManager.init();
     }
 
     // ===== BODY PROGRESS LOGIC =====
@@ -1835,5 +2154,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Initial Render (Independent of User Auth)
     // This ensures recipes are visible immediately, hearts will update later.
     renderRecipes();
+
+    // Cleanup Realtime subscriptions on page unload
+    window.addEventListener('beforeunload', () => RealtimeManager.cleanup());
+    window.addEventListener('pagehide', () => RealtimeManager.cleanup());
 
 });
