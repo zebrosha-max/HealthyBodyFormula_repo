@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог Рецептов</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #10b981;
+            --primary-dark: #059669;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-secondary: #6b7280;
+            --border: #e5e7eb;
+            --mode-bg: #e0e7ff;
+            --mode-text: #4f46e5;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text-main); line-height: 1.5; }
+        
+        /* Header */
+        header { background: var(--card-bg); padding: 1rem 2rem; box-shadow: 0 1px 3px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100; }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 1.5rem; font-weight: 700; color: var(--primary); display: flex; align-items: center; gap: 0.5rem; }
+        
+        /* Search & Filter */
+        .controls { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; }
+        .search-input { padding: 0.5rem 1rem; border: 1px solid var(--border); border-radius: 0.5rem; flex: 1; min-width: 200px; font-size: 1rem; }
+        .category-select { padding: 0.5rem 2rem 0.5rem 1rem; border: 1px solid var(--border); border-radius: 0.5rem; background: var(--card-bg); font-size: 1rem; cursor: pointer; }
+
+        /* Mode Toggle */
+        .mode-toggle {
+            display: flex;
+            background: #f3f4f6;
+            padding: 4px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            margin-left: 1rem;
+        }
+        .mode-btn {
+            padding: 0.4rem 1rem;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+        .mode-btn.active {
+            background: white;
+            color: var(--text-main);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+        .mode-btn[data-mode="refined"].active {
+            color: var(--mode-text);
+            background: #eef2ff;
+        }
+
+        /* Main Grid */
+        main { max-width: 1200px; margin: 2rem auto; padding: 0 1rem; }
+        .recipes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+        
+        /* Recipe Card */
+        .recipe-card { background: var(--card-bg); border-radius: 1rem; overflow: hidden; box-shadow: 0 1px 2px rgba(0,0,0,0.05); transition: transform 0.2s, box-shadow 0.2s; cursor: pointer; display: flex; flex-direction: column; position: relative; }
+        .recipe-card:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        
+        .card-header { padding: 1.5rem; padding-bottom: 0.5rem; position: relative; }
+        .card-number { position: absolute; top: 1.5rem; right: 1.5rem; font-size: 0.75rem; font-weight: 700; color: var(--text-secondary); background: var(--bg); padding: 0.2rem 0.5rem; border-radius: 0.5rem; }
+        .card-category { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--primary); font-weight: 600; margin-bottom: 0.5rem; display: inline-block; background: #ecfdf5; padding: 0.25rem 0.5rem; border-radius: 99px; }
+        .card-title { font-size: 1.25rem; font-weight: 600; color: var(--text-main); line-height: 1.3; margin-top: 0.5rem; }
+        
+        .card-body { padding: 0 1.5rem 1.5rem; flex: 1; display: flex; flex-direction: column; justify-content: flex-end; }
+        .card-meta-row { display: flex; gap: 1rem; margin-top: 0.75rem; color: #9ca3af; font-size: 0.8rem; font-weight: 500; align-items: center; }
+        .meta-item { display: flex; align-items: center; gap: 0.35rem; }
+        .meta-item i { font-size: 0.85rem; color: #d1d5db; }
+        .card-preview { color: var(--text-secondary); font-size: 0.875rem; margin-top: 0.5rem; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        /* Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        
+        .modal-container { background: var(--card-bg); width: 90%; max-width: 800px; max-height: 90vh; border-radius: 1.5rem; overflow-y: auto; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); position: relative; transform: scale(0.95); transition: transform 0.3s; }
+        .modal-overlay.active .modal-container { transform: scale(1); }
+        
+        .modal-close { position: absolute; top: 1rem; right: 1rem; background: #f3f4f6; border: none; width: 2.5rem; height: 2.5rem; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; color: var(--text-secondary); transition: background 0.2s; }
+        .modal-close:hover { background: #e5e7eb; color: var(--text-main); }
+        
+        .modal-content { padding: 2.5rem; }
+        .modal-header { margin-bottom: 2rem; }
+        .modal-category-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .modal-category { color: var(--primary); font-weight: 600; font-size: 0.875rem; text-transform: uppercase; }
+        
+        .modal-toggle-wrapper { display: flex; align-items: center; gap: 8px; background: #f3f4f6; padding: 3px; border-radius: 8px; }
+        .modal-toggle-btn {
+            border: none;
+            background: transparent;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .modal-toggle-btn.active { background: white; color: var(--text-main); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .modal-toggle-btn[data-mode="refined"].active { color: var(--mode-text); background: #eef2ff; }
+
+        .modal-title { font-size: 2rem; font-weight: 700; color: var(--text-main); line-height: 1.2; margin-bottom: 1rem; }
+        
+        .modal-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 3rem; }
+        @media (max-width: 768px) { .modal-grid { grid-template-columns: 1fr; gap: 2rem; } }
+        
+        .ingredients-list { list-style: none; }
+        .ingredients-list li { padding: 0.5rem 0; border-bottom: 1px solid var(--border); font-size: 0.95rem; color: var(--text-main); display: flex; align-items: flex-start; }
+        .ingredients-list li::before { content: "•"; color: var(--primary); font-weight: bold; margin-right: 0.75rem; }
+        
+        .steps-list { counter-reset: step; list-style: none; }
+        .steps-list li { position: relative; padding-left: 2.5rem; margin-bottom: 1.5rem; color: var(--text-main); }
+        .steps-list li::before { counter-increment: step; content: counter(step); position: absolute; left: 0; top: 0; width: 1.75rem; height: 1.75rem; background: var(--primary); color: white; border-radius: 50%; font-size: 0.875rem; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+        
+        /* Prompt Box */
+        .prompt-box { background: #1e293b; color: #e2e8f0; padding: 1rem; border-radius: 0.5rem; font-family: monospace; font-size: 0.85rem; margin-top: 2rem; position: relative; cursor: pointer; transition: background 0.2s; grid-column: 1 / -1; }
+        .prompt-box:hover { background: #334155; }
+        .prompt-label { display: block; font-size: 0.75rem; text-transform: uppercase; color: #94a3b8; margin-bottom: 0.5rem; letter-spacing: 0.05em; font-weight: 700; }
+        .prompt-copy-hint { position: absolute; top: 0.5rem; right: 0.5rem; font-size: 0.75rem; color: var(--primary); opacity: 0; transition: opacity 0.2s; }
+        .prompt-box:hover .prompt-copy-hint { opacity: 1; }
+
+        h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: var(--text-main); display: flex; align-items: center; gap: 0.5rem; }
+    /* Filter Bar improvements */
+    .filter-bar { display: flex; gap: 10px; margin-top: 1rem; align-items: center; }
+    
+    /* Favorite Checkbox */
+    .card-actions { position: absolute; top: 1.25rem; right: 4.5rem; z-index: 2; }
+    .fav-btn {
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid var(--border);
+        border-radius: 50%;
+        width: 32px;
+        height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        color: #d1d5db;
+        transition: all 0.2s;
+        font-size: 1rem;
+    }
+    .fav-btn:hover { transform: scale(1.1); color: var(--primary); }
+    .fav-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    /* Show Favorites Toggle */
+    .show-fav-btn {
+        background: transparent;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.5rem 1rem;
+        cursor: pointer;
+        font-weight: 600;
+        color: var(--text-secondary);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+    .show-fav-btn.active { background: #fee2e2; color: #ef4444; border-color: #fca5a5; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-content">
+        <div style="display: flex; align-items: center;">
+            <div class="logo">🥗 Рецепты KB</div>
+            <div class="mode-toggle">
+                <button class="mode-btn active" data-mode="original" onclick="setMode('original')">Оригинал</button>
+                <button class="mode-btn" data-mode="refined" onclick="setMode('refined')">✨ New ToV</button>
+            </div>
+        </div>
+    </div>
+    <div class="header-content controls">
+        <input type="text" id="searchInput" class="search-input" placeholder="Поиск рецепта...">
+        <select id="categorySelect" class="category-select">
+            <option value="all">Все категории</option>
+        </select>
+        <button id="showFavBtn" class="show-fav-btn" onclick="toggleFavFilter()">
+            <i class="fa-solid fa-heart"></i> Избранное
+        </button>
+        <button id="shareFavBtn" class="show-fav-btn" onclick="shareFavorites()" title="Скопировать список">
+            <i class="fa-solid fa-share-nodes"></i>
+        </button>
+    </div>
+</header>
+
+<main>
+    <div id="recipesGrid" class="recipes-grid">
+        <!-- Cards populated by JS -->
+    </div>
+</main>
+
+<!-- Modal -->
+<div id="modalOverlay" class="modal-overlay">
+    <div class="modal-container">
+        <button class="modal-close" id="modalClose">&times;</button>
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-category-row">
+                    <div class="modal-category" id="modalCategory">Категория</div>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <div class="modal-toggle-wrapper">
+                            <button class="modal-toggle-btn active" data-mode="original" onclick="updateModalContent('original')">Original</button>
+                            <button class="modal-toggle-btn" data-mode="refined" onclick="updateModalContent('refined')">New ToV</button>
+                        </div>
+                        <div class="card-number" style="position:static; margin:0;" id="modalNumber">#</div>
+                    </div>
+                </div>
+                <h2 class="modal-title" id="modalTitle" style="margin-bottom: 0.5rem;">Название</h2>
+                <div id="modalMeta"></div>
+            </div>
+            
+            <div class="modal-grid">
+                <div>
+                    <h3>🥕 Ингредиенты</h3>
+                    <ul class="ingredients-list" id="modalIngredients"></ul>
+                </div>
+                <div>
+                    <h3>👨‍🍳 Приготовление</h3>
+                    <ol class="steps-list" id="modalSteps"></ol>
+                </div>
+                
+                <!-- Prompt Section -->
+                <div class="prompt-box" id="modalPromptBox" title="Click to copy">
+                    <span class="prompt-label">🤖 AI Prompt (Midjourney / Stable Diffusion)</span>
+                    <span class="prompt-copy-hint">Copied!</span>
+                    <div id="modalPromptText"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="recipes_data.js"></script>
+<script>
+    const grid = document.getElementById('recipesGrid');
+    const searchInput = document.getElementById('searchInput');
+    const categorySelect = document.getElementById('categorySelect');
+    const modalOverlay = document.getElementById('modalOverlay');
+    const modalClose = document.getElementById('modalClose');
+    const showFavBtn = document.getElementById('showFavBtn');
+
+    let currentMode = 'original'; 
+    let showFavoritesOnly = false;
+    
+    // Load Favorites from LocalStorage
+    let favorites = JSON.parse(localStorage.getItem('recipeFavorites')) || [];
+
+    function toggleFavorite(id, event) {
+        event.stopPropagation(); // Prevent card opening
+        const index = favorites.indexOf(id);
+        if (index === -1) {
+            favorites.push(id);
+        } else {
+            favorites.splice(index, 1);
+        }
+        localStorage.setItem('recipeFavorites', JSON.stringify(favorites));
+        renderRecipes(recipesData); // Re-render to update UI
+    }
+
+    function toggleFavFilter() {
+        showFavoritesOnly = !showFavoritesOnly;
+        showFavBtn.classList.toggle('active', showFavoritesOnly);
+        filterRecipes();
+    }
+
+    function shareFavorites() {
+        if (favorites.length === 0) {
+            alert("Список избранного пуст.");
+            return;
+        }
+        // Generate nice text list
+        let text = "🥗 Мой выбор рецептов:\n";
+        favorites.forEach(id => {
+            const r = recipesData.find(x => x.id === id);
+            if (r) text += `- ${r.title} (#${id.split('_')[1]})\n`;
+        });
+        
+        navigator.clipboard.writeText(text).then(() => {
+            alert("Список скопирован! Отправьте его разработчику.");
+        });
+    }
+
+    // Mode Toggle Logic
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+        filterRecipes();
+    }
+
+    // Populate Categories
+    const categories = new Set(recipesData.map(r => r.category));
+    categories.forEach(cat => {
+        const option = document.createElement('option');
+        option.value = cat;
+        option.textContent = cat;
+        categorySelect.appendChild(option);
+    });
+
+    // Helper for Meta HTML
+    function getMetaHtml(meta) {
+        if (!meta) return '';
+        return `
+            <div class="card-meta-row">
+                <div class="meta-item"><i class="fa-solid fa-fire"></i> ${meta.kcal || '?'} ккал</div>
+                <div class="meta-item"><i class="fa-regular fa-clock"></i> ${meta.time || '?'} мин</div>
+                <div class="meta-item"><i class="fa-solid fa-chart-pie"></i> ${meta.bju || '?'}</div>
+            </div>
+        `;
+    }
+
+    // Render Function
+    function renderRecipes(data) {
+        grid.innerHTML = '';
+        
+        // Apply Fav Filter if active
+        if (showFavoritesOnly) {
+            data = data.filter(r => favorites.includes(r.id));
+        }
+
+        data.forEach(recipe => {
+            const card = document.createElement('div');
+            card.className = 'recipe-card';
+            card.onclick = () => openModal(recipe);
+            
+            const recipeNum = recipe.id.split('_')[1] || '';
+            const content = recipe.variants[currentMode];
+            const ingredients = content.ingredients || [];
+            const previewText = ingredients.slice(0, 3).join(', ') + (ingredients.length > 3 ? '...' : '');
+            
+            const metaHtml = currentMode === 'refined' ? getMetaHtml(content.meta) : '';
+            const isFav = favorites.includes(recipe.id);
+
+            card.innerHTML = `
+                <div class="card-actions">
+                    <button class="fav-btn ${isFav ? 'active' : ''}" onclick="toggleFavorite('${recipe.id}', event)">
+                        <i class="fa-solid fa-heart"></i>
+                    </button>
+                </div>
+                <div class="card-header">
+                    <span class="card-number">#${recipeNum}</span>
+                    <span class="card-category">${recipe.category}</span>
+                    <h3 class="card-title">${recipe.title}</h3>
+                    ${metaHtml}
+                </div>
+                <div class="card-body">
+                    <p class="card-preview">${previewText}</p>
+                </div>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // Initial Render
+    renderRecipes(recipesData);
+
+    // Filtering
+    function filterRecipes() {
+        const term = searchInput.value.toLowerCase();
+        const cat = categorySelect.value;
+        
+        let filtered = recipesData.filter(r => {
+            const content = r.variants[currentMode];
+            const ingredients = content.ingredients || [];
+            
+            const matchesSearch = r.title.toLowerCase().includes(term) || ingredients.some(i => i.toLowerCase().includes(term));
+            const matchesCat = cat === 'all' || r.category === cat;
+            return matchesSearch && matchesCat;
+        });
+        
+        renderRecipes(filtered);
+    }
+
+    searchInput.addEventListener('input', filterRecipes);
+    categorySelect.addEventListener('change', filterRecipes);
+
+    // Modal Logic
+    let currentModalRecipe = null;
+
+    function updateModalContent(mode) {
+        if (!currentModalRecipe) return;
+        
+        const content = currentModalRecipe.variants[mode];
+        
+        const ingList = document.getElementById('modalIngredients');
+        ingList.innerHTML = (content.ingredients || []).map(i => `<li>${i}</li>`).join('');
+        
+        const stepList = document.getElementById('modalSteps');
+        stepList.innerHTML = (content.steps || []).map(s => `<li>${s}</li>`).join('');
+
+        // Update Meta in Modal Header
+        const metaContainer = document.getElementById('modalMeta');
+        metaContainer.innerHTML = mode === 'refined' ? getMetaHtml(content.meta) : '';
+
+        // Update Toggle Buttons
+        document.querySelectorAll('.modal-toggle-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.mode === mode);
+        });
+    }
+
+    function openModal(recipe) {
+        currentModalRecipe = recipe;
+        const recipeNum = recipe.id.split('_')[1] || '';
+        let localMode = currentMode; 
+
+        document.getElementById('modalCategory').textContent = recipe.category;
+        document.getElementById('modalNumber').textContent = `#${recipeNum}`;
+        document.getElementById('modalTitle').textContent = recipe.title;
+        
+        updateModalContent(localMode);
+        
+        const promptText = document.getElementById('modalPromptText');
+        promptText.textContent = recipe.prompt || "No prompt available";
+
+        const promptBox = document.getElementById('modalPromptBox');
+        promptBox.onclick = () => {
+            if (recipe.prompt) {
+                navigator.clipboard.writeText(recipe.prompt);
+                const hint = promptBox.querySelector('.prompt-copy-hint');
+                hint.style.opacity = '1';
+                setTimeout(() => hint.style.opacity = '', 1500);
+            }
+        };
+        
+        modalOverlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeModal() {
+        modalOverlay.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+
+    modalClose.onclick = closeModal;
+    modalOverlay.onclick = (e) => {
+        if (e.target === modalOverlay) closeModal();
+    };
+    
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeModal();
+    });
+</script>
+</body>
+</html>
