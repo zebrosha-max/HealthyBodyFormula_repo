@@ -352,7 +352,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Switch language
             if (typeof I18n !== 'undefined') {
+                console.log('[LangSwitch] Switching to:', lang);
+                console.log('[LangSwitch] state.user:', state.user);
+                console.log('[LangSwitch] telegram_id:', state.user?.telegram_id);
                 await I18n.setLanguage(lang, state.user?.telegram_id);
+                console.log('[LangSwitch] Done. localStorage:', localStorage.getItem('hbf_language'));
             }
         });
     });

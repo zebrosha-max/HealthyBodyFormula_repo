@@ -51,6 +51,7 @@ const I18n = {
      */
     initWithCache() {
         const cached = localStorage.getItem('hbf_language');
+        console.log(`[I18n] initWithCache: localStorage='${cached}'`);
         if (cached && this.supportedLangs.includes(cached)) {
             this.currentLang = cached;
             console.log(`[I18n] Loaded from cache: ${cached}`);
@@ -193,14 +194,23 @@ const I18n = {
         // Sync to Supabase if user logged in
         if (userId && window.supabase) {
             try {
-                await window.supabase
+                console.log(`[I18n] Syncing to Supabase: lang=${lang}, userId=${userId}`);
+                const { data, error } = await window.supabase
                     .from('users')
                     .update({ language: lang })
-                    .eq('telegram_id', userId);
-                console.log(`[I18n] Language synced to Supabase: ${lang}`);
+                    .eq('telegram_id', userId)
+                    .select();
+
+                if (error) {
+                    console.error('[I18n] Supabase update error:', error);
+                } else {
+                    console.log(`[I18n] Language synced to Supabase: ${lang}`, data);
+                }
             } catch (e) {
-                console.error('[I18n] Supabase sync error:', e);
+                console.error('[I18n] Supabase sync exception:', e);
             }
+        } else {
+            console.warn(`[I18n] Skipped Supabase sync: userId=${userId}, supabase=${!!window.supabase}`);
         }
 
         // Dispatch event for UI refresh
@@ -217,6 +227,7 @@ const I18n = {
      * @param {Object} user - User object from Supabase
      */
     applyFromUser(user) {
+        console.log(`[I18n] applyFromUser: user.language='${user?.language}', currentLang='${this.currentLang}'`);
         if (user?.language && this.supportedLangs.includes(user.language)) {
             if (user.language !== this.currentLang) {
                 this.currentLang = user.language;
