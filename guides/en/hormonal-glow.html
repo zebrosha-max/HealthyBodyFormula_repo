@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Hormonal Glow: Women's Protocol</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #FDF7F7; /* Soft blush */
+            --bg-paper: #FFFFFF;
+            --text-primary: #4A3737;
+            --text-body: #4A5568;
+            --sage-primary: #9C8484; /* Dusty rose */
+            --sage-light: #F2EBEB;
+            --accent-gold: #D4AF37;
+            --danger: #C0392B;
+            --border-light: #EDF2F7;
+
+            --font-heading: 'Nunito', sans-serif;
+            --font-body: 'Lora', serif;
+
+            --shadow-card: 0 10px 30px rgba(156, 132, 132, 0.1);
+            --radius-lg: 16px;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        .nav-header {
+            position: sticky;
+            top: 0;
+            background: rgba(253, 247, 247, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            margin-left: -8px;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .nav-title {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--sage-primary);
+            opacity: 0.9;
+        }
+
+        .hero {
+            padding: 20px 20px 40px 20px;
+            background: linear-gradient(180deg, var(--bg-paper) 0%, var(--bg-primary) 100%);
+            text-align: center;
+        }
+
+        .hero-label {
+            display: inline-block;
+            background: var(--sage-primary);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            font-family: var(--font-body);
+            font-size: 30px;
+            line-height: 1.2;
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+        }
+
+        .hero-meta {
+            font-size: 14px;
+            color: var(--text-body);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .hero-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .content-wrapper {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 40px 0 20px 0;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            height: 24px;
+            width: 4px;
+            background: var(--accent-gold);
+            border-radius: 2px;
+        }
+
+        .text-block {
+            font-family: var(--font-body);
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text-body);
+            margin-bottom: 24px;
+        }
+
+        .highlight-box {
+            background: var(--bg-paper);
+            border-left: 4px solid var(--sage-primary);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+            box-shadow: var(--shadow-card);
+        }
+
+        .highlight-box h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: var(--sage-primary);
+        }
+
+        .accordion {
+            background: var(--bg-paper);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 16px;
+        }
+
+        .accordion-header {
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .accordion-header i {
+            color: var(--sage-primary);
+            transition: transform 0.3s;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: #FAFAFA;
+        }
+
+        .accordion.active .accordion-header {
+            border-bottom: 1px solid var(--border-light);
+            color: var(--sage-primary);
+        }
+
+        .accordion.active .accordion-header i {
+            transform: rotate(180deg);
+        }
+
+        .accordion-body {
+            padding: 24px;
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.6;
+            color: #1A202C;
+            background: #FFFFFF;
+        }
+
+        .check-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .check-list li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 12px;
+            font-family: var(--font-body);
+            color: var(--text-body);
+        }
+
+        .check-list li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 4px;
+            color: var(--sage-primary);
+        }
+
+        .author-sign {
+            margin-top: 60px;
+            text-align: right;
+            font-family: var(--font-body);
+            font-style: italic;
+            color: var(--text-body);
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="nav-header">
+        <button class="back-btn" onclick="goBack()">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <span class="nav-title">GUIDELINE</span>
+        <div style="width: 24px;"></div>
+    </nav>
+
+    <div class="hero">
+        <span class="hero-label">Women's Health</span>
+        <h1>Hormonal Glow: <br>Cycle-Synced Nutrition</h1>
+        <div class="hero-meta">
+            <span><i class="fa-solid fa-moon"></i> By phases</span>
+            <span><i class="fa-solid fa-venus"></i> 100% Feminine</span>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+
+        <div class="text-block">
+            <p><strong>Your cycle is your superpower.</strong> Throughout the month, a woman's hormonal profile constantly changes, affecting metabolic rate, brain function, and even how efficiently the body absorbs proteins and fats.</p>
+            <p>This protocol will teach you not to fight your body, but to support it in each phase, using nutrients as a fine-tuning tool for well-being and beauty.</p>
+        </div>
+
+        <h2 class="section-title">Part 1: Biochemistry</h2>
+
+        <div class="highlight-box">
+            <h3><i class="fa-solid fa-flask-vial"></i> The Estrogen and Progesterone Dance</h3>
+            <p style="margin-bottom: 0;">In the first phase, <strong>estrogen</strong> dominates — the hormone of energy and radiance. In the second (after ovulation), <strong>progesterone</strong> takes the stage. It raises body temperature and basal metabolism by 200-300 kcal, but also reduces insulin sensitivity, which causes those sweet cravings before menstruation.</p>
+        </div>
+
+        <h2 class="section-title">Part 2: Four Phases — Four Strategies</h2>
+        <p class="text-block">We divide nutrition into stages corresponding to the body's physiological needs.</p>
+
+        <!-- Phase 1 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                1. Follicular Phase (Spring)
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Period:</strong> Day 1 to 12 of the cycle.</p>
+                    <p><strong>Goal:</strong> Support follicle maturation and prepare the liver for eliminating used hormones.</p>
+                    <p><strong>Protocol:</strong></p>
+                    <ul class="check-list">
+                        <li><strong>Cruciferous:</strong> Broccoli and cauliflower contain DIM, which helps the liver safely metabolize estrogens.</li>
+                        <li><strong>Fermented foods:</strong> For a healthy estrobolome (microflora that affects estrogen).</li>
+                        <li><strong>Light proteins:</strong> Poultry, lean fish, sprouts.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                2. Ovulatory Phase (Summer)
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Period:</strong> Days 13-16 (mid-cycle).</p>
+                    <p><strong>Goal:</strong> Energy is at its peak. Control inflammation during egg release.</p>
+                    <p><strong>Protocol:</strong></p>
+                    <ul class="check-list">
+                        <li><strong>Fiber:</strong> Maximum vegetables and greens to eliminate excess estrogen.</li>
+                        <li><strong>Antioxidants:</strong> Berries, green tea, turmeric.</li>
+                        <li><strong>Moderation:</strong> You may feel less hungry — listen to your body.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                3. Luteal Phase (Autumn)
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Period:</strong> From day 17 to the start of menstruation.</p>
+                    <p><strong>Goal:</strong> Support progesterone, control appetite, and fight bloating.</p>
+                    <p><strong>Protocol:</strong></p>
+                    <ul class="check-list">
+                        <li><strong>Magnesium:</strong> Dark chocolate (85%+), pumpkin seeds, almonds. Magnesium relieves PMS and sugar cravings.</li>
+                        <li><strong>Complex carbs:</strong> Brown rice, sweet potato, buckwheat. They help synthesize serotonin, preventing mood swings.</li>
+                        <li><strong>Healthy fats:</strong> Avocado, pine nuts — building material for progesterone.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 4 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                4. Menstrual Phase (Winter)
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Goal:</strong> Replenish deficiencies and warm the body.</p>
+                    <p><strong>Protocol:</strong></p>
+                    <ul class="check-list">
+                        <li><strong>Iron:</strong> Organ meats, red meat (if you consume it), lentils, spinach.</li>
+                        <li><strong>Warm food:</strong> Soups, stews, warming spices (ginger, cinnamon).</li>
+                        <li><strong>Vitamin C:</strong> Rose hip, kiwi — for better iron absorption.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Part 3: Troubleshooting</h2>
+
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                1. Bloating in the Second Phase
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Cause:</strong> Sodium retention under the influence of progesterone or electrolyte imbalance.</p>
+                    <p><strong>Solution:</strong> Minimize salt 5 days before your cycle. Drink herbal teas (nettle, dandelion) and add potassium (parsley, dried apricots, baked potato).</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                2. Sugar Cravings Before Period
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Solution:</strong> Increase overall caloric intake by 150-200 kcal through fats and proteins at lunch. When the brain is well-nourished, it sends fewer SOS signals in the form of chocolate cravings.</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Safety Criteria</h2>
+        <div class="text-block" style="font-size: 15px; background: #FFF3CD; padding: 15px; border-radius: 8px; color: #444;">
+            <p><strong>Important:</strong> This protocol is supportive. If you have amenorrhea (absence of cycle), severe pain (suspected endometriosis), or ovarian cysts — you must get examined by a gynecologist-endocrinologist.</p>
+        </div>
+
+        <div class="author-sign">
+            Julia<br>
+            Your Clinical Nutritionist
+        </div>
+
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            const content = header.nextElementSibling;
+
+            document.querySelectorAll('.accordion').forEach(acc => {
+                if (acc !== item) {
+                    acc.classList.remove('active');
+                    acc.querySelector('.accordion-content').style.maxHeight = null;
+                }
+            });
+
+            item.classList.toggle('active');
+
+            if (item.classList.contains('active')) {
+                content.style.maxHeight = content.scrollHeight + "px";
+                if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            } else {
+                content.style.maxHeight = null;
+            }
+        }
+
+        function goBack() {
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            window.location.href = "../index.html?screen=guides";
+        }
+
+        if (tg.colorScheme === 'dark') {
+            document.documentElement.style.setProperty('--bg-primary', '#1A1A1A');
+            document.documentElement.style.setProperty('--bg-paper', '#2D2D2D');
+            document.documentElement.style.setProperty('--text-primary', '#FFD1D1');
+            document.documentElement.style.setProperty('--text-body', '#E0E0E0');
+            document.documentElement.style.setProperty('--sage-primary', '#FFB7B7');
+        }
+    </script>
+</body>
+</html>

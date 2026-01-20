@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Clean Gut: Recovery Protocol</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #F9FAFB;
+            --bg-paper: #FFFFFF;
+            --text-primary: #2C3E50;
+            --text-body: #2D3748;
+            --sage-primary: #5A7D6C;
+            --sage-light: #E8F0ED;
+            --accent-gold: #D4AF37;
+            --danger: #C0392B;
+            --border-light: #E2E8F0;
+
+            --font-heading: 'Nunito', sans-serif;
+            --font-body: 'Lora', serif;
+
+            --shadow-card: 0 10px 30px rgba(0,0,0,0.05);
+            --radius-lg: 16px;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        .nav-header {
+            position: sticky;
+            top: 0;
+            background: rgba(249, 250, 251, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            margin-left: -8px;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .nav-title {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--sage-primary);
+            opacity: 0.9;
+        }
+
+        .hero {
+            padding: 20px 20px 40px 20px;
+            background: linear-gradient(180deg, var(--bg-paper) 0%, var(--bg-primary) 100%);
+            text-align: center;
+        }
+
+        .hero-label {
+            display: inline-block;
+            background: var(--sage-primary);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            font-family: var(--font-body);
+            font-size: 30px;
+            line-height: 1.2;
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+        }
+
+        .hero-meta {
+            font-size: 14px;
+            color: var(--text-body);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .hero-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .content-wrapper {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 40px 0 20px 0;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            height: 24px;
+            width: 4px;
+            background: var(--accent-gold);
+            border-radius: 2px;
+        }
+
+        .text-block {
+            font-family: var(--font-body);
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text-body);
+            margin-bottom: 24px;
+        }
+
+        .highlight-box {
+            background: var(--bg-paper);
+            border-left: 4px solid var(--sage-primary);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+            box-shadow: var(--shadow-card);
+        }
+
+        .highlight-box h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: var(--sage-primary);
+        }
+
+        .accordion {
+            background: var(--bg-paper);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 16px;
+        }
+
+        .accordion-header {
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .accordion-header i {
+            color: var(--sage-primary);
+            transition: transform 0.3s;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: #FAFAFA;
+        }
+
+        .accordion.active .accordion-header {
+            border-bottom: 1px solid var(--border-light);
+            color: var(--sage-primary);
+        }
+
+        .accordion.active .accordion-header i {
+            transform: rotate(180deg);
+        }
+
+        .accordion-body {
+            padding: 24px;
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.6;
+            color: #1A202C;
+            background: #FFFFFF;
+        }
+
+        .check-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .check-list li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 12px;
+            font-family: var(--font-body);
+            color: var(--text-body);
+        }
+
+        .check-list li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 4px;
+            color: var(--sage-primary);
+        }
+
+        .danger-list li::before {
+            content: '\f00d';
+            color: var(--danger);
+        }
+
+        .author-sign {
+            margin-top: 60px;
+            text-align: right;
+            font-family: var(--font-body);
+            font-style: italic;
+            color: var(--text-body);
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="nav-header">
+        <button class="back-btn" onclick="goBack()">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <span class="nav-title">GUIDELINE</span>
+        <div style="width: 24px;"></div>
+    </nav>
+
+    <div class="hero">
+        <span class="hero-label">GI Health</span>
+        <h1>Clean Gut: <br>Foundation of Immunity</h1>
+        <div class="hero-meta">
+            <span><i class="fa-regular fa-clock"></i> 28 days</span>
+            <span><i class="fa-solid fa-microscope"></i> Science-based</span>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+
+        <div class="text-block">
+            <p><strong>The gut is not just a tube for digesting food.</strong> It's the largest immune organ, containing 70-80% of immune-competent cells and trillions of bacteria that control your mood, metabolism, and even genetics.</p>
+            <p>This protocol aims to restore the intestinal barrier and eliminate systemic inflammation, which often manifests as fatigue, brain fog, and skin problems.</p>
+        </div>
+
+        <h2 class="section-title">Part 1: Scientific Basis</h2>
+
+        <div class="highlight-box">
+            <h3><i class="fa-solid fa-shield-virus"></i> Increased Permeability Syndrome</h3>
+            <p style="margin-bottom: 0;">Normally, intestinal walls are a "smart filter." When inflamed, tight junctions between cells weaken, allowing toxins, undigested proteins, and lipopolysaccharides (LPS) to enter the bloodstream. This triggers an immune response that we experience as chronic fatigue or acne.</p>
+        </div>
+
+        <h2 class="section-title">Part 2: Protocol Implementation</h2>
+        <p class="text-block">The protocol is divided into logical stages of mucosal and microbiome recovery.</p>
+
+        <!-- Phase 1 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                Phase 1: Elimination (Days 1-14)
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Goal:</strong> Remove inflammation "triggers" to reduce the load on the immune system.</p>
+                    <p><strong>What to eliminate:</strong> Gluten, whole milk, added sugar, and refined oils. These products often cause temporary intolerance when the mucosa is damaged.</p>
+                    <p><strong>Action:</strong> Transition to whole foods: vegetables, quality protein (fish, poultry), healthy fats.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                Phase 2: Regeneration (Days 15-28)
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Goal:</strong> Supply "building material" for intestinal cells (enterocytes).</p>
+                    <p><strong>Key elements:</strong></p>
+                    <ul class="check-list">
+                        <li><strong>Bone broth:</strong> Source of collagen and amino acids (L-glutamine) that literally "seal" damage in the walls.</li>
+                        <li><strong>Fiber:</strong> Colorful vegetables as prebiotics for friendly flora growth.</li>
+                        <li><strong>Aloe vera (juice):</strong> Has a powerful healing effect on mucous membranes.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <h2 class="section-title">Part 3: Practical Diet</h2>
+
+        <div class="highlight-box">
+            <h3><i class="fa-solid fa-leaf"></i> Ally Foods</h3>
+            <ul class="check-list" style="margin-bottom: 0;">
+                <li><strong>Fermented vegetables:</strong> Sugar-free sauerkraut (start with 1 tsp if you experience bloating).</li>
+                <li><strong>Cruciferous:</strong> Broccoli, cauliflower (better heat-treated).</li>
+                <li><strong>Fatty fish:</strong> Omega-3 reduces local inflammation.</li>
+                <li><strong>Herbs:</strong> Oregano, garlic, and ginger have natural antiseptic properties.</li>
+            </ul>
+        </div>
+
+        <h2 class="section-title">Part 4: Challenges and Solutions</h2>
+        <p class="text-block">Gut recovery is a journey where it's important to properly respond to body signals.</p>
+
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                1. Bloating from Fiber
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Cause:</strong> The microbiota isn't ready to process large amounts of fiber yet.</p>
+                    <p><strong>Solution:</strong> Heat treatment (stewing, baking, pureeing). Introduce raw vegetables in minimal portions after 2 weeks of the protocol.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                2. Die-off Reaction
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Symptoms:</strong> Short-term increase in acne or weakness.</p>
+                    <p><strong>Cause:</strong> Death of pathogenic flora and release of their metabolites.</p>
+                    <p><strong>Solution:</strong> Drink more clean water, use sorbents (activated charcoal or pectin) 1.5 hours before meals for 3-5 days.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                3. Social Dinners
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Solution:</strong> Choose the simplest dishes possible: grilled (meat/fish) + vegetable side dish. Ask the waiter not to add sauces and dress salads with oil instead of mayonnaise.</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Individual Adaptation</h2>
+        <div class="text-block">
+            <p>If you have a confirmed diagnosis of <strong>SIBO</strong> (Small Intestinal Bacterial Overgrowth), consuming fermented products may worsen symptoms. In this case, transitioning to a <strong>Low FODMAP</strong> protocol under specialist supervision is necessary.</p>
+        </div>
+
+        <h2 class="section-title">Safety</h2>
+        <div class="text-block" style="font-size: 15px; background: #FFF3CD; padding: 15px; border-radius: 8px; color: #444;">
+            <p><strong>Contraindications:</strong> Acute peptic ulcer disease, ulcerative colitis (UC) in acute phase, Crohn's disease. This protocol does not replace medication prescribed by a gastroenterologist.</p>
+            <p><strong>Stop signals:</strong> Acute abdominal pain, blood in stool, sudden fever.</p>
+        </div>
+
+        <div class="author-sign">
+            Julia<br>
+            Your Clinical Nutritionist
+        </div>
+
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            const content = header.nextElementSibling;
+
+            document.querySelectorAll('.accordion').forEach(acc => {
+                if (acc !== item) {
+                    acc.classList.remove('active');
+                    acc.querySelector('.accordion-content').style.maxHeight = null;
+                }
+            });
+
+            item.classList.toggle('active');
+
+            if (item.classList.contains('active')) {
+                content.style.maxHeight = content.scrollHeight + "px";
+                if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            } else {
+                content.style.maxHeight = null;
+            }
+        }
+
+        function goBack() {
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            window.location.href = "../index.html?screen=guides";
+        }
+
+        if (tg.colorScheme === 'dark') {
+            document.documentElement.style.setProperty('--bg-primary', '#121212');
+            document.documentElement.style.setProperty('--bg-paper', '#1E1E1E');
+            document.documentElement.style.setProperty('--text-primary', '#FFFFFF');
+            document.documentElement.style.setProperty('--text-body', '#E0E0E0');
+            document.documentElement.style.setProperty('--border-light', '#333');
+        }
+    </script>
+</body>
+</html>

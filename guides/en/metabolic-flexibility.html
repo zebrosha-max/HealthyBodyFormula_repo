@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Metabolic Flexibility: Smart Weight Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        :root {
+            --bg-primary: #F0F4F8; /* Technical blue-grey */
+            --bg-paper: #FFFFFF;
+            --text-primary: #1A365D;
+            --text-body: #2D3748;
+            --sage-primary: #2B6CB0; /* Pro blue */
+            --sage-light: #EBF8FF;
+            --accent-gold: #ED8936; /* Energy orange */
+            --danger: #C0392B;
+            --border-light: #E2E8F0;
+
+            --font-heading: 'Nunito', sans-serif;
+            --font-body: 'Lora', serif;
+
+            --shadow-card: 0 10px 30px rgba(43, 108, 176, 0.08);
+            --radius-lg: 16px;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        .nav-header {
+            position: sticky;
+            top: 0;
+            background: rgba(240, 244, 248, 0.85);
+            backdrop-filter: blur(12px);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+        }
+
+        .back-btn {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            margin-left: -8px;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .nav-title {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--sage-primary);
+        }
+
+        .hero {
+            padding: 20px 20px 40px 20px;
+            background: linear-gradient(180deg, var(--bg-paper) 0%, var(--bg-primary) 100%);
+            text-align: center;
+        }
+
+        .hero-label {
+            display: inline-block;
+            background: var(--sage-primary);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            font-family: var(--font-body);
+            font-size: 30px;
+            line-height: 1.2;
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+        }
+
+        .hero-meta {
+            font-size: 14px;
+            color: var(--text-body);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .hero-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .content-wrapper {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 40px 0 20px 0;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            height: 24px;
+            width: 4px;
+            background: var(--accent-gold);
+            border-radius: 2px;
+        }
+
+        .text-block {
+            font-family: var(--font-body);
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text-body);
+            margin-bottom: 24px;
+        }
+
+        .highlight-box {
+            background: var(--bg-paper);
+            border-left: 4px solid var(--sage-primary);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+            box-shadow: var(--shadow-card);
+        }
+
+        .highlight-box h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: var(--sage-primary);
+        }
+
+        .accordion {
+            background: var(--bg-paper);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 16px;
+        }
+
+        .accordion-header {
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .accordion-header i {
+            color: var(--sage-primary);
+            transition: transform 0.3s;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: #FAFAFA;
+        }
+
+        .accordion.active .accordion-header {
+            border-bottom: 1px solid var(--border-light);
+            color: var(--sage-primary);
+        }
+
+        .accordion.active .accordion-header i {
+            transform: rotate(180deg);
+        }
+
+        .accordion-body {
+            padding: 24px;
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.6;
+            color: #1A202C;
+            background: #FFFFFF;
+        }
+
+        .check-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .check-list li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 12px;
+            font-family: var(--font-body);
+            color: var(--text-body);
+        }
+
+        .check-list li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 4px;
+            color: var(--sage-primary);
+        }
+
+        .author-sign {
+            margin-top: 60px;
+            text-align: right;
+            font-family: var(--font-body);
+            font-style: italic;
+            color: var(--text-body);
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <nav class="nav-header">
+        <button class="back-btn" onclick="goBack()">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <span class="nav-title">GUIDELINE</span>
+        <div style="width: 24px;"></div>
+    </nav>
+
+    <div class="hero">
+        <span class="hero-label">Metabolism 2.0</span>
+        <h1>Metabolic Flexibility: <br>Smart Weight Management</h1>
+        <div class="hero-meta">
+            <span><i class="fa-solid fa-bolt"></i> Energy</span>
+            <span><i class="fa-solid fa-fire-flame-curved"></i> Fat Burning</span>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+
+        <div class="text-block">
+            <p><strong>Your body is a hybrid engine.</strong> It's designed to efficiently use two types of fuel: glucose (from carbohydrates) and fatty acids (from your fat stores).</p>
+            <p>Metabolic rigidity is a state where the body is "stuck" burning sugar and has lost access to fat depots. The result: constant hunger, energy crash 2 hours after eating, and weight that won't budge even on strict diets.</p>
+        </div>
+
+        <h2 class="section-title">Part 1: Biochemistry and Mitochondria</h2>
+
+        <div class="highlight-box">
+            <h3><i class="fa-solid fa-battery-three-quarters"></i> Insulin — The Chief Dispatcher</h3>
+            <p style="margin-bottom: 0;">When blood insulin levels are high (due to frequent snacking or excess sugar), the "door" to fat cells is locked. We need to teach the pancreas to rest so that insulin drops low enough to activate lipolysis (fat breakdown).</p>
+        </div>
+
+        <h2 class="section-title">Part 2: Step-by-Step Strategy</h2>
+        <p class="text-block">We implement 3 golden rules of metabolic recalibration.</p>
+
+        <!-- Rule 1 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                1. The "Protein + Fiber" Rule
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Essence:</strong> Every meal should start with a large portion of vegetables (fiber), followed by quality protein. Carbohydrates (if any) — at the very end.</p>
+                    <p><strong>Mechanism:</strong> Fiber creates a "net" in the intestine that slows glucose absorption. This prevents sharp insulin spikes and extends satiety for 4-5 hours.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rule 2 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                2. Meal Frequency Control
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Essence:</strong> No snacking. Between meals — only water, herbal tea, or black coffee without milk and sugar.</p>
+                    <p><strong>Mechanism:</strong> Even a small candy or coffee with milk triggers insulin release, which shuts down fat burning for 2-3 hours. The "3 clean meals" mode is the foundation for metabolic flexibility.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rule 3 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                3. Circadian Eating Window
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Essence:</strong> Dinner at least 3 hours before bed. Eating window of 10-12 hours (e.g., from 8 AM to 7 PM).</p>
+                    <p><strong>Mechanism:</strong> At night, the body should focus on restoration and cleansing (autophagy), not digestion. Low insulin at night ensures high growth hormone levels — a powerful fat burner.</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Part 3: Troubleshooting</h2>
+
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                1. "Metabolic Plateau" (Weight Stalls)
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Solution:</strong> Increase fasted physical activity (light walk 20-30 min in the morning). This forces mitochondria to adapt faster to using fat as fuel.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                2. Strong Hunger Between Meals
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Cause:</strong> Insufficient healthy fats in the previous meal.</p>
+                    <p><strong>Solution:</strong> Add half an avocado, a handful of nuts, or a tablespoon of olive oil to lunch. Fats provide lasting satiety without stimulating insulin.</p>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title">Safety Criteria</h2>
+        <div class="text-block" style="font-size: 15px; background: #FFF3CD; padding: 15px; border-radius: 8px; color: #444;">
+            <p><strong>Attention:</strong> Strict restrictions and prolonged fasting intervals (more than 16 hours) are contraindicated for adrenal fatigue (chronic stress), thyroid disorders in decompensation stage, and presence of gallstones (bile flow is required with each meal).</p>
+        </div>
+
+        <div class="author-sign">
+            Julia<br>
+            Your Clinical Nutritionist
+        </div>
+
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            const content = header.nextElementSibling;
+
+            document.querySelectorAll('.accordion').forEach(acc => {
+                if (acc !== item) {
+                    acc.classList.remove('active');
+                    acc.querySelector('.accordion-content').style.maxHeight = null;
+                }
+            });
+
+            item.classList.toggle('active');
+
+            if (item.classList.contains('active')) {
+                content.style.maxHeight = content.scrollHeight + "px";
+                if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            } else {
+                content.style.maxHeight = null;
+            }
+        }
+
+        function goBack() {
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            window.location.href = "../index.html?screen=guides";
+        }
+    </script>
+</body>
+</html>

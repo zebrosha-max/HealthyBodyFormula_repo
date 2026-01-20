@@ -22,7 +22,7 @@
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <link rel="stylesheet" href="css/style.css?v=5">
+    <link rel="stylesheet" href="css/style.css?v=6">
 </head>
 <body>
     <!-- Decorative Background Elements -->
@@ -213,7 +213,7 @@
             </div>
 
             <!-- Free Guide 1: Plate -->
-            <div class="guide-card" onclick="window.location.href='guides/plate-constructor.html'">
+            <div class="guide-card" onclick="openGuide('plate-constructor.html')">
                 <div class="guide-header">
                     <div class="guide-icon" style="background: #F0F9FF; color: #0EA5E9;">
                         <i class="fa-solid fa-utensils"></i>
@@ -230,7 +230,7 @@
             </div>
 
             <!-- Free Guide 2: Deficiencies -->
-            <div class="guide-card" onclick="window.location.href='guides/deficiencies-checklist.html'">
+            <div class="guide-card" onclick="openGuide('deficiencies-checklist.html')">
                 <div class="guide-header">
                     <div class="guide-icon" style="background: #F0FDF4; color: #22C55E;">
                         <i class="fa-solid fa-clipboard-list"></i>
@@ -247,7 +247,7 @@
             </div>
 
             <!-- Free Guide 3: Shopping -->
-            <div class="guide-card" onclick="window.location.href='guides/smart-shopping.html'">
+            <div class="guide-card" onclick="openGuide('smart-shopping.html')">
                 <div class="guide-header">
                     <div class="guide-icon" style="background: #FFF7ED; color: #EA580C;">
                         <i class="fa-solid fa-cart-shopping"></i>
@@ -264,7 +264,7 @@
             </div>
 
             <!-- Guide 4: Anti-Sugar -->
-            <div class="guide-card" onclick="window.location.href='guides/anti-sugar.html'" style="position: relative;">
+            <div class="guide-card" onclick="openGuide('anti-sugar.html')" style="position: relative;">
                 <i class="fa-solid fa-star" style="position: absolute; top: 15px; right: 15px; color: #D4AF37; font-size: 14px; opacity: 0.8;"></i>
                 <div class="guide-header">
                     <div class="guide-icon" style="background: #E8F0ED; color: #5A7D6C;">
@@ -285,7 +285,7 @@
             </div>
 
             <!-- Guide 5: Clean Gut -->
-            <div class="guide-card" onclick="window.location.href='guides/clean-gut.html'" style="position: relative;">
+            <div class="guide-card" onclick="openGuide('clean-gut.html')" style="position: relative;">
                 <i class="fa-solid fa-star" style="position: absolute; top: 15px; right: 15px; color: #D4AF37; font-size: 14px; opacity: 0.8;"></i>
                 <div class="guide-header">
                     <div class="guide-icon" style="background: #E8F0ED; color: #5A7D6C;">
@@ -306,7 +306,7 @@
             </div>
 
             <!-- Guide 6: Hormonal Glow -->
-            <div class="guide-card" onclick="window.location.href='guides/hormonal-glow.html'" style="position: relative;">
+            <div class="guide-card" onclick="openGuide('hormonal-glow.html')" style="position: relative;">
                 <i class="fa-solid fa-star" style="position: absolute; top: 15px; right: 15px; color: #D4AF37; font-size: 14px; opacity: 0.8;"></i>
                 <div class="guide-header">
                     <div class="guide-icon" style="background: #FFF0F0; color: #B88A8A;">
@@ -327,7 +327,7 @@
             </div>
 
             <!-- Guide 7: Metabolic -->
-            <div class="guide-card" onclick="window.location.href='guides/metabolic-flexibility.html'" style="position: relative;">
+            <div class="guide-card" onclick="openGuide('metabolic-flexibility.html')" style="position: relative;">
                 <i class="fa-solid fa-star" style="position: absolute; top: 15px; right: 15px; color: #D4AF37; font-size: 14px; opacity: 0.8;"></i>
                 <div class="guide-header">
                     <div class="guide-icon" style="background: #EBF8FF; color: #3182CE;">
@@ -348,7 +348,7 @@
             </div>
 
             <!-- Guide 8: Cortisol -->
-            <div class="guide-card" onclick="window.location.href='guides/cortisol-control.html'" style="position: relative;">
+            <div class="guide-card" onclick="openGuide('cortisol-control.html')" style="position: relative;">
                 <i class="fa-solid fa-star" style="position: absolute; top: 15px; right: 15px; color: #D4AF37; font-size: 14px; opacity: 0.8;"></i>
                 <div class="guide-header">
                     <div class="guide-icon" style="background: #F0F4F8; color: #4A5568;">
@@ -369,7 +369,7 @@
             </div>
 
             <!-- Guide 9: Sleep -->
-            <div class="guide-card" onclick="window.location.href='guides/sleep-fix.html'" style="position: relative;">
+            <div class="guide-card" onclick="openGuide('sleep-fix.html')" style="position: relative;">
                 <i class="fa-solid fa-star" style="position: absolute; top: 15px; right: 15px; color: #D4AF37; font-size: 14px; opacity: 0.8;"></i>
                 <div class="guide-header">
                     <div class="guide-icon" style="background: #1E293B; color: #BAE6FD;">
@@ -747,27 +747,37 @@
     <!-- ===== DIARY SETTINGS MODAL ===== -->
     <div id="modal-diary-settings" class="modal-overlay">
         <div class="modal-card">
-            <h3>Мои цели</h3>
-            <p>Суточная норма калорий:</p>
+            <h3 id="settings-title">Мои цели</h3>
+            <p id="settings-calorie-label">Суточная норма калорий:</p>
             <input type="number" id="diary-goal-input" placeholder="2000" class="modal-input" style="margin-bottom: 15px;">
-            
-            <p>Суточная норма воды (мл):</p>
+
+            <p id="settings-water-label">Суточная норма воды (мл):</p>
             <input type="number" id="water-goal-input" placeholder="2000" class="modal-input" style="margin-bottom: 15px;">
             
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
                 <div>
-                    <p>Вес старт (кг):</p>
+                    <p id="settings-weight-start-label">Вес старт (кг):</p>
                     <input type="number" id="weight-start-input" placeholder="65.0" class="modal-input" step="0.1">
                 </div>
                 <div>
-                    <p>Вес цель (кг):</p>
+                    <p id="settings-weight-goal-label">Вес цель (кг):</p>
                     <input type="number" id="weight-goal-input" placeholder="60.0" class="modal-input" step="0.1">
                 </div>
             </div>
-            
+
+            <p id="settings-language-label">Язык интерфейса:</p>
+            <div class="language-switcher" style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <button class="lang-btn" data-lang="ru" style="flex: 1; padding: 12px; border: 2px solid var(--sage-green-light); border-radius: 10px; background: var(--card-bg); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600;">
+                    <span style="font-size: 20px;">🇷🇺</span> Русский
+                </button>
+                <button class="lang-btn" data-lang="en" style="flex: 1; padding: 12px; border: 2px solid var(--sage-green-light); border-radius: 10px; background: var(--card-bg); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600;">
+                    <span style="font-size: 20px;">🇬🇧</span> English
+                </button>
+            </div>
+
             <div class="modal-actions">
-                <button id="modal-cancel" class="modal-btn cancel">Отмена</button>
-                <button id="modal-save" class="modal-btn save">Сохранить</button>
+                <button id="modal-cancel" class="modal-btn cancel" data-i18n="common.cancel">Отмена</button>
+                <button id="modal-save" class="modal-btn save" data-i18n="common.save">Сохранить</button>
             </div>
         </div>
     </div>
@@ -838,6 +848,13 @@
         display: none;
     "></div>
 
-    <script src="js/app.js?v=15"></script>
+    <!-- i18n Translations -->
+    <script src="js/i18n/ru.js?v=1"></script>
+    <script src="js/i18n/en.js?v=1"></script>
+    <script src="js/i18n/recipes-ru.js?v=1"></script>
+    <script src="js/i18n/recipes-en.js?v=1"></script>
+    <script src="js/i18n/i18n.js?v=2"></script>
+
+    <script src="js/app.js?v=17"></script>
 </body>
 </html>

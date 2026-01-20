@@ -30,6 +30,289 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error("Supabase init error:", e);
     }
 
+    // ===== I18N INITIALIZATION =====
+    // Initialize before any UI rendering
+    if (typeof I18n !== 'undefined') {
+        I18n.init();
+    }
+
+    // Helper function for translations (shorthand)
+    function t(key, replacements) {
+        if (typeof I18n !== 'undefined') {
+            return I18n.t(key, replacements);
+        }
+        return key;
+    }
+
+    // ===== I18N UI REFRESH =====
+    // Called when language changes to update all visible UI
+    function refreshAllUI() {
+        // Update static text elements
+        updateStaticTexts();
+
+        // Re-render dynamic content
+        renderRecipes();
+        renderProfileFavorites();
+        renderFoodDiary();
+        updateWaterUI();
+        renderBodyStats();
+        updateDateLabel();
+
+        // Update filter dropdowns
+        updateFilterOptions();
+
+        // Update settings modal labels
+        updateSettingsModal();
+
+        console.log('[I18n] UI refreshed for language:', I18n?.currentLang);
+    }
+
+    // Update static text elements in HTML
+    function updateStaticTexts() {
+        // Main screen
+        const greeting = document.querySelector('.header-greeting');
+        if (greeting) greeting.textContent = t('main.greeting');
+
+        const subtitle = document.querySelector('.header-subtitle');
+        if (subtitle) subtitle.textContent = t('main.subtitle');
+
+        const footerHint = document.querySelector('.footer-hint p');
+        if (footerHint) footerHint.innerHTML = `<i class="fa-solid fa-heart"></i> ${t('main.footerHint')} <span style="opacity: 0.3; font-size: 9px; margin-left: 5px;">v1.2</span>`;
+
+        // FAB button
+        const fabText = document.querySelector('#fab-log-food span');
+        if (fabText) fabText.textContent = t('main.logFood');
+
+        // Navigation cards
+        const navCards = document.querySelectorAll('.nav-card');
+        const navLabels = ['aboutMe', 'recipes', 'guides', 'services'];
+        navCards.forEach((card, i) => {
+            const titleEl = card.querySelector('.card-title');
+            if (titleEl && navLabels[i]) {
+                titleEl.textContent = t(`main.${navLabels[i]}`);
+            }
+        });
+
+        // Bottom navigation
+        const bottomNavItems = document.querySelectorAll('.bottom-nav .nav-item span');
+        const navKeys = ['home', 'services', 'recipes', 'profile'];
+        bottomNavItems.forEach((span, i) => {
+            if (navKeys[i]) span.textContent = t(`nav.${navKeys[i]}`);
+        });
+
+        // Page titles
+        const pageTitles = {
+            'screen-about': 'about.title',
+            'screen-guides': 'guides.title',
+            'screen-recipes': 'recipes.title',
+            'screen-services': 'services.title',
+            'screen-profile': 'profile.title',
+            'screen-analytics': 'analytics.title',
+            'screen-recipe-detail': 'recipes.recipeDetail'
+        };
+
+        Object.entries(pageTitles).forEach(([screenId, key]) => {
+            const screen = document.getElementById(screenId);
+            if (screen) {
+                const title = screen.querySelector('.page-title');
+                if (title) title.textContent = t(key);
+            }
+        });
+
+        // Profile section labels
+        const weightTitle = document.querySelector('#weight-section h3');
+        if (weightTitle) weightTitle.innerHTML = `<i class="fa-solid fa-scale-balanced"></i> ${t('profile.weight.title')}`;
+
+        const waterTitle = document.querySelector('#water-section h3');
+        if (waterTitle) waterTitle.innerHTML = `<i class="fa-solid fa-droplet"></i> ${t('profile.water.title')}`;
+
+        const diaryTitle = document.querySelector('#diary-section h3');
+        if (diaryTitle) diaryTitle.innerHTML = `<i class="fa-solid fa-utensils"></i> ${t('profile.diary.title')}`;
+
+        const favoritesTitle = document.querySelector('#screen-profile .bio-card:last-child h3');
+        if (favoritesTitle) favoritesTitle.innerHTML = `<i class="fa-solid fa-heart"></i> ${t('profile.favorites.title')}`;
+
+        // Weight log button
+        const weightLogBtn = document.querySelector('#btn-log-weight');
+        if (weightLogBtn) weightLogBtn.innerHTML = `<i class="fa-solid fa-pen"></i> ${t('profile.weight.log')}`;
+
+        // Diary empty state
+        const diaryEmpty = document.getElementById('diary-empty');
+        if (diaryEmpty) diaryEmpty.textContent = t('profile.diary.empty');
+
+        // Favorites empty state
+        const favEmpty = document.getElementById('profile-favorites-empty');
+        if (favEmpty) favEmpty.textContent = t('profile.favorites.empty');
+
+        // Recipe detail labels
+        const ingredientsTitle = document.querySelector('#screen-recipe-detail .recipe-block:first-of-type h3');
+        if (ingredientsTitle) ingredientsTitle.innerHTML = `<i class="fa-solid fa-basket-shopping"></i> ${t('recipes.ingredients')}`;
+
+        const stepsTitle = document.querySelector('#screen-recipe-detail .recipe-block:last-of-type h3');
+        if (stepsTitle) stepsTitle.innerHTML = `<i class="fa-solid fa-list-check"></i> ${t('recipes.steps')}`;
+
+        // Reset filters button
+        const resetBtn = document.getElementById('reset-filters');
+        if (resetBtn) resetBtn.innerHTML = `<i class="fa-solid fa-xmark"></i> ${t('recipes.reset')}`;
+
+        // Analytics period buttons
+        const weekBtn = document.getElementById('analytics-week-btn');
+        if (weekBtn) weekBtn.textContent = t('analytics.week');
+
+        const monthBtn = document.getElementById('analytics-month-btn');
+        if (monthBtn) monthBtn.textContent = t('analytics.month');
+
+        // Analytics tabs
+        const analyticsTabs = document.querySelectorAll('.tab-btn');
+        const tabLabels = { weight: 'analytics.weight', calories: 'analytics.calories', water: 'analytics.water' };
+        analyticsTabs.forEach(tab => {
+            const type = tab.dataset.type;
+            if (type && tabLabels[type]) {
+                const icon = tab.querySelector('i');
+                const iconClass = icon ? icon.className : '';
+                tab.innerHTML = `<i class="${iconClass}"></i> ${t(tabLabels[type])}`;
+            }
+        });
+
+        // Lightbox hint
+        const lightboxHint = document.getElementById('hintText');
+        if (lightboxHint) lightboxHint.textContent = t('lightbox.hint');
+
+        // About screen
+        const profileRole = document.querySelector('#screen-about .profile-title');
+        if (profileRole) profileRole.textContent = t('about.role');
+
+        const bioTitle = document.querySelector('#screen-about .bio-card h3');
+        if (bioTitle) bioTitle.innerHTML = `<i class="fa-solid fa-sparkles"></i> ${t('about.bioTitle')}`;
+
+        const certsTitle = document.querySelector('.certificates-section .section-title');
+        if (certsTitle) certsTitle.innerHTML = `<i class="fa-solid fa-award"></i> ${t('about.certificatesTitle')}`;
+
+        // Services screen
+        updateServicesScreen();
+    }
+
+    // Update filter dropdown options
+    function updateFilterOptions() {
+        const categorySelect = document.getElementById('filter-category');
+        if (categorySelect) {
+            const opts = categorySelect.options;
+            if (opts[0]) opts[0].text = t('recipes.categories.all');
+            if (opts[1]) opts[1].text = t('recipes.categories.breakfast');
+            if (opts[2]) opts[2].text = t('recipes.categories.lunch');
+            if (opts[3]) opts[3].text = t('recipes.categories.dinner');
+            if (opts[4]) opts[4].text = t('recipes.categories.dessert');
+        }
+
+        const typeSelect = document.getElementById('filter-type');
+        if (typeSelect) {
+            const opts = typeSelect.options;
+            if (opts[0]) opts[0].text = t('recipes.types.all');
+            if (opts[1]) opts[1].text = t('recipes.types.meat');
+            if (opts[2]) opts[2].text = t('recipes.types.poultry');
+            if (opts[3]) opts[3].text = t('recipes.types.fish');
+            if (opts[4]) opts[4].text = t('recipes.types.vegetarian');
+        }
+
+        const timeSelect = document.getElementById('filter-time');
+        if (timeSelect) {
+            const opts = timeSelect.options;
+            if (opts[0]) opts[0].text = t('recipes.timeOptions.all');
+            if (opts[1]) opts[1].text = t('recipes.timeOptions.short');
+            if (opts[2]) opts[2].text = t('recipes.timeOptions.medium');
+            if (opts[3]) opts[3].text = t('recipes.timeOptions.long');
+        }
+
+        const kcalSelect = document.getElementById('filter-kcal');
+        if (kcalSelect) {
+            const opts = kcalSelect.options;
+            if (opts[0]) opts[0].text = t('recipes.kcalOptions.all');
+            if (opts[1]) opts[1].text = t('recipes.kcalOptions.light');
+            if (opts[2]) opts[2].text = t('recipes.kcalOptions.medium');
+            if (opts[3]) opts[3].text = t('recipes.kcalOptions.heavy');
+        }
+    }
+
+    // Update settings modal labels
+    function updateSettingsModal() {
+        const title = document.getElementById('settings-title');
+        if (title) title.textContent = t('settings.title');
+
+        const calorieLabel = document.getElementById('settings-calorie-label');
+        if (calorieLabel) calorieLabel.textContent = t('settings.calorieLabel');
+
+        const waterLabel = document.getElementById('settings-water-label');
+        if (waterLabel) waterLabel.textContent = t('settings.waterLabel');
+
+        const weightStartLabel = document.getElementById('settings-weight-start-label');
+        if (weightStartLabel) weightStartLabel.textContent = t('settings.weightStartLabel');
+
+        const weightGoalLabel = document.getElementById('settings-weight-goal-label');
+        if (weightGoalLabel) weightGoalLabel.textContent = t('settings.weightGoalLabel');
+
+        const langLabel = document.getElementById('settings-language-label');
+        if (langLabel) langLabel.textContent = t('settings.languageLabel');
+
+        const cancelBtn = document.getElementById('modal-cancel');
+        if (cancelBtn) cancelBtn.textContent = t('common.cancel');
+
+        const saveBtn = document.getElementById('modal-save');
+        if (saveBtn) saveBtn.textContent = t('common.save');
+    }
+
+    // Update services screen
+    function updateServicesScreen() {
+        const servicesCards = document.querySelectorAll('#screen-services .bio-card');
+        if (servicesCards.length >= 2) {
+            // Consultation
+            const consultTitle = servicesCards[0].querySelector('h3');
+            if (consultTitle) consultTitle.innerHTML = `<i class="fa-solid fa-comments"></i> ${t('services.consultation.title')}`;
+            const consultDesc = servicesCards[0].querySelector('.bio-text');
+            if (consultDesc) consultDesc.textContent = t('services.consultation.desc');
+            const consultPrice = servicesCards[0].querySelector('.guide-price');
+            if (consultPrice) consultPrice.textContent = t('services.consultation.price');
+            const consultBtn = servicesCards[0].querySelector('.guide-btn');
+            if (consultBtn) consultBtn.innerHTML = `${t('common.book')} <i class="fa-solid fa-chevron-right"></i>`;
+
+            // Support
+            const supportTitle = servicesCards[1].querySelector('h3');
+            if (supportTitle) supportTitle.innerHTML = `<i class="fa-solid fa-calendar-check"></i> ${t('services.support.title')}`;
+            const supportDesc = servicesCards[1].querySelector('.bio-text');
+            if (supportDesc) supportDesc.textContent = t('services.support.desc');
+            const supportPrice = servicesCards[1].querySelector('.guide-price');
+            if (supportPrice) supportPrice.textContent = t('services.support.price');
+            const supportBtn = servicesCards[1].querySelector('.guide-btn');
+            if (supportBtn) supportBtn.innerHTML = `${t('common.book')} <i class="fa-solid fa-chevron-right"></i>`;
+        }
+    }
+
+    // Listen for language change event
+    document.addEventListener('languageChanged', (e) => {
+        state.language = e.detail.lang;
+        refreshAllUI();
+    });
+
+    // ===== LANGUAGE SWITCHER HANDLER =====
+    document.querySelectorAll('.lang-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+            const lang = btn.dataset.lang;
+            if (!lang || lang === I18n?.currentLang) return;
+
+            // Update button states
+            document.querySelectorAll('.lang-btn').forEach(b => {
+                b.style.borderColor = 'var(--sage-green-light)';
+                b.style.background = 'var(--card-bg)';
+            });
+            btn.style.borderColor = 'var(--sage-green)';
+            btn.style.background = 'var(--sage-green-light)';
+
+            // Switch language
+            if (typeof I18n !== 'undefined') {
+                await I18n.setLanguage(lang, state.user?.telegram_id);
+            }
+        });
+    });
+
     // ===== DEBUG LOG (временный, для отладки) =====
     const debugLogEl = document.getElementById('debug-log');
     let debugEnabled = false; // true = показать визуальный лог для отладки
@@ -128,6 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isPremium: false,
         activeTab: 'main',
         favorites: [],
+        language: (typeof I18n !== 'undefined') ? I18n.currentLang : 'ru',
         calorieGoal: parseInt(localStorage.getItem('hbf_calorie_goal')) || 2000,
         waterGoal: parseInt(localStorage.getItem('hbf_water_goal')) || 2000,
         waterToday: 0,
@@ -542,6 +826,12 @@ document.addEventListener('DOMContentLoaded', () => {
             renderBodyStats()
         ]);
     }
+
+    // Open guide with language-aware path
+    window.openGuide = function(filename) {
+        const lang = I18n.currentLang || 'ru';
+        window.location.href = `guides/${lang}/${filename}`;
+    };
 
     // ===== DATE NAVIGATION LOGIC =====
     const prevDayBtn = document.getElementById('prev-day');
@@ -1005,10 +1295,16 @@ document.addEventListener('DOMContentLoaded', () => {
         state.waterGoal = user.water_goal || 2000;
         state.weightStart = user.weight_start || 0;
         state.weightGoal = user.weight_goal || 0;
-        
+
+        // Apply language from Supabase user profile
+        if (typeof I18n !== 'undefined' && user.language) {
+            I18n.applyFromUser(user);
+            state.language = I18n.currentLang;
+        }
+
         renderUserStatus();
         loadFavorites();
-        
+
         // PREFETCH: Always load profile data to warm up the cache
         // regardless of which tab we are on.
         loadProfileData();
@@ -1651,23 +1947,28 @@ document.addEventListener('DOMContentLoaded', () => {
         const container = document.querySelector('.recipes-grid');
         if (!container) return;
 
+        // Localized type names
         const typeNames = {
-            meat: 'Мясо',
-            poultry: 'Птица',
-            fish: 'Рыба',
-            vegetarian: 'Вегетарианское'
+            meat: t('recipes.types.meat'),
+            poultry: t('recipes.types.poultry'),
+            fish: t('recipes.types.fish'),
+            vegetarian: t('recipes.types.vegetarian')
         };
 
         container.innerHTML = '';
-        
+
         Object.keys(recipesDB).forEach(id => {
             const r = recipesDB[id];
-            
+
+            // Get localized recipe data (title, ingredients, steps)
+            const localized = typeof I18n !== 'undefined' ? I18n.getRecipe(id) : null;
+            const recipeTitle = localized?.title || r.title;
+
             // Filters Logic
             if (state.filters.onlyFavorites && !state.favorites.includes(id)) return;
             if (state.filters.category !== 'all' && r.category !== state.filters.category) return;
             if (state.filters.type !== 'all' && r.type !== state.filters.type) return;
-            
+
             if (state.filters.time !== 'all') {
                 if (state.filters.time === 'short' && r.time > 20) return;
                 if (state.filters.time === 'medium' && (r.time <= 20 || r.time > 40)) return;
@@ -1679,7 +1980,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (state.filters.kcal === 'medium' && (r.kcal < 250 || r.kcal > 400)) return;
                 if (state.filters.kcal === 'heavy' && r.kcal <= 400) return;
             }
-            
+
             const isFav = state.favorites.includes(id);
             const card = document.createElement('div');
             card.className = 'recipe-card';
@@ -1688,12 +1989,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     <button class="favorite-btn ${isFav ? 'active' : ''}" data-id="${id}">
                         <i class="fa-${isFav ? 'solid' : 'regular'} fa-heart"></i>
                     </button>
-                    <img src="${r.image}" alt="${r.title}">
+                    <img src="${r.image}" alt="${recipeTitle}">
                 </div>
                 <div class="recipe-info">
-                    <h3 class="recipe-title">${r.title}</h3>
+                    <h3 class="recipe-title">${recipeTitle}</h3>
                     <div class="recipe-badges">
-                        <span class="badge badge-time"><i class="fa-regular fa-clock"></i> ${r.time} м</span>
+                        <span class="badge badge-time"><i class="fa-regular fa-clock"></i> ${r.time} ${t('common.min')}</span>
                         <span class="badge badge-kcal"><i class="fa-solid fa-fire"></i> ${r.kcal}</span>
                         <span class="badge badge-type">${typeNames[r.type] || r.type}</span>
                     </div>
@@ -1740,6 +2041,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const r = recipesDB[id];
             if (!r) return;
 
+            // Get localized recipe title
+            const localized = typeof I18n !== 'undefined' ? I18n.getRecipe(id) : null;
+            const recipeTitle = localized?.title || r.title;
+
             const card = document.createElement('div');
             card.className = 'recipe-card';
             // Compact style for profile
@@ -1750,10 +2055,10 @@ document.addEventListener('DOMContentLoaded', () => {
             card.style.gap = '15px';
 
             card.innerHTML = `
-                <img src="${r.image}" alt="${r.title}" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover;">
+                <img src="${r.image}" alt="${recipeTitle}" style="width: 60px; height: 60px; border-radius: 8px; object-fit: cover;">
                 <div style="flex: 1;">
-                    <h4 style="margin: 0 0 5px 0; font-size: 16px;">${r.title}</h4>
-                    <span style="font-size: 12px; color: var(--text-secondary);"><i class="fa-solid fa-fire"></i> ${r.kcal} ккал</span>
+                    <h4 style="margin: 0 0 5px 0; font-size: 16px;">${recipeTitle}</h4>
+                    <span style="font-size: 12px; color: var(--text-secondary);"><i class="fa-solid fa-fire"></i> ${r.kcal} ${t('common.kcal')}</span>
                 </div>
                 <button class="favorite-btn active" data-id="${id}" style="position: static; background: none; box-shadow: none; color: var(--peach-dark);">
                     <i class="fa-solid fa-heart"></i>
@@ -1811,15 +2116,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const data = recipesDB[id];
         if (!data) return;
 
-        document.getElementById('detail-title').textContent = data.title;
-        document.getElementById('detail-category').textContent = data.category;
-        document.getElementById('detail-kcal').textContent = data.kcal + ' ккал';
-        document.getElementById('detail-time').textContent = data.time + ' мин';
+        // Get localized recipe data
+        const localized = typeof I18n !== 'undefined' ? I18n.getRecipe(id) : null;
+        const recipeTitle = localized?.title || data.title;
+        const recipeIngredients = localized?.ingredients || data.ingredients;
+        const recipeSteps = localized?.steps || data.steps;
+
+        // Localized category names
+        const categoryNames = {
+            breakfast: t('recipes.categories.breakfast'),
+            lunch: t('recipes.categories.lunch'),
+            dinner: t('recipes.categories.dinner'),
+            dessert: t('recipes.categories.dessert')
+        };
+
+        document.getElementById('detail-title').textContent = recipeTitle;
+        document.getElementById('detail-category').textContent = categoryNames[data.category] || data.category;
+        document.getElementById('detail-kcal').textContent = data.kcal + ' ' + t('common.kcal');
+        document.getElementById('detail-time').textContent = data.time + ' ' + t('common.min');
         document.getElementById('detail-bju').textContent = data.bju;
-        
-        document.getElementById('detail-ingredients').innerHTML = data.ingredients.map(i => `<li>${i}</li>`).join('');
-        document.getElementById('detail-steps').innerHTML = data.steps.map(s => `<li>${s}</li>`).join('');
-        
+
+        document.getElementById('detail-ingredients').innerHTML = recipeIngredients.map(i => `<li>${i}</li>`).join('');
+        document.getElementById('detail-steps').innerHTML = recipeSteps.map(s => `<li>${s}</li>`).join('');
+
         document.getElementById('detail-header-color').style.backgroundImage = `url('${data.image}')`;
         showScreen('recipe-detail');
     }

@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Anti-Sugar: Scientific Protocol</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+    <style>
+        :root {
+            /* Palette */
+            --bg-primary: #F9FAFB;
+            --bg-paper: #FFFFFF;
+            --text-primary: #2C3E50;
+            --text-body: #2D3748; /* Darker for readability */
+            --sage-primary: #5A7D6C;
+            --sage-light: #E8F0ED;
+            --accent-gold: #D4AF37;
+            --danger: #C0392B;
+            --border-light: #E2E8F0;
+
+            --font-heading: 'Nunito', sans-serif;
+            --font-body: 'Lora', serif;
+
+            --shadow-card: 0 10px 30px rgba(0,0,0,0.05);
+            --radius-lg: 16px;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-heading);
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
+
+        /* --- NAVIGATION (FIXED STYLE) --- */
+        .nav-header {
+            position: sticky;
+            top: 0;
+            background: rgba(249, 250, 251, 0.85); /* Glass effect */
+            backdrop-filter: blur(12px);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 100;
+            /* No border for cleaner look */
+        }
+
+        .back-btn {
+            background: transparent;
+            border: none;
+            padding: 8px;
+            margin-left: -8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-primary);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        .nav-title {
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            color: var(--sage-primary);
+            opacity: 0.9;
+        }
+
+        /* --- HERO --- */
+        .hero {
+            padding: 20px 20px 40px 20px;
+            background: linear-gradient(180deg, var(--bg-paper) 0%, var(--bg-primary) 100%);
+            text-align: center;
+        }
+
+        .hero-label {
+            display: inline-block;
+            background: var(--sage-primary);
+            color: white;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 16px;
+        }
+
+        .hero h1 {
+            font-family: var(--font-body);
+            font-size: 32px;
+            line-height: 1.2;
+            margin: 0 0 16px 0;
+            color: var(--text-primary);
+        }
+
+        .hero-meta {
+            font-size: 14px;
+            color: var(--text-body);
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+        }
+
+        .hero-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* --- CONTENT WRAPPER --- */
+        .content-wrapper {
+            max-width: 650px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* --- SECTIONS --- */
+        .section-title {
+            font-size: 22px;
+            font-weight: 800;
+            margin: 40px 0 20px 0;
+            position: relative;
+            padding-left: 15px;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 4px;
+            height: 24px;
+            width: 4px;
+            background: var(--accent-gold);
+            border-radius: 2px;
+        }
+
+        .text-block {
+            font-family: var(--font-body);
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text-body);
+            margin-bottom: 24px;
+        }
+
+        .highlight-box {
+            background: var(--bg-paper);
+            border-left: 4px solid var(--sage-primary);
+            padding: 20px;
+            margin: 24px 0;
+            border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+            box-shadow: var(--shadow-card);
+        }
+
+        .highlight-box h3 {
+            margin-top: 0;
+            font-size: 16px;
+            color: var(--sage-primary);
+        }
+
+        /* --- ACCORDION (RESTORED & FIXED) --- */
+        .accordion {
+            background: var(--bg-paper);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            box-shadow: var(--shadow-card);
+            margin-bottom: 16px;
+        }
+
+        .accordion-header {
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 700;
+            color: var(--text-primary);
+            border-bottom: 1px solid transparent;
+            transition: all 0.3s;
+        }
+
+        .accordion-header i {
+            color: var(--sage-primary);
+            transition: transform 0.3s;
+        }
+
+        .accordion-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease-out;
+            background: #FAFAFA;
+        }
+
+        .accordion.active .accordion-header {
+            border-bottom: 1px solid var(--border-light);
+            color: var(--sage-primary);
+        }
+
+        .accordion.active .accordion-header i {
+            transform: rotate(180deg);
+        }
+
+        .accordion-body {
+            padding: 24px;
+            font-family: var(--font-body);
+            font-size: 16px;
+            line-height: 1.6;
+            color: #1A202C; /* Explicit dark color */
+            background: #FFFFFF;
+        }
+
+        /* --- LISTS --- */
+        .check-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .check-list li {
+            position: relative;
+            padding-left: 30px;
+            margin-bottom: 12px;
+            font-family: var(--font-body);
+            color: var(--text-body);
+        }
+
+        .check-list li::before {
+            content: '\f00c';
+            font-family: 'Font Awesome 6 Free';
+            font-weight: 900;
+            position: absolute;
+            left: 0;
+            top: 4px;
+            color: var(--sage-primary);
+        }
+
+        .danger-list li::before {
+            content: '\f00d';
+            color: var(--danger);
+        }
+
+        /* --- FOOTER --- */
+        .author-sign {
+            margin-top: 60px;
+            text-align: right;
+            font-family: var(--font-body);
+            font-style: italic;
+            color: var(--text-body);
+            border-top: 1px solid var(--border-light);
+            padding-top: 20px;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Nav (UPDATED) -->
+    <nav class="nav-header">
+        <button class="back-btn" onclick="goBack()">
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <span class="nav-title">GUIDELINE</span>
+        <div style="width: 24px;"></div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="hero">
+        <span class="hero-label">Clinical Protocol</span>
+        <h1>Anti-Sugar: <br>Deep Reset</h1>
+        <div class="hero-meta">
+            <span><i class="fa-regular fa-clock"></i> 21 days</span>
+            <span><i class="fa-solid fa-book-medical"></i> Science-based</span>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+
+        <!-- Intro -->
+        <div class="text-block">
+            <p><strong>Sugar is not just "empty calories."</strong> It's a biochemical agent that hijacks your reward system, causes chronic inflammation (protein glycation), and metabolic rigidity.</p>
+            <p>This guide is not a diet. It's a science-based protocol for restoring insulin and leptin receptor sensitivity.</p>
+        </div>
+
+        <!-- Section 1: Biochemistry -->
+        <h2 class="section-title">Part 1: Mechanism of Action</h2>
+
+        <div class="highlight-box">
+            <h3><i class="fa-solid fa-flask"></i> Why willpower doesn't work?</h3>
+            <p style="margin-bottom: 0;">Sugar activates the same brain regions (Nucleus Accumbens) as opioids. Trying to simply "eat less" is doomed to fail until the neurochemical addiction loop is broken. We need 21 days to re-sensitize dopamine receptors.</p>
+        </div>
+
+        <!-- Section 2: Implementation -->
+        <h2 class="section-title">Part 2: Weekly Strategy</h2>
+        <p class="text-block">We divide the protocol into 3 phases. Each has its own physiological goal.</p>
+
+        <!-- Phase 1 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                Week 1: Metabolic Storm
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Goal:</strong> Deplete glycogen stores and switch to fat oxidation.</p>
+                    <p><strong>What happens:</strong> Dropping insulin levels force the kidneys to excrete sodium and water. You lose 2-3 kg of "water weight."</p>
+                    <p><strong>Symptoms:</strong> "Sugar flu" — headache, weakness, irritability.</p>
+                    <p><strong>Support protocol:</strong></p>
+                    <ul class="check-list">
+                        <li>Increase salt intake (up to 5g per day) and water.</li>
+                        <li>Magnesium citrate (400 mg) at night.</li>
+                        <li>High-fat breakfast (eggs, avocado) for satiety.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 2 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                Week 2: Microbiome Adaptation
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Goal:</strong> Change the microflora composition.</p>
+                    <p><strong>Mechanism:</strong> Bacteria that feed on sugar (Candida spp.) begin to die off, releasing toxins. This can cause sudden intense cravings.</p>
+                    <p><strong>Strategy:</strong></p>
+                    <ul class="check-list">
+                        <li>Add fermented foods (sauerkraut, kimchi).</li>
+                        <li>Fiber: at least 30g per day (greens, psyllium).</li>
+                        <li>No artificial sweeteners (they maintain cravings).</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Phase 3 -->
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                Week 3: Neuroplasticity
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Goal:</strong> Consolidate new neural pathways.</p>
+                    <p><strong>Result:</strong> Taste receptors are cleansed. A regular apple tastes overly sweet. Energy becomes stable throughout the day.</p>
+                    <p><strong>Action:</strong> Gradually introduce complex carbohydrates (berries, buckwheat), monitoring body reactions.</p>
+                </div>
+            </div>
+        </div>
+
+
+        <!-- Section 3: Food List -->
+        <h2 class="section-title">Part 3: Diet Purity</h2>
+
+        <div class="highlight-box" style="border-left-color: var(--danger);">
+            <h3 style="color: var(--danger);"><i class="fa-solid fa-ban"></i> Stop List (Hidden Enemies)</h3>
+            <ul class="check-list danger-list" style="margin-bottom: 0;">
+                <li><strong>"Healthy" sweets:</strong> Honey, Jerusalem artichoke syrup, dates. For the brain, it's the same sugar.</li>
+                <li><strong>Dairy:</strong> Sweetened yogurts, low-fat products (they often contain added starch).</li>
+                <li><strong>Sauces:</strong> Ketchup, teriyaki, BBQ (up to 30% sugar).</li>
+                <li><strong>Processed foods:</strong> Sausages, pre-made patties (glucose as a flavor enhancer).</li>
+            </ul>
+        </div>
+
+
+        <!-- Section 4: Troubleshooting -->
+        <h2 class="section-title">Part 4: Common Challenges</h2>
+        <p class="text-block">Failure happens not due to weak willpower, but due to lack of a plan for emergencies.</p>
+
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                1. "4 PM Syndrome" (Office Cravings)
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Cause:</strong> Drop in cortisol and glucose by the end of the workday.</p>
+                    <p><strong>Solution:</strong> Pre-prepared "fat snack." 10 almonds or a piece of cheese will curb cravings better than an apple. Fats send a satiety signal (CCK), while apple fructose only teases appetite.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                2. Social Pressure ("Don't you respect me?")
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Solution:</strong> Use medical framing. The phrase "I'm on a diet" triggers the desire to treat you ("just this once won't hurt").</p>
+                    <p>The phrase <strong>"My doctor prescribed this protocol"</strong> or <strong>"I have a bad reaction to that"</strong> closes the topic instantly.</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="accordion">
+            <div class="accordion-header" onclick="toggleAccordion(this)">
+                3. PMS and Uncontrollable Hunger
+                <i class="fa-solid fa-chevron-down"></i>
+            </div>
+            <div class="accordion-content">
+                <div class="accordion-body">
+                    <p><strong>Physiology:</strong> Progesterone rises, insulin sensitivity drops.</p>
+                    <p><strong>Solution:</strong> On these days, legitimately increase calories through complex carbs (baked potato, quinoa) and fats. Give your body energy, but not sugar.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Section 5: Safety -->
+        <h2 class="section-title">Safety Criteria</h2>
+        <div class="text-block" style="font-size: 15px; background: #FFF3CD; padding: 15px; border-radius: 8px; color: #444;">
+            <p><strong>Attention!</strong> If you have type 1 diabetes, eating disorders (ED) in acute phase, or are pregnant — this protocol requires modification and specialist supervision.</p>
+            <p>Immediate stop criterion: Hypoglycemia (trembling, cold sweat, confusion) — requires fast carbohydrate intake.</p>
+        </div>
+
+        <div class="author-sign">
+            Julia<br>
+            Your Clinical Nutritionist
+        </div>
+
+    </div>
+
+    <script>
+        const tg = window.Telegram.WebApp;
+        tg.ready();
+
+        // Accordion Logic
+        function toggleAccordion(header) {
+            const item = header.parentElement;
+            const content = header.nextElementSibling;
+
+            // Close others (optional - nice for focus)
+            document.querySelectorAll('.accordion').forEach(acc => {
+                if (acc !== item) {
+                    acc.classList.remove('active');
+                    acc.querySelector('.accordion-content').style.maxHeight = null;
+                }
+            });
+
+            item.classList.toggle('active');
+
+            if (item.classList.contains('active')) {
+                content.style.maxHeight = content.scrollHeight + "px";
+                if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            } else {
+                content.style.maxHeight = null;
+            }
+        }
+
+        function goBack() {
+            if(tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+            window.location.href = "../index.html?screen=guides";
+        }
+
+        // Theme sync
+        if (tg.colorScheme === 'dark') {
+            document.documentElement.style.setProperty('--bg-primary', '#121212');
+            document.documentElement.style.setProperty('--bg-paper', '#1E1E1E');
+            document.documentElement.style.setProperty('--text-primary', '#FFFFFF');
+            document.documentElement.style.setProperty('--text-body', '#E0E0E0');
+            document.documentElement.style.setProperty('--border-light', '#333');
+            document.documentElement.style.setProperty('--sage-light', '#2C3E50');
+        }
+    </script>
+</body>
+</html>
