@@ -64,6 +64,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Update settings modal labels
         updateSettingsModal();
 
+        // Update guides screen
+        updateGuidesScreen();
+
         console.log('[I18n] UI refreshed for language:', I18n?.currentLang);
     }
 
@@ -92,6 +95,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 titleEl.textContent = t(`main.${navLabels[i]}`);
             }
         });
+
+        // Card subtitle (Diplomas)
+        const diplomasSubtitle = document.getElementById('card-subtitle-diplomas');
+        if (diplomasSubtitle) diplomasSubtitle.textContent = t('main.diplomas');
 
         // Bottom navigation
         const bottomNavItems = document.querySelectorAll('.bottom-nav .nav-item span');
@@ -135,6 +142,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Weight log button
         const weightLogBtn = document.querySelector('#btn-log-weight');
         if (weightLogBtn) weightLogBtn.innerHTML = `<i class="fa-solid fa-pen"></i> ${t('profile.weight.log')}`;
+
+        // Weight unit (kg)
+        const weightUnit = document.getElementById('weight-unit');
+        if (weightUnit) weightUnit.textContent = t('common.kg');
 
         // Diary empty state
         const diaryEmpty = document.getElementById('diary-empty');
@@ -231,6 +242,37 @@ document.addEventListener('DOMContentLoaded', () => {
             if (opts[2]) opts[2].text = t('recipes.kcalOptions.medium');
             if (opts[3]) opts[3].text = t('recipes.kcalOptions.heavy');
         }
+    }
+
+    // Update guides screen
+    function updateGuidesScreen() {
+        // Page title
+        const pageTitle = document.getElementById('guides-page-title');
+        if (pageTitle) pageTitle.textContent = t('guides.title');
+
+        // Guide card keys matching i18n structure
+        const guideKeys = ['starter', 'plate', 'deficiencies', 'shopping', 'antiSugar', 'cleanGut', 'hormonal', 'metabolic', 'cortisol', 'sleep'];
+
+        guideKeys.forEach(key => {
+            const titleEl = document.getElementById(`guide-title-${key}`);
+            if (titleEl) titleEl.textContent = t(`guides.${key}.title`);
+
+            const descEl = document.getElementById(`guide-desc-${key}`);
+            if (descEl) descEl.textContent = t(`guides.${key}.desc`);
+
+            const priceEl = document.getElementById(`guide-price-${key}`);
+            if (priceEl) priceEl.textContent = t('common.free');
+
+            const btnEl = document.getElementById(`guide-btn-${key}`);
+            if (btnEl) {
+                // Starter has download icon, others have read icon
+                if (key === 'starter') {
+                    btnEl.innerHTML = `${t('common.download')} <i class="fa-solid fa-download"></i>`;
+                } else {
+                    btnEl.innerHTML = `${t('common.read')} <i class="fa-solid fa-chevron-right"></i>`;
+                }
+            }
+        });
     }
 
     // Update settings modal labels
@@ -814,6 +856,16 @@ document.addEventListener('DOMContentLoaded', () => {
             if (screenId === 'profile') {
                 loadProfileData();
             }
+
+            // Update filter options when entering recipes screen
+            if (screenId === 'recipes') {
+                updateFilterOptions();
+            }
+
+            // Update guides when entering guides screen
+            if (screenId === 'guides') {
+                updateGuidesScreen();
+            }
         }
     }
 
@@ -863,9 +915,10 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // Format Label
             if (isToday) {
-                dateLabel.textContent = 'Сегодня';
+                dateLabel.textContent = t('common.today');
             } else {
-                dateLabel.textContent = state.currentDate.toLocaleDateString('ru-RU', { day: 'numeric', month: 'short', weekday: 'short' });
+                const locale = I18n?.currentLang === 'en' ? 'en-US' : 'ru-RU';
+                dateLabel.textContent = state.currentDate.toLocaleDateString(locale, { day: 'numeric', month: 'short', weekday: 'short' });
             }
 
             // Sync Input (YYYY-MM-DD)
@@ -1392,7 +1445,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 progressBar.style.width = '0%';
             }
         } else {
-            diffEl.textContent = 'Цель не задана';
+            diffEl.textContent = t('profile.weight.noGoal');
             progressBar.style.width = '0%';
         }
     }
@@ -1402,7 +1455,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btnLogWeight.addEventListener('click', async () => {
             const current = state.weightCurrent || state.weightStart || 65.0;
             // Simple prompt for MVP
-            const input = prompt("Введите ваш текущий вес (кг):", current);
+            const input = prompt(t('profile.weight.prompt'), current);
             
             if (input) {
                 const newWeight = parseFloat(input.replace(',', '.'));
@@ -2135,6 +2188,13 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('detail-kcal').textContent = data.kcal + ' ' + t('common.kcal');
         document.getElementById('detail-time').textContent = data.time + ' ' + t('common.min');
         document.getElementById('detail-bju').textContent = data.bju;
+
+        // Update section titles
+        const ingredientsTitle = document.getElementById('detail-ingredients-title');
+        if (ingredientsTitle) ingredientsTitle.innerHTML = `<i class="fa-solid fa-basket-shopping"></i> ${t('recipes.ingredients')}`;
+
+        const stepsTitle = document.getElementById('detail-steps-title');
+        if (stepsTitle) stepsTitle.innerHTML = `<i class="fa-solid fa-list-check"></i> ${t('recipes.steps')}`;
 
         document.getElementById('detail-ingredients').innerHTML = recipeIngredients.map(i => `<li>${i}</li>`).join('');
         document.getElementById('detail-steps').innerHTML = recipeSteps.map(s => `<li>${s}</li>`).join('');

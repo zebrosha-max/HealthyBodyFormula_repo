@@ -46,7 +46,7 @@
                     <i class="fa-solid fa-face-smile"></i>
                 </div>
                 <span class="card-title">Обо мне</span>
-                <span class="card-subtitle">Дипломы</span>
+                <span class="card-subtitle" id="card-subtitle-diplomas">Дипломы</span>
             </div>
 
             <!-- Card 2: Recipes (Moved Up) -->
@@ -191,7 +191,7 @@
             <button class="back-button" data-back>
                 <i class="fa-solid fa-chevron-left"></i>
             </button>
-            <h2 class="page-title">Гайды</h2>
+            <h2 class="page-title" id="guides-page-title">Гайды</h2>
         </div>
 
         <div id="guides-list" style="padding: 0 5px;">
@@ -202,13 +202,13 @@
                         <i class="fa-solid fa-seedling"></i>
                     </div>
                     <div class="guide-content">
-                        <h3 class="guide-title">С чего начать путь к здоровью?</h3>
-                        <p class="guide-desc">Базовый чек-лист привычек и простых шагов для мягкого старта без стресса.</p>
+                        <h3 class="guide-title" id="guide-title-starter">С чего начать путь к здоровью?</h3>
+                        <p class="guide-desc" id="guide-desc-starter">Базовый чек-лист привычек и простых шагов для мягкого старта без стресса.</p>
                     </div>
                 </div>
                 <div class="guide-footer">
-                    <span class="guide-price free">Бесплатно</span>
-                    <button class="guide-btn">Скачать <i class="fa-solid fa-download"></i></button>
+                    <span class="guide-price free" id="guide-price-starter">Бесплатно</span>
+                    <button class="guide-btn" id="guide-btn-starter">Скачать <i class="fa-solid fa-download"></i></button>
                 </div>
             </div>
 
@@ -219,13 +219,13 @@
                         <i class="fa-solid fa-utensils"></i>
                     </div>
                     <div class="guide-content">
-                        <h3 class="guide-title">Конструктор тарелки</h3>
-                        <p class="guide-desc">Метод 50/25/25: как собирать идеальный рацион без весов и калорий.</p>
+                        <h3 class="guide-title" id="guide-title-plate">Конструктор тарелки</h3>
+                        <p class="guide-desc" id="guide-desc-plate">Метод 50/25/25: как собирать идеальный рацион без весов и калорий.</p>
                     </div>
                 </div>
                 <div class="guide-footer">
-                    <span class="guide-price free">Бесплатно</span>
-                    <button class="guide-btn">Читать <i class="fa-solid fa-chevron-right"></i></button>
+                    <span class="guide-price free" id="guide-price-plate">Бесплатно</span>
+                    <button class="guide-btn" id="guide-btn-plate">Читать <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
 
@@ -236,13 +236,13 @@
                         <i class="fa-solid fa-clipboard-list"></i>
                     </div>
                     <div class="guide-content">
-                        <h3 class="guide-title">Чек-лист дефицитов</h3>
-                        <p class="guide-desc">Почему нет энергии? Проверьте себя на главные дефициты мегаполиса.</p>
+                        <h3 class="guide-title" id="guide-title-deficiencies">Чек-лист дефицитов</h3>
+                        <p class="guide-desc" id="guide-desc-deficiencies">Почему нет энергии? Проверьте себя на главные дефициты мегаполиса.</p>
                     </div>
                 </div>
                 <div class="guide-footer">
-                    <span class="guide-price free">Бесплатно</span>
-                    <button class="guide-btn">Читать <i class="fa-solid fa-chevron-right"></i></button>
+                    <span class="guide-price free" id="guide-price-deficiencies">Бесплатно</span>
+                    <button class="guide-btn" id="guide-btn-deficiencies">Читать <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
 
@@ -253,13 +253,13 @@
                         <i class="fa-solid fa-cart-shopping"></i>
                     </div>
                     <div class="guide-content">
-                        <h3 class="guide-title">Умный шоппинг</h3>
-                        <p class="guide-desc">Здоровая корзина: как читать этикетки и не покупать лишнего в супермаркете.</p>
+                        <h3 class="guide-title" id="guide-title-shopping">Умный шоппинг</h3>
+                        <p class="guide-desc" id="guide-desc-shopping">Здоровая корзина: как читать этикетки и не покупать лишнего в супермаркете.</p>
                     </div>
                 </div>
                 <div class="guide-footer">
-                    <span class="guide-price free">Бесплатно</span>
-                    <button class="guide-btn">Читать <i class="fa-solid fa-chevron-right"></i></button>
+                    <span class="guide-price free" id="guide-price-shopping">Бесплатно</span>
+                    <button class="guide-btn" id="guide-btn-shopping">Читать <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
 
@@ -271,16 +271,16 @@
                         <i class="fa-solid fa-bolt"></i>
                     </div>
                     <div class="guide-content">
-                        <h3 class="guide-title">Анти-Сахар</h3>
-                        <p class="guide-desc">Научный протокол перезагрузки организма за 21 день. Откажитесь от сахара без срывов.</p>
+                        <h3 class="guide-title" id="guide-title-antiSugar">Анти-Сахар</h3>
+                        <p class="guide-desc" id="guide-desc-antiSugar">Научный протокол перезагрузки организма за 21 день. Откажитесь от сахара без срывов.</p>
                     </div>
                 </div>
                 <div class="guide-footer">
                     <div style="display: flex; align-items: center;">
                         <span class="guide-price old-price" style="text-decoration: line-through; opacity: 0.5; font-size: 13px; margin-right: 8px;">990 ₽</span>
-                        <span class="guide-price free">Бесплатно</span>
+                        <span class="guide-price free" id="guide-price-antiSugar">Бесплатно</span>
                     </div>
-                    <button class="guide-btn">Читать <i class="fa-solid fa-chevron-right"></i></button>
+                    <button class="guide-btn" id="guide-btn-antiSugar">Читать <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
 
@@ -292,16 +292,16 @@
                         <i class="fa-solid fa-leaf"></i>
                     </div>
                     <div class="guide-content">
-                        <h3 class="guide-title">Чистый кишечник</h3>
-                        <p class="guide-desc">Фундамент иммунитета: восстановление слизистой и баланса микробиома.</p>
+                        <h3 class="guide-title" id="guide-title-cleanGut">Чистый кишечник</h3>
+                        <p class="guide-desc" id="guide-desc-cleanGut">Фундамент иммунитета: восстановление слизистой и баланса микробиома.</p>
                     </div>
                 </div>
                 <div class="guide-footer">
                     <div style="display: flex; align-items: center;">
                         <span class="guide-price old-price" style="text-decoration: line-through; opacity: 0.5; font-size: 13px; margin-right: 8px;">690 ₽</span>
-                        <span class="guide-price free">Бесплатно</span>
+                        <span class="guide-price free" id="guide-price-cleanGut">Бесплатно</span>
                     </div>
-                    <button class="guide-btn">Читать <i class="fa-solid fa-chevron-right"></i></button>
+                    <button class="guide-btn" id="guide-btn-cleanGut">Читать <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
 
@@ -313,16 +313,16 @@
                         <i class="fa-solid fa-venus"></i>
                     </div>
                     <div class="guide-content">
-                        <h3 class="guide-title">Гормональное сияние</h3>
-                        <p class="guide-desc">Синхронизация питания с фазами цикла для баланса гормонов и настроения.</p>
+                        <h3 class="guide-title" id="guide-title-hormonal">Гормональное сияние</h3>
+                        <p class="guide-desc" id="guide-desc-hormonal">Синхронизация питания с фазами цикла для баланса гормонов и настроения.</p>
                     </div>
                 </div>
                 <div class="guide-footer">
                     <div style="display: flex; align-items: center;">
                         <span class="guide-price old-price" style="text-decoration: line-through; opacity: 0.5; font-size: 13px; margin-right: 8px;">890 ₽</span>
-                        <span class="guide-price free">Бесплатно</span>
+                        <span class="guide-price free" id="guide-price-hormonal">Бесплатно</span>
                     </div>
-                    <button class="guide-btn">Читать <i class="fa-solid fa-chevron-right"></i></button>
+                    <button class="guide-btn" id="guide-btn-hormonal">Читать <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
 
@@ -334,16 +334,16 @@
                         <i class="fa-solid fa-fire-flame-curved"></i>
                     </div>
                     <div class="guide-content">
-                        <h3 class="guide-title">Метаболическая гибкость</h3>
-                        <p class="guide-desc">Смарт-управление весом: как научить тело сжигать жир вместо сахара.</p>
+                        <h3 class="guide-title" id="guide-title-metabolic">Метаболическая гибкость</h3>
+                        <p class="guide-desc" id="guide-desc-metabolic">Смарт-управление весом: как научить тело сжигать жир вместо сахара.</p>
                     </div>
                 </div>
                 <div class="guide-footer">
                     <div style="display: flex; align-items: center;">
                         <span class="guide-price old-price" style="text-decoration: line-through; opacity: 0.5; font-size: 13px; margin-right: 8px;">790 ₽</span>
-                        <span class="guide-price free">Бесплатно</span>
+                        <span class="guide-price free" id="guide-price-metabolic">Бесплатно</span>
                     </div>
-                    <button class="guide-btn">Читать <i class="fa-solid fa-chevron-right"></i></button>
+                    <button class="guide-btn" id="guide-btn-metabolic">Читать <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
 
@@ -355,16 +355,16 @@
                         <i class="fa-solid fa-brain"></i>
                     </div>
                     <div class="guide-content">
-                        <h3 class="guide-title">Кортизол-контроль</h3>
-                        <p class="guide-desc">Питание против стресса: поддержка надпочечников и нервной системы.</p>
+                        <h3 class="guide-title" id="guide-title-cortisol">Кортизол-контроль</h3>
+                        <p class="guide-desc" id="guide-desc-cortisol">Питание против стресса: поддержка надпочечников и нервной системы.</p>
                     </div>
                 </div>
                 <div class="guide-footer">
                     <div style="display: flex; align-items: center;">
                         <span class="guide-price old-price" style="text-decoration: line-through; opacity: 0.5; font-size: 13px; margin-right: 8px;">990 ₽</span>
-                        <span class="guide-price free">Бесплатно</span>
+                        <span class="guide-price free" id="guide-price-cortisol">Бесплатно</span>
                     </div>
-                    <button class="guide-btn">Читать <i class="fa-solid fa-chevron-right"></i></button>
+                    <button class="guide-btn" id="guide-btn-cortisol">Читать <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
 
@@ -376,16 +376,16 @@
                         <i class="fa-solid fa-moon"></i>
                     </div>
                     <div class="guide-content">
-                        <h3 class="guide-title">Биохимия сна</h3>
-                        <p class="guide-desc">Протокол глубокого восстановления: настройка мелатонина через еду.</p>
+                        <h3 class="guide-title" id="guide-title-sleep">Биохимия сна</h3>
+                        <p class="guide-desc" id="guide-desc-sleep">Протокол глубокого восстановления: настройка мелатонина через еду.</p>
                     </div>
                 </div>
                 <div class="guide-footer">
                     <div style="display: flex; align-items: center;">
                         <span class="guide-price old-price" style="text-decoration: line-through; opacity: 0.5; font-size: 13px; margin-right: 8px;">590 ₽</span>
-                        <span class="guide-price free">Бесплатно</span>
+                        <span class="guide-price free" id="guide-price-sleep">Бесплатно</span>
                     </div>
-                    <button class="guide-btn">Читать <i class="fa-solid fa-chevron-right"></i></button>
+                    <button class="guide-btn" id="guide-btn-sleep">Читать <i class="fa-solid fa-chevron-right"></i></button>
                 </div>
             </div>
         </div>
@@ -484,14 +484,14 @@
                 </div>
 
                 <div class="recipe-block">
-                    <h3><i class="fa-solid fa-basket-shopping"></i> Ингредиенты</h3>
+                    <h3 id="detail-ingredients-title"><i class="fa-solid fa-basket-shopping"></i> Ингредиенты</h3>
                     <ul class="ingredients-list" id="detail-ingredients">
                         <!-- JS injected -->
                     </ul>
                 </div>
 
                 <div class="recipe-block">
-                    <h3><i class="fa-solid fa-list-check"></i> Приготовление</h3>
+                    <h3 id="detail-steps-title"><i class="fa-solid fa-list-check"></i> Приготовление</h3>
                     <ol class="steps-list" id="detail-steps">
                         <!-- JS injected -->
                     </ol>
@@ -686,7 +686,7 @@
             
             <div style="display: flex; align-items: flex-end; gap: 10px; margin-bottom: 10px;">
                 <span id="weight-current" style="font-size: 32px; font-weight: 800; color: var(--text-primary); line-height: 1;">--</span>
-                <span style="font-size: 16px; color: var(--text-secondary); margin-bottom: 4px;">кг</span>
+                <span id="weight-unit" style="font-size: 16px; color: var(--text-secondary); margin-bottom: 4px;">кг</span>
                 <span id="weight-diff" style="margin-left: auto; font-size: 14px; color: var(--text-muted); margin-bottom: 6px;">Цель: --</span>
             </div>
 
