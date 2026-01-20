@@ -1,8 +1,9 @@
 # План: Мультиязычность HBF_web (RU/EN)
 
-**Статус:** ✅ Реализация завершена — готово к тестированию
+**Статус:** 🧪 Тестирование на продакшене
 **Начало:** 2026-01-20
 **Завершено:** 2026-01-20
+**Деплой:** 2026-01-20
 
 ---
 
@@ -16,7 +17,7 @@
 | Phase 4: Рецепты | ✅ Completed | 2-3ч |
 | Phase 5: Гайды | ✅ Completed | 4-5ч |
 | Phase 6: Chatbot | ✅ Completed | 1-2ч |
-| Phase 7: Тестирование | 🧪 Manual Testing Required | 2ч |
+| Phase 7: Тестирование | 🧪 In Progress (Production) | 2ч |
 
 ---
 
@@ -139,12 +140,12 @@
 
 ## Phase 7: Тестирование
 
-**Статус:** 🧪 Manual Testing Required
+**Статус:** 🧪 In Progress (Production Testing)
 
 ### Pre-requisites
-- [ ] Выполнить SQL миграцию `backend/add_language_column.sql` в Supabase Dashboard
-- [ ] Импортировать обновлённый n8n workflow `backend/HBF Food Logger.json`
-- [ ] Обновить Telegram webhook URL (если изменился ngrok)
+- [x] Выполнить SQL миграцию `backend/add_language_column.sql` в Supabase Dashboard ✅
+- [x] Импортировать обновлённый n8n workflow `backend/HBF Food Logger.json` ✅
+- [x] Обновить Telegram webhook URL (если изменился ngrok) ✅
 
 ### 7.1 Функциональное тестирование (RU↔EN)
 
@@ -203,8 +204,8 @@
 ### 7.4 Chatbot Testing
 
 **Подготовка:**
-- [ ] Импортировать `backend/HBF Food Logger.json` в n8n
-- [ ] Проверить Telegram webhook
+- [x] Импортировать `backend/HBF Food Logger.json` в n8n ✅
+- [x] Проверить Telegram webhook ✅
 
 **Тесты с RU Telegram клиентом (language_code='ru'):**
 - [ ] /start → "Привет! Отправь фото еды..."
@@ -219,7 +220,9 @@
 ### Notes
 - Реализация завершена 2026-01-20
 - Все 6 фаз разработки выполнены
-- Требуется ручное тестирование пользователем
+- SQL миграция выполнена в Supabase Dashboard ✅
+- n8n workflow импортирован и активирован ✅
+- Production testing in progress...
 
 ---
 
