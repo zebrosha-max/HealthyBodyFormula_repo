@@ -1,0 +1,46 @@
+// ======================================
+// i18n Command Node (Code node)
+// ======================================
+// PREREQUISITE: Add "Supabase Get Language" HTTP Request node BEFORE Router
+// See: n8n-fix-Supabase-Get-Language.txt for configuration
+//
+// WORKFLOW STRUCTURE:
+// Telegram Trigger → Supabase Get Language → Router → [THIS NODE] → Welcome Message
+//
+// PURPOSE: Handle /start command with localized welcome message
+// ======================================
+
+const item = items[0];
+
+// 1. Get Supabase response (passed through Router from HTTP Request)
+// HTTP Request returns array like [{"language": "en"}] or []
+const supabaseData = item.json;
+const supabaseLang = Array.isArray(supabaseData) && supabaseData[0]?.language;
+
+// 2. Get original Telegram message (reference Telegram Trigger node directly)
+// IMPORTANT: Node name must match exactly - adjust if your node has different name
+const telegramData = $('Telegram Trigger').first().json;
+const message = telegramData.message || telegramData;
+const tgLangCode = message?.from?.language_code || 'ru';
+const tgLang = tgLangCode.startsWith('en') ? 'en' : 'ru';
+
+// 3. Priority: Supabase (user's choice) > Telegram (fallback)
+const lang = (supabaseLang === 'ru' || supabaseLang === 'en') ? supabaseLang : tgLang;
+
+// 4. Restore original message data for downstream nodes
+item.json.message = message;
+
+// Localized messages for /start command
+const messages = {
+  ru: {
+    welcome: '👋 Привет! Отправь фото еды или напиши, что ты съел.'
+  },
+  en: {
+    welcome: '👋 Hi! Send a food photo or describe what you ate.'
+  }
+};
+
+item.json.i18n = messages[lang];
+item.json.lang = lang;
+
+return [item];

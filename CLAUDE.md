@@ -131,8 +131,20 @@ updateServicesScreen()  // Экран услуг
 #### Приоритет определения языка
 1. Supabase `users.language` (синхронизация между устройствами)
 2. localStorage `hbf_language` (offline fallback)
-3. Telegram `initDataUnsafe.user.language_code`
+3. Telegram `initDataUnsafe.user.language_code` (только для новых пользователей)
 4. Default: `'ru'`
+
+**Порядок инициализации (app.js):**
+```
+1. I18n.initWithCache()     // Читает ТОЛЬКО localStorage (не пишет!)
+2. initUser()               // Загружает user из Supabase
+3. applyUserState(user)     // Применяет язык из Supabase
+   ├─ user.language есть    → I18n.applyFromUser(user)
+   ├─ localStorage есть     → уже применён в initWithCache()
+   └─ ничего нет            → I18n.initFromTelegram()
+```
+
+**Ключевое изменение (2026-01-20):** `I18n.init()` заменён на `I18n.initWithCache()`, который НЕ записывает в localStorage при отсутствии кэша. Это гарантирует, что выбор пользователя из Supabase всегда имеет приоритет.
 
 #### Переключатель языка
 - Расположение: Profile → Settings (⚙) → "Язык интерфейса"
@@ -271,6 +283,53 @@ HBF_web/
 - Telegram Bot → Gemini Flash (Vision/Text) → Supabase
 - Photo/text analysis → JSON extraction → DB insert
 - Callback queries для Save/Cancel
+
+#### i18n интеграция в n8n (2026-01-20)
+
+**Проблема 1:** AI-промпты содержат кавычки (`"dish"`, `"calories"`), которые ломают JSON при вставке.
+**Решение:** Экранирование через `JSON.stringify().slice(1,-1)` в Code node.
+
+**Проблема 2 (Fixed 2026-01-20):** Бот игнорировал выбранный в веб-приложении язык, всегда использовал Telegram language_code.
+**Решение:** Добавлена нода Supabase Get Language для чтения `users.language` из БД.
+
+**Файлы с фиксами** (папка `backend/`):
+
+| Файл | Нода n8n | Описание |
+|------|----------|----------|
+| `n8n-fix-Supabase-Get-Language.txt` | HTTP Request (NEW) | Получение языка из Supabase (ставить перед Router) |
+| `n8n-fix-i18n-Command.txt` | i18n Command (Code) | /start команда с локализованным приветствием |
+| `n8n-fix-i18n-Message.txt` | i18n Message (Code) | Приоритет: Supabase > Telegram + экранирование |
+| `n8n-fix-Code-in-JavaScript.txt` | Code in JavaScript | Сохранение i18n данных для фото |
+| `n8n-fix-AI-Photo.txt` | AI Photo (HTTP Request) | JSON body с `aiPromptPhotoEscaped` |
+| `n8n-fix-AI-Text.txt` | AI Text (HTTP Request) | JSON body с `aiPromptTextEscaped` |
+| `n8n-fix-Ask-Confirm-Text.txt` | Ask Confirm (Telegram) | Текст сообщения с i18n |
+| `n8n-fix-Ask-Confirm-Btn1.txt` | Ask Confirm (Telegram) | Кнопка "Записать" |
+| `n8n-fix-Ask-Confirm-Btn2.txt` | Ask Confirm (Telegram) | Кнопка "Отмена" |
+
+**Ключевые моменты:**
+
+1. **Экранирование промптов** в Code node:
+   ```javascript
+   item.json.aiPromptTextEscaped = JSON.stringify(messages[lang].aiPromptText).slice(1, -1);
+   item.json.aiPromptPhotoEscaped = JSON.stringify(messages[lang].aiPromptPhoto).slice(1, -1);
+   ```
+
+2. **DB Insert — Inputs to Ignore:** добавить `i18n, lang, aiPromptPhotoEscaped, aiPromptTextEscaped`
+   - Иначе ошибка "Could not find the 'i18n' column"
+
+3. **Ссылки на данные после DB операций:**
+   - После DB Insert данные `$json.i18n` теряются
+   - Использовать: `$('Edit Fields').first().json.i18n.confirm`
+   - Для savedMsg: `$('Extract Fields').first().json.savedMsg`
+
+4. **JSON body формат** — БЕЗ префикса `=`:
+   ```json
+   {
+     "contents": [{
+       "parts": [{"text": "{{ $json.aiPromptPhotoEscaped }}"}]
+     }]
+   }
+   ```
 
 ## Cache Busting
 

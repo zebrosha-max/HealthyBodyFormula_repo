@@ -1,0 +1,69 @@
+// ======================================
+// i18n Message Node (Code node)
+// ======================================
+// PREREQUISITE: Add "Supabase Get Language" HTTP Request node BEFORE Router
+// See: n8n-fix-Supabase-Get-Language.txt for configuration
+//
+// WORKFLOW STRUCTURE:
+// Telegram Trigger → Supabase Get Language → Router → [THIS NODE] → If → ...
+//
+// NOTE: HTTP Request replaces input data with API response,
+// so we reference Telegram Trigger node directly using $('Telegram Trigger')
+// ======================================
+
+const item = items[0];
+
+// 1. Get Supabase response (from current/previous node)
+// HTTP Request returns array like [{"language": "en"}] or []
+const supabaseData = item.json;
+const supabaseLang = Array.isArray(supabaseData) && supabaseData[0]?.language;
+
+// 2. Get original Telegram message (reference Telegram Trigger node directly)
+// IMPORTANT: Node name must match exactly - adjust if your node has different name
+const telegramData = $('Telegram Trigger').first().json;
+const message = telegramData.message || telegramData;
+const tgLangCode = message?.from?.language_code || 'ru';
+const tgLang = tgLangCode.startsWith('en') ? 'en' : 'ru';
+
+// 3. Priority: Supabase (user's choice) > Telegram (fallback)
+const lang = (supabaseLang === 'ru' || supabaseLang === 'en') ? supabaseLang : tgLang;
+
+// 4. Restore original message data for downstream nodes
+item.json.message = message;
+
+// Localized messages
+const messages = {
+  ru: {
+    welcome: '👋 Привет! Отправь фото еды или напиши, что ты съел.',
+    kcal: 'ккал',
+    macros: 'Б',
+    fat: 'Ж',
+    carbs: 'У',
+    confirm: '✅ Записать',
+    cancel: '❌ Отмена',
+    saved: '✅ Сохранено в дневник!',
+    aiPromptText: 'Ты нутрициолог. Распознай блюдо и КБЖУ. Только целое число, никаких знаков после запятой. Верни СТРОГО JSON формат (без ```json): {"dish": "короткое название", "calories": 0, "protein": 0, "fat": 0, "carbs": 0}. Текст пользователя: ',
+    aiPromptPhoto: 'Ты нутрициолог. Посмотри на фото. Определи блюдо и оцени КБЖУ. Только целые числа, никаких знаков после запятой. Верни СТРОГО JSON (без markdown): {"dish": "название", "calories": 0, "protein": 0, "fat": 0, "carbs": 0}'
+  },
+  en: {
+    welcome: '👋 Hi! Send a food photo or describe what you ate.',
+    kcal: 'kcal',
+    macros: 'P',
+    fat: 'F',
+    carbs: 'C',
+    confirm: '✅ Save',
+    cancel: '❌ Cancel',
+    saved: '✅ Saved to diary!',
+    aiPromptText: 'You are a nutritionist. Identify the dish and estimate CPFC (Calories, Protein, Fat, Carbs). Only whole numbers, no decimals. Return STRICTLY JSON format (no ```json): {"dish": "short name", "calories": 0, "protein": 0, "fat": 0, "carbs": 0}. User text: ',
+    aiPromptPhoto: 'You are a nutritionist. Look at the photo. Identify the dish and estimate CPFC. Only whole numbers, no decimals. Return STRICTLY JSON (no markdown): {"dish": "name", "calories": 0, "protein": 0, "fat": 0, "carbs": 0}'
+  }
+};
+
+item.json.i18n = messages[lang];
+item.json.lang = lang;
+
+// ВАЖНО: Экранированные промпты для безопасной вставки в JSON шаблоны
+item.json.aiPromptTextEscaped = JSON.stringify(messages[lang].aiPromptText).slice(1, -1);
+item.json.aiPromptPhotoEscaped = JSON.stringify(messages[lang].aiPromptPhoto).slice(1, -1);
+
+return [item];

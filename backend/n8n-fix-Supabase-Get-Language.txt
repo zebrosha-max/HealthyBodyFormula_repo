@@ -1,0 +1,64 @@
+// ======================================
+// n8n Node: Get User Language from Supabase
+// ======================================
+//
+// PURPOSE: Fetch user's language preference from Supabase BEFORE i18n Message node
+// This ensures bot responses use the language the user selected in the web app
+//
+// PLACEMENT IN WORKFLOW:
+// Telegram Trigger → [THIS NODE] → i18n Message → AI Photo/Text → ...
+//
+// ======================================
+
+// NODE TYPE: HTTP Request
+
+// METHOD: GET
+
+// URL (Expression):
+https://jaxiqphuvwspwanydlez.supabase.co/rest/v1/users?telegram_id=eq.{{ $json.message.from.id }}&select=language
+
+// HEADERS (Add Header):
+// Header 1:
+//   Name: apikey
+//   Value: sb_publishable_dx1fnlKqP5w9e26_qLuFxA_DYLd392O
+
+// Header 2:
+//   Name: Authorization
+//   Value: Bearer sb_publishable_dx1fnlKqP5w9e26_qLuFxA_DYLd392O
+
+// Header 3:
+//   Name: Content-Type
+//   Value: application/json
+
+// RESPONSE FORMAT: JSON
+
+// ======================================
+// EXPECTED OUTPUT:
+// Success (user exists with language):
+//   [{"language": "en"}]
+//
+// Success (user exists, no language set):
+//   [{"language": null}]
+//
+// Success (user doesn't exist):
+//   []
+// ======================================
+
+// ======================================
+// USAGE IN NEXT NODE (i18n Message):
+//
+// Access the language with:
+//   const supabaseUser = items[0].json.body?.[0];
+//   const supabaseLang = supabaseUser?.language;
+//
+// OR if data comes differently:
+//   const supabaseLang = items[0].json[0]?.language;
+// ======================================
+
+// ======================================
+// CONFIGURATION SCREENSHOT REFERENCE:
+//
+// Authentication: None (using headers directly)
+// Timeout: 5000ms (5 seconds)
+// Continue On Fail: true (bot should work even if Supabase is slow)
+// ======================================

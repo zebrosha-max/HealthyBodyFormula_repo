@@ -11,8 +11,10 @@ const I18n = {
     recipes: {},
 
     /**
-     * Initialize i18n system
-     * Priority: Supabase user.language → localStorage → Telegram language_code → 'ru'
+     * Initialize i18n system (FULL - legacy method)
+     * Priority: localStorage → Telegram language_code → 'ru'
+     * WARNING: This writes to localStorage, which can override Supabase preference
+     * Use initWithCache() instead for proper Supabase priority
      */
     init() {
         // 1. Check localStorage first (fastest)
@@ -39,6 +41,62 @@ const I18n = {
 
         console.log(`[I18n] Initialized with language: ${this.currentLang}`);
         return this.currentLang;
+    },
+
+    /**
+     * Initialize i18n from localStorage ONLY (no Telegram fallback)
+     * This is the preferred initialization method to ensure Supabase language takes priority
+     * Called early in app startup - does NOT write to localStorage
+     * Supabase/Telegram fallback is handled later in applyUserState()
+     */
+    initWithCache() {
+        const cached = localStorage.getItem('hbf_language');
+        if (cached && this.supportedLangs.includes(cached)) {
+            this.currentLang = cached;
+            console.log(`[I18n] Loaded from cache: ${cached}`);
+        } else {
+            // No cache - stay with default 'ru'
+            // Telegram fallback will be applied in applyUserState() if needed
+            console.log(`[I18n] No cache found, using default: ${this.currentLang}`);
+        }
+
+        // Load translations for current language
+        this.loadTranslations(this.currentLang);
+        this.loadRecipes(this.currentLang);
+
+        // Set HTML lang attribute
+        document.documentElement.lang = this.currentLang;
+
+        return this.currentLang;
+    },
+
+    /**
+     * Apply Telegram language_code as fallback
+     * Called ONLY when:
+     * 1. No language in Supabase user profile
+     * 2. No language in localStorage
+     * This ensures Supabase user preference always takes priority
+     */
+    initFromTelegram() {
+        const tgLang = window.Telegram?.WebApp?.initDataUnsafe?.user?.language_code;
+        const lang = (tgLang && tgLang.startsWith('en')) ? 'en' : 'ru';
+
+        if (lang !== this.currentLang) {
+            this.currentLang = lang;
+            localStorage.setItem('hbf_language', lang);
+            this.loadTranslations(lang);
+            this.loadRecipes(lang);
+            document.documentElement.lang = lang;
+
+            // Trigger UI refresh
+            document.dispatchEvent(new CustomEvent('languageChanged', {
+                detail: { lang }
+            }));
+
+            console.log(`[I18n] Applied from Telegram: ${lang}`);
+        }
+
+        return lang;
     },
 
     /**

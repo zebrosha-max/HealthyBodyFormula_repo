@@ -31,9 +31,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ===== I18N INITIALIZATION =====
-    // Initialize before any UI rendering
+    // Initialize from localStorage cache ONLY (no Telegram fallback)
+    // This ensures Supabase user.language takes priority when loaded later
+    // Telegram fallback is applied in applyUserState() if no Supabase language
     if (typeof I18n !== 'undefined') {
-        I18n.init();
+        I18n.initWithCache();
     }
 
     // Helper function for translations (shorthand)
@@ -1349,9 +1351,19 @@ document.addEventListener('DOMContentLoaded', () => {
         state.weightStart = user.weight_start || 0;
         state.weightGoal = user.weight_goal || 0;
 
-        // Apply language from Supabase user profile
-        if (typeof I18n !== 'undefined' && user.language) {
-            I18n.applyFromUser(user);
+        // Apply language with proper priority:
+        // 1. Supabase user.language (highest priority - user's explicit choice)
+        // 2. localStorage (already applied in initWithCache)
+        // 3. Telegram language_code (fallback for new users)
+        if (typeof I18n !== 'undefined') {
+            if (user.language) {
+                // Priority 1: Supabase has user's language preference
+                I18n.applyFromUser(user);
+            } else if (!localStorage.getItem('hbf_language')) {
+                // Priority 3: No Supabase, no localStorage - use Telegram as fallback
+                I18n.initFromTelegram();
+            }
+            // else: Priority 2: localStorage already applied in initWithCache()
             state.language = I18n.currentLang;
         }
 
