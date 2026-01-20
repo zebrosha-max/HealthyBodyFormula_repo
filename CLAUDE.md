@@ -50,6 +50,7 @@ const state = {
   favorites: [],        // Recipe favorites (Supabase sync)
   calorieGoal: 2000,    // Daily calorie target
   waterGoal: 2000,      // Daily water target (ml)
+  language: 'ru',       // UI language (ru|en)
   currentDate: new Date(),
   analyticsDate: new Date(),
   analyticsType: 'weight|calories|water',
@@ -89,6 +90,60 @@ const state = {
 - **Body Progress:** `renderBodyStats()`, `updateWeightUI()` — weight tracking
 - **Recipes:** `renderRecipes()`, `toggleFavorite()` — 21 рецептов с фильтрацией
 - **Analytics:** `initMainChart()`, `renderAnalytics()` — Chart.js графики с cache-first
+- **i18n:** `I18n.t()`, `refreshAllUI()` — мультиязычность RU/EN
+
+### i18n System (Мультиязычность)
+
+**Статус:** ✅ Реализовано (2026-01-20)
+
+Полная поддержка русского и английского языков без внешних зависимостей.
+
+#### Архитектура файлов
+```
+js/i18n/
+├── i18n.js           # I18n Manager (init, t, setLanguage)
+├── ru.js             # UI переводы RU (~150 ключей)
+├── en.js             # UI переводы EN
+├── recipes-ru.js     # Рецепты RU (21 шт: title, ingredients, steps)
+└── recipes-en.js     # Рецепты EN
+
+guides/
+├── ru/               # 9 HTML гайдов на русском
+└── en/               # 9 HTML гайдов на английском
+```
+
+#### Ключевые функции (app.js)
+```javascript
+// Получение перевода
+t('recipes.categories.breakfast')  // → "Завтрак" или "Breakfast"
+
+// Обновление всего UI при смене языка
+refreshAllUI()
+
+// Обновление конкретных экранов
+updateStaticTexts()     // Статичные элементы HTML
+updateFilterOptions()   // Фильтры рецептов
+updateGuidesScreen()    // Карточки гайдов
+updateSettingsModal()   // Модальное окно настроек
+updateServicesScreen()  // Экран услуг
+```
+
+#### Приоритет определения языка
+1. Supabase `users.language` (синхронизация между устройствами)
+2. localStorage `hbf_language` (offline fallback)
+3. Telegram `initDataUnsafe.user.language_code`
+4. Default: `'ru'`
+
+#### Переключатель языка
+- Расположение: Profile → Settings (⚙) → "Язык интерфейса"
+- Кнопки: 🇷🇺 Русский / 🇬🇧 English
+- При переключении: мгновенное обновление UI + async sync в Supabase
+
+#### SQL миграция
+```sql
+-- backend/add_language_column.sql
+ALTER TABLE public.users ADD COLUMN language VARCHAR(2) DEFAULT 'ru';
+```
 
 ### Mobile Performance Modules (app.js)
 
