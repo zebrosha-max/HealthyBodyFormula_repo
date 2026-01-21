@@ -38,6 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // Telegram fallback is applied in applyUserState() if no Supabase language
     if (typeof I18n !== 'undefined') {
         I18n.initWithCache();
+        // Apply translations immediately after init (DOM is ready)
+        // This ensures cached language is applied even without languageChanged event
+        setTimeout(() => {
+            updateStaticTexts();
+            updateFilterOptions();
+        }, 0);
     }
 
     // Helper function for translations (shorthand)
