@@ -11,12 +11,55 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Last Session (2026-01-21)
 
-**i18n Language Persistence Fix — COMPLETED**
+**i18n Complete Translation Fix — COMPLETED**
+
+### Проблема 1: Непереведённые элементы UI
+Многие элементы оставались на русском при English:
+- Header "ИНФО", bio text, diary labels "Сегодня: X ккал"
+- Analytics titles "Динамика веса", calendar weekdays/months
+- Profile status messages, weight goal label
+
+### Решение:
+Все hardcoded строки заменены на `t()` вызовы:
+- `updateStaticTexts()` — добавлены header-title, bioText, diary stats
+- `renderDiaryItems()` — ккал→`t('common.kcal')`, locale для времени
+- `processAnalyticsData()` — avgText и title через `t()`
+- `getCalendarRange()` — динамический locale для дат
+- `updateWeightUI()` — goal label локализован
+- Profile init — userStatus, guest, guestStatus, loginHint
+
+**Добавлен ключ:** `analytics.total` в ru.js/en.js для водного баланса.
+
+### Проблема 2: Сброс языка при перезаходе
+`updateStaticTexts()` вызывался только при `languageChanged` event. При перезаходе с кэшированным языком событие не срабатывало → тексты оставались русскими.
+
+### Решение:
+```javascript
+if (typeof I18n !== 'undefined') {
+    I18n.initWithCache();
+    setTimeout(() => {
+        updateStaticTexts();
+        updateFilterOptions();
+    }, 0);
+}
+```
+
+### Коммиты:
+- `1d152b4` fix(i18n): Complete translation of all hardcoded Russian strings
+- `8c790e1` fix(i18n): Apply translations immediately after initialization
+
+### Cache versions:
+- `app.js?v=23`, `ru.js?v=2`, `en.js?v=2`
+
+---
+
+## Previous Session (2026-01-20)
+
+**i18n Language Persistence Fix**
 
 ### Проблемы (решены):
-1. ❌ Бот отправлял сообщения на языке Telegram, игнорируя выбор в приложении
-2. ❌ При повторном входе язык сбрасывался на русский
-3. ❌ `window.supabase.from is not a function` — использовалась библиотека вместо клиента
+1. Бот отправлял сообщения на языке Telegram, игнорируя выбор в приложении
+2. `window.supabase.from is not a function` — использовалась библиотека вместо клиента
 
 ### Решения:
 
@@ -27,25 +70,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **n8n Workflow:**
 - Добавлена нода "Supabase Get Language" (HTTP Request) между Telegram Trigger и Router
-- Router condition: `$('Telegram Trigger').first().json.callback_query ? ...`
 - i18n Message/Command: восстанавливают `message`, `user_id`, `chat_id` для downstream нод
 
-### Файлы n8n (backend/):
-| Файл | Описание |
-|------|----------|
-| `HBF Food Logger200126-fixed.json` | Исправленный workflow (импортировать в n8n) |
-| `n8n-fix-Supabase-Get-Language.txt` | HTTP Request нода для языка |
-| `n8n-fix-i18n-Command.txt` | /start команда |
-| `n8n-fix-i18n-Message.txt` | Обработка сообщений |
-
-### Ключевой паттерн:
-После HTTP Request ноды данные Telegram теряются. Всегда использовать:
+### Ключевой паттерн n8n:
+После HTTP Request ноды данные Telegram теряются. Использовать:
 ```javascript
 $('Telegram Trigger').first().json.message  // или .callback_query
 ```
 
 ### Debug режим:
-`debugEnabled = true` в app.js включает визуальный лог на экране (для отладки в Telegram mini-app без DevTools).
+`debugEnabled = true` в app.js включает визуальный лог на экране (для Telegram mini-app без DevTools).
 
 ---
 
@@ -75,9 +109,9 @@ python optimize_new_recipes.py
 
 | Файл | Назначение | Строк |
 |------|------------|-------|
-| `index.html` | Только HTML структура (View) | ~824 |
+| `index.html` | Только HTML структура (View) | ~860 |
 | `css/style.css` | Все стили, анимации, CSS Variables | ~1640 |
-| `js/app.js` | Бизнес-логика, state, события | ~1838 |
+| `js/app.js` | Бизнес-логика, state, события | ~2856 |
 
 ### State Management (app.js)
 
