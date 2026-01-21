@@ -254,7 +254,7 @@ window.HBF_TRANSLATIONS.en = {
         weightStartLabel: 'Starting weight (kg):',
         weightGoalLabel: 'Goal weight (kg):',
         languageLabel: 'Interface language:',
-        languageRu: 'Русский',
+        languageRu: 'Russian',
         languageEn: 'English'
     },
 
@@ -274,6 +274,7 @@ window.HBF_TRANSLATIONS.en = {
         },
 
         avg: 'Average: {{value}}',
+        total: 'Total: {{value}}',
         noData: 'No data'
     },
 

@@ -83,6 +83,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const subtitle = document.querySelector('.header-subtitle');
         if (subtitle) subtitle.textContent = t('main.subtitle');
 
+        const headerTitle = document.querySelector('.header-title');
+        if (headerTitle) headerTitle.textContent = t('main.title');
+
         const footerHint = document.querySelector('.footer-hint p');
         if (footerHint) footerHint.innerHTML = `<i class="fa-solid fa-heart"></i> ${t('main.footerHint')} <span style="opacity: 0.3; font-size: 9px; margin-left: 5px;">v1.2</span>`;
 
@@ -155,6 +158,21 @@ document.addEventListener('DOMContentLoaded', () => {
         const diaryEmpty = document.getElementById('diary-empty');
         if (diaryEmpty) diaryEmpty.textContent = t('profile.diary.empty');
 
+        // Diary stats labels
+        const diaryTodaySpan = document.querySelector('.diary-stats span:first-child');
+        if (diaryTodaySpan) {
+            const totalEl = document.getElementById('diary-kcal-total');
+            const val = totalEl ? totalEl.textContent : '0';
+            diaryTodaySpan.innerHTML = t('profile.diary.todayLabel').replace('{{value}}', `<strong id="diary-kcal-total">${val}</strong>`);
+        }
+
+        const diaryGoalSpan = document.querySelector('.diary-stats span:last-child');
+        if (diaryGoalSpan) {
+            const goalEl = document.getElementById('diary-goal-display');
+            const val = goalEl ? goalEl.textContent : state.calorieGoal;
+            diaryGoalSpan.innerHTML = t('profile.diary.goalLabel').replace('{{value}}', `<strong id="diary-goal-display">${val}</strong>`);
+        }
+
         // Favorites empty state
         const favEmpty = document.getElementById('profile-favorites-empty');
         if (favEmpty) favEmpty.textContent = t('profile.favorites.empty');
@@ -199,6 +217,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const bioTitle = document.querySelector('#screen-about .bio-card h3');
         if (bioTitle) bioTitle.innerHTML = `<i class="fa-solid fa-sparkles"></i> ${t('about.bioTitle')}`;
+
+        const bioText = document.querySelector('#screen-about .bio-text');
+        if (bioText) bioText.textContent = t('about.bioText');
 
         const certsTitle = document.querySelector('.certificates-section .section-title');
         if (certsTitle) certsTitle.innerHTML = `<i class="fa-solid fa-award"></i> ${t('about.certificatesTitle')}`;
@@ -1137,19 +1158,20 @@ document.addEventListener('DOMContentLoaded', () => {
         diaryList.innerHTML = '';
         
         let totalKcal = 0;
+        const locale = I18n?.currentLang === 'en' ? 'en-US' : 'ru-RU';
         data.forEach(log => {
             totalKcal += log.calories;
-            const time = new Date(log.created_at).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
-            
+            const time = new Date(log.created_at).toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' });
+
             const item = document.createElement('div');
             item.className = 'food-log-item';
             item.innerHTML = `
                 <div class="food-log-info">
-                    <h4>${log.dish_name || 'Прием пищи'}</h4>
-                    <p>${time} • Б:${log.protein} Ж:${log.fat} У:${log.carbs}</p>
+                    <h4>${log.dish_name || t('profile.diary.mealDefault')}</h4>
+                    <p>${time} • ${t('common.bju').replace('{{p}}', log.protein).replace('{{f}}', log.fat).replace('{{c}}', log.carbs)}</p>
                 </div>
                 <div style="display: flex; align-items: center;">
-                    <div class="food-log-kcal">${log.calories} ккал</div>
+                    <div class="food-log-kcal">${log.calories} ${t('common.kcal')}</div>
                     <button class="delete-log-btn" data-id="${log.id}">
                         <i class="fa-solid fa-trash"></i>
                     </button>
@@ -1177,7 +1199,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     async function deleteFoodLog(logId) {
         debugLog(`deleteFoodLog: id=${logId}`);
-        if (!confirm("Удалить эту запись?")) return;
+        if (!confirm(t('profile.diary.deleteConfirm'))) return;
 
         // Snapshot for rollback
         const previousData = loadCache('food', state.currentDate) || [];
@@ -1216,7 +1238,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (e) {
                 debugLog(`deleteFoodLog: FAILED - ${e.message}`, 'error');
                 console.error("Delete failed:", e);
-                alert("Не удалось удалить: " + (e.message || "Ошибка сети"));
+                alert(t('profile.diary.deleteError').replace('{{error}}', e.message || t('common.error')));
 
                 // Rollback UI
                 saveCache('food', state.currentDate, previousData);
@@ -1291,7 +1313,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // UI Basic Setup
             if (userNameEl) userNameEl.textContent = userData.first_name + (userData.last_name ? ' ' + userData.last_name : '');
-            if (userStatusEl) userStatusEl.textContent = 'Пользователь HBF';
+            if (userStatusEl) userStatusEl.textContent = t('profile.userStatus');
             
             // Set User Photo
             if (userPhotoEl) {
@@ -1332,9 +1354,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             // Guest Mode
-            if (userNameEl) userNameEl.textContent = 'Гость';
-            if (userStatusEl) userStatusEl.textContent = 'Web Preview';
-            if (subInfoEl) subInfoEl.textContent = 'Войдите через Telegram для сохранения данных.';
+            if (userNameEl) userNameEl.textContent = t('profile.guest');
+            if (userStatusEl) userStatusEl.textContent = t('profile.guestStatus');
+            if (subInfoEl) subInfoEl.textContent = t('profile.loginHint');
             
             if (userPhotoEl) {
                 userPhotoEl.className = 'profile-photo-placeholder';
@@ -1443,7 +1465,7 @@ document.addEventListener('DOMContentLoaded', () => {
         weightEl.textContent = displayWeight;
         
         if (state.weightGoal > 0) {
-            diffEl.textContent = `Цель: ${state.weightGoal} кг`;
+            diffEl.textContent = t('profile.weight.goalLabel').replace('{{value}}', state.weightGoal);
             const currentVal = (displayWeight === '--') ? 0 : parseFloat(displayWeight);
 
             if (state.weightStart > 0 && currentVal > 0) {
@@ -1502,7 +1524,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         });
                     }
                 } else {
-                    alert("Пожалуйста, введите корректное число.");
+                    alert(t('profile.weight.invalidNumber'));
                 }
             }
         });
@@ -2412,9 +2434,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const periodInfo = document.getElementById('analytics-period-info');
         const capitalize = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+        const locale = I18n?.currentLang === 'en' ? 'en-US' : 'ru-RU';
 
         if (type === 'week') {
-            const dayOfWeek = baseDate.getDay() || 7; 
+            const dayOfWeek = baseDate.getDay() || 7;
             const monday = new Date(baseDate);
             monday.setDate(baseDate.getDate() - dayOfWeek + 1);
 
@@ -2422,23 +2445,23 @@ document.addEventListener('DOMContentLoaded', () => {
                 const d = new Date(monday);
                 d.setDate(monday.getDate() + i);
                 days.push(d);
-                // "25 Пн" style
-                labels.push(`${d.getDate()} ${d.toLocaleDateString('ru-RU', { weekday: 'short' })}`); 
+                // "25 Mon" or "25 Пн" style
+                labels.push(`${d.getDate()} ${d.toLocaleDateString(locale, { weekday: 'short' })}`);
             }
             if (periodInfo) {
-                const m = days[6].toLocaleDateString('ru-RU', { month: 'long' });
+                const m = days[6].toLocaleDateString(locale, { month: 'long' });
                 periodInfo.textContent = `${days[0].getDate()} - ${days[6].getDate()} ${capitalize(m)}`;
             }
         } else {
             const firstDay = new Date(baseDate.getFullYear(), baseDate.getMonth(), 1);
             const lastDay = new Date(baseDate.getFullYear(), baseDate.getMonth() + 1, 0);
-            
+
             for (let d = new Date(firstDay); d <= lastDay; d.setDate(d.getDate() + 1)) {
                 days.push(new Date(d));
-                labels.push(d.getDate()); 
+                labels.push(d.getDate());
             }
             if (periodInfo) {
-                const m = baseDate.toLocaleDateString('ru-RU', { month: 'long' });
+                const m = baseDate.toLocaleDateString(locale, { month: 'long' });
                 periodInfo.textContent = `${capitalize(m)} ${baseDate.getFullYear()}`;
             }
         }
@@ -2486,19 +2509,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const sum = filtered.reduce((a, b) => a + b, 0);
             const avg = Math.round(sum / filtered.length);
             if (isNaN(sum) || isNaN(avg)) {
-                avgText = 'Нет данных';
+                avgText = t('analytics.noData');
             } else if (type === 'weight') {
-                avgText = `Средний: ${avg} кг`;
+                avgText = t('analytics.avg').replace('{{value}}', `${avg} ${t('common.kg')}`);
             } else if (type === 'calories') {
-                avgText = `Средний: ${avg} ккал`;
+                avgText = t('analytics.avg').replace('{{value}}', `${avg} ${t('common.kcal')}`);
             } else {
-                avgText = `Всего: ${sum} мл`;
+                avgText = t('analytics.total').replace('{{value}}', `${sum} ${t('common.ml')}`);
             }
         } else {
-            avgText = 'Нет данных';
+            avgText = t('analytics.noData');
         }
 
-        const title = {weight:'Динамика веса', calories:'Потребление калорий', water:'Водный баланс'}[type];
+        const title = t(`analytics.chartTitles.${type}`);
 
         return { labels, values, avgText, title, type };
     }
@@ -2539,8 +2562,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         } else {
             // No cache - show loading
-            if (chartTitleEl) chartTitleEl.textContent = {weight:'Динамика веса', calories:'Потребление калорий', water:'Водный баланс'}[type];
-            if (chartAvgEl) chartAvgEl.textContent = 'Загрузка...';
+            if (chartTitleEl) chartTitleEl.textContent = t(`analytics.chartTitles.${type}`);
+            if (chartAvgEl) chartAvgEl.textContent = t('common.loading');
         }
 
         // ========== STEP 2: Fetch fresh data in BACKGROUND ==========
@@ -2594,7 +2617,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 // If we had cache - user already sees data, don't show error
                 // If no cache - show error
                 if (!cached && chartAvgEl) {
-                    chartAvgEl.textContent = 'Ошибка загрузки';
+                    chartAvgEl.textContent = t('common.error');
                 }
             }
         })();

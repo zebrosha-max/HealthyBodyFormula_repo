@@ -274,6 +274,7 @@ window.HBF_TRANSLATIONS.ru = {
         },
 
         avg: 'Среднее: {{value}}',
+        total: 'Всего: {{value}}',
         noData: 'Нет данных'
     },
 
