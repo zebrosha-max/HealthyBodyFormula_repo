@@ -38,6 +38,12 @@
             -webkit-tap-highlight-color: transparent;
         }
 
+        .flag-icon {
+            vertical-align: middle;
+            border-radius: 2px;
+            box-shadow: 0 0 1px rgba(0,0,0,0.2);
+        }
+
         body {
             font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
             background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-primary) 50%, var(--bg-gradient-end) 100%);

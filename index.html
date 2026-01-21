@@ -22,7 +22,7 @@
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <link rel="stylesheet" href="css/style.css?v=6">
+    <link rel="stylesheet" href="css/style.css?v=7">
 </head>
 <body>
     <!-- Decorative Background Elements -->
@@ -768,10 +768,20 @@
             <p id="settings-language-label">Язык интерфейса:</p>
             <div class="language-switcher" style="display: flex; gap: 10px; margin-bottom: 15px;">
                 <button class="lang-btn" data-lang="ru" style="flex: 1; padding: 12px; border: 2px solid var(--sage-green-light); border-radius: 10px; background: var(--card-bg); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600;">
-                    <span style="font-size: 20px;">🇷🇺</span> Русский
+                    <svg class="flag-icon" viewBox="0 0 24 16" width="24" height="16">
+                        <rect y="0" width="24" height="5.33" fill="#fff"/>
+                        <rect y="5.33" width="24" height="5.33" fill="#0039A6"/>
+                        <rect y="10.67" width="24" height="5.33" fill="#D52B1E"/>
+                    </svg> Русский
                 </button>
                 <button class="lang-btn" data-lang="en" style="flex: 1; padding: 12px; border: 2px solid var(--sage-green-light); border-radius: 10px; background: var(--card-bg); cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 600;">
-                    <span style="font-size: 20px;">🇬🇧</span> English
+                    <svg class="flag-icon" viewBox="0 0 24 16" width="24" height="16">
+                        <rect width="24" height="16" fill="#012169"/>
+                        <path d="M0,0 L24,16 M24,0 L0,16" stroke="#fff" stroke-width="2.5"/>
+                        <path d="M0,0 L24,16 M24,0 L0,16" stroke="#C8102E" stroke-width="1.5"/>
+                        <path d="M12,0 V16 M0,8 H24" stroke="#fff" stroke-width="4"/>
+                        <path d="M12,0 V16 M0,8 H24" stroke="#C8102E" stroke-width="2.5"/>
+                    </svg> English
                 </button>
             </div>
 
