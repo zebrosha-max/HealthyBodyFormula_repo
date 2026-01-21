@@ -194,10 +194,11 @@ const I18n = {
 
         // Sync to Supabase if user logged in
         const log = window.debugLog || console.log;
-        if (userId && window.supabase) {
+        const supabase = window.supabaseClient; // Use the client, not the library
+        if (userId && supabase) {
             try {
                 log(`i18n: saving to Supabase...`);
-                const { data, error } = await window.supabase
+                const { data, error } = await supabase
                     .from('users')
                     .update({ language: lang })
                     .eq('telegram_id', userId)

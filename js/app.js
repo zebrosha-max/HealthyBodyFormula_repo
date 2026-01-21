@@ -25,6 +25,8 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
         if (window.supabase && typeof window.supabase.createClient === 'function') {
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            // Export client globally for i18n.js
+            window.supabaseClient = supabase;
         }
     } catch (e) {
         console.error("Supabase init error:", e);
