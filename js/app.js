@@ -1030,7 +1030,22 @@ document.addEventListener('DOMContentLoaded', () => {
             if (waterGoalInput) waterGoalInput.value = state.waterGoal;
             if (weightStartInput) weightStartInput.value = state.weightStart || '';
             if (weightGoalInput) weightGoalInput.value = state.weightGoal || '';
-            
+
+            // Translate modal labels
+            updateSettingsModal();
+
+            // Highlight current language button
+            const currentLang = I18n?.currentLang || 'ru';
+            document.querySelectorAll('.lang-btn').forEach(b => {
+                if (b.dataset.lang === currentLang) {
+                    b.style.borderColor = 'var(--sage-green)';
+                    b.style.background = 'var(--sage-green-light)';
+                } else {
+                    b.style.borderColor = 'var(--sage-green-light)';
+                    b.style.background = 'var(--card-bg)';
+                }
+            });
+
             modal.classList.add('active');
             if (tg.HapticFeedback) tg.HapticFeedback.selectionChanged();
         });
