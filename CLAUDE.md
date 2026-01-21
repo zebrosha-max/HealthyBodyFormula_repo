@@ -9,6 +9,46 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 > 2. **SECURITY:** NEVER commit `.json` files from `backend/` — they contain API keys and are gitignored. Only `.sql` files allowed.
 > 3. Follow Spec-Driven Development (SDD) workflow
 
+## Last Session (2026-01-21)
+
+**i18n Language Persistence Fix — COMPLETED**
+
+### Проблемы (решены):
+1. ❌ Бот отправлял сообщения на языке Telegram, игнорируя выбор в приложении
+2. ❌ При повторном входе язык сбрасывался на русский
+3. ❌ `window.supabase.from is not a function` — использовалась библиотека вместо клиента
+
+### Решения:
+
+**Web App:**
+- `I18n.init()` → `I18n.initWithCache()` (не пишет в localStorage при отсутствии кэша)
+- Добавлен `I18n.initFromTelegram()` как fallback только для новых пользователей
+- **ВАЖНО:** `window.supabaseClient` — это клиент, `window.supabase` — это CDN библиотека!
+
+**n8n Workflow:**
+- Добавлена нода "Supabase Get Language" (HTTP Request) между Telegram Trigger и Router
+- Router condition: `$('Telegram Trigger').first().json.callback_query ? ...`
+- i18n Message/Command: восстанавливают `message`, `user_id`, `chat_id` для downstream нод
+
+### Файлы n8n (backend/):
+| Файл | Описание |
+|------|----------|
+| `HBF Food Logger200126-fixed.json` | Исправленный workflow (импортировать в n8n) |
+| `n8n-fix-Supabase-Get-Language.txt` | HTTP Request нода для языка |
+| `n8n-fix-i18n-Command.txt` | /start команда |
+| `n8n-fix-i18n-Message.txt` | Обработка сообщений |
+
+### Ключевой паттерн:
+После HTTP Request ноды данные Telegram теряются. Всегда использовать:
+```javascript
+$('Telegram Trigger').first().json.message  // или .callback_query
+```
+
+### Debug режим:
+`debugEnabled = true` в app.js включает визуальный лог на экране (для отладки в Telegram mini-app без DevTools).
+
+---
+
 ## Project Overview
 
 **Healthy Body Formula (HBF_web)** — SPA веб-приложение для клинического нутрициолога. Разработано как **Telegram Web App (TWA)** с интеграцией Supabase для хранения данных.
