@@ -51,14 +51,15 @@ const I18n = {
      */
     initWithCache() {
         const cached = localStorage.getItem('hbf_language');
-        console.log(`[I18n] initWithCache: localStorage='${cached}'`);
+        const log = window.debugLog || console.log;
+        log(`i18n.initWithCache: cache='${cached}'`);
         if (cached && this.supportedLangs.includes(cached)) {
             this.currentLang = cached;
-            console.log(`[I18n] Loaded from cache: ${cached}`);
+            log(`i18n: from cache → ${cached}`, 'success');
         } else {
             // No cache - stay with default 'ru'
             // Telegram fallback will be applied in applyUserState() if needed
-            console.log(`[I18n] No cache found, using default: ${this.currentLang}`);
+            log(`i18n: no cache, default → ${this.currentLang}`, 'warn');
         }
 
         // Load translations for current language
@@ -192,9 +193,10 @@ const I18n = {
         document.documentElement.lang = lang;
 
         // Sync to Supabase if user logged in
+        const log = window.debugLog || console.log;
         if (userId && window.supabase) {
             try {
-                console.log(`[I18n] Syncing to Supabase: lang=${lang}, userId=${userId}`);
+                log(`i18n: saving to Supabase...`);
                 const { data, error } = await window.supabase
                     .from('users')
                     .update({ language: lang })
@@ -202,15 +204,15 @@ const I18n = {
                     .select();
 
                 if (error) {
-                    console.error('[I18n] Supabase update error:', error);
+                    log(`i18n: Supabase ERROR: ${error.message}`, 'error');
                 } else {
-                    console.log(`[I18n] Language synced to Supabase: ${lang}`, data);
+                    log(`i18n: Supabase OK → ${lang}`, 'success');
                 }
             } catch (e) {
-                console.error('[I18n] Supabase sync exception:', e);
+                log(`i18n: Supabase EXCEPTION: ${e.message}`, 'error');
             }
         } else {
-            console.warn(`[I18n] Skipped Supabase sync: userId=${userId}, supabase=${!!window.supabase}`);
+            log(`i18n: SKIP Supabase (userId=${userId})`, 'warn');
         }
 
         // Dispatch event for UI refresh
@@ -227,9 +229,11 @@ const I18n = {
      * @param {Object} user - User object from Supabase
      */
     applyFromUser(user) {
-        console.log(`[I18n] applyFromUser: user.language='${user?.language}', currentLang='${this.currentLang}'`);
+        const log = window.debugLog || console.log;
+        log(`i18n.applyFromUser: supabase='${user?.language}' current='${this.currentLang}'`);
         if (user?.language && this.supportedLangs.includes(user.language)) {
             if (user.language !== this.currentLang) {
+                log(`i18n: supabase → ${user.language}`, 'success');
                 this.currentLang = user.language;
                 localStorage.setItem('hbf_language', user.language);
                 this.loadTranslations(user.language);

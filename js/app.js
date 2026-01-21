@@ -352,18 +352,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Switch language
             if (typeof I18n !== 'undefined') {
-                console.log('[LangSwitch] Switching to:', lang);
-                console.log('[LangSwitch] state.user:', state.user);
-                console.log('[LangSwitch] telegram_id:', state.user?.telegram_id);
+                debugLog(`LangSwitch: → ${lang}`);
+                debugLog(`user.telegram_id: ${state.user?.telegram_id || 'undefined'}`, state.user?.telegram_id ? 'info' : 'warn');
                 await I18n.setLanguage(lang, state.user?.telegram_id);
-                console.log('[LangSwitch] Done. localStorage:', localStorage.getItem('hbf_language'));
+                debugLog(`localStorage: ${localStorage.getItem('hbf_language')}`, 'success');
             }
         });
     });
 
     // ===== DEBUG LOG (временный, для отладки) =====
     const debugLogEl = document.getElementById('debug-log');
-    let debugEnabled = false; // true = показать визуальный лог для отладки
+    let debugEnabled = true; // true = показать визуальный лог для отладки i18n
 
     function debugLog(message, type = 'info') {
         const timestamp = new Date().toLocaleTimeString();
@@ -386,6 +385,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+    // Make debugLog globally accessible for i18n.js
+    window.debugLog = debugLog;
 
     // ===== FETCH WITH TIMEOUT & RETRY =====
     async function fetchWithTimeout(promiseFn, timeoutMs = 10000, retries = 2) {
