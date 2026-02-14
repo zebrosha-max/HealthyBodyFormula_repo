@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>С чего начать путь к здоровью?</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        :root {
+            --bg-primary: #FFF8F0;
+            --bg-paper: #FFFFFF;
+            --text-primary: #1E293B;
+            --sage-primary: #8B9E6B;
+            --accent-gold: #F59E0B;
+            --font-heading: 'Nunito', sans-serif;
+            --font-body: 'Lora', serif;
+        }
+        body { margin: 0; background: var(--bg-primary); font-family: var(--font-heading); color: var(--text-primary); padding-bottom: 60px; }
+        .nav-header { position: sticky; top: 0; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); padding: 15px; display: flex; align-items: center; z-index: 100; }
+        .back-btn { background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-primary); }
+        .hero { padding: 30px 20px; text-align: center; background: white; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
+        .hero h1 { font-size: 24px; font-weight: 800; margin: 10px 0 5px; }
+        .hero p { font-family: var(--font-body); color: #64748B; font-size: 14px; }
+        .content { padding: 20px; max-width: 600px; margin: 0 auto; }
+        .highlight { background: #F0FDF4; border-left: 4px solid var(--sage-primary); padding: 15px; border-radius: 8px; margin: 20px 0; font-family: var(--font-body); line-height: 1.6; }
+        .section-title { font-size: 20px; font-weight: 800; margin: 30px 0 15px; color: var(--sage-primary); }
+        .check-list { list-style: none; padding: 0; }
+        .check-list li { margin-bottom: 12px; padding-left: 30px; position: relative; font-family: var(--font-body); line-height: 1.6; }
+        .check-list li::before { content: '\f00c'; font-family: 'Font Awesome 6 Free'; font-weight: 900; position: absolute; left: 0; color: var(--sage-primary); }
+        .step-card { background: white; border-radius: 16px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        .step-card h3 { margin-top: 0; font-size: 16px; }
+        .step-num { display: inline-block; background: var(--sage-primary); color: white; width: 28px; height: 28px; border-radius: 50%; text-align: center; line-height: 28px; font-weight: 800; font-size: 14px; margin-right: 8px; }
+    </style>
+</head>
+<body>
+    <div class="nav-header">
+        <button class="back-btn" onclick="window.location.href='../../index.html?screen=guides'"><i class="fa-solid fa-arrow-left"></i></button>
+    </div>
+
+    <div class="hero">
+        <div style="font-size: 40px;">🌱</div>
+        <h1>С чего начать путь к здоровью?</h1>
+        <p>Базовый чек-лист привычек и простых шагов для мягкого старта</p>
+    </div>
+
+    <div class="content">
+        <div class="highlight">
+            <strong>Главное правило:</strong> не пытайтесь изменить всё сразу. Выберите 2-3 пункта и внедряйте их постепенно. Устойчивые привычки формируются за 21-66 дней.
+        </div>
+
+        <h2 class="section-title"><i class="fa-solid fa-droplet"></i> Шаг 1: Вода</h2>
+        <div class="step-card">
+            <h3><span class="step-num">1</span> Начните день со стакана воды</h3>
+            <p style="font-family: var(--font-body); line-height: 1.6;">Выпейте стакан тёплой воды (200-300 мл) сразу после пробуждения, до завтрака. Это запускает метаболизм и помогает организму проснуться.</p>
+        </div>
+        <div class="step-card">
+            <h3><span class="step-num">2</span> Норма воды в день</h3>
+            <p style="font-family: var(--font-body); line-height: 1.6;">Ориентир: <strong>30 мл на 1 кг веса</strong>. При весе 60 кг — это ~1.8 литра. Чай и кофе не считаются. Носите бутылку с собой — визуальное напоминание работает лучше всего.</p>
+        </div>
+
+        <h2 class="section-title"><i class="fa-solid fa-utensils"></i> Шаг 2: Питание</h2>
+        <div class="step-card">
+            <h3><span class="step-num">3</span> Ешьте по голоду, а не по часам</h3>
+            <p style="font-family: var(--font-body); line-height: 1.6;">Прислушивайтесь к телу. Настоящий голод нарастает постепенно, а не возникает внезапно. Если хочется «чего-нибудь вкусненького» — это скорее эмоциональный голод.</p>
+        </div>
+        <div class="step-card">
+            <h3><span class="step-num">4</span> Добавьте овощи в каждый приём пищи</h3>
+            <p style="font-family: var(--font-body); line-height: 1.6;">Не убирайте любимые продукты — просто добавьте к ним овощи. Салат к пасте, огурец к бутерброду, зелень в омлет. Так вы естественно увеличите количество клетчатки и витаминов.</p>
+        </div>
+        <div class="step-card">
+            <h3><span class="step-num">5</span> Не пропускайте завтрак</h3>
+            <p style="font-family: var(--font-body); line-height: 1.6;">Завтрак с белком и сложными углеводами (яйца + цельнозерновой хлеб, творог + ягоды) стабилизирует сахар в крови и снижает тягу к сладкому днём.</p>
+        </div>
+
+        <h2 class="section-title"><i class="fa-solid fa-moon"></i> Шаг 3: Сон</h2>
+        <div class="step-card">
+            <h3><span class="step-num">6</span> Ложитесь до 23:00</h3>
+            <p style="font-family: var(--font-body); line-height: 1.6;">Мелатонин вырабатывается с 22:00 до 02:00. Чем раньше вы заснёте в этом окне, тем качественнее будет отдых. Уберите экраны за час до сна.</p>
+        </div>
+        <div class="step-card">
+            <h3><span class="step-num">7</span> 7-8 часов — минимум</h3>
+            <p style="font-family: var(--font-body); line-height: 1.6;">Недосып повышает кортизол, усиливает аппетит и замедляет обмен веществ. Сон — это не роскошь, а базовая потребность.</p>
+        </div>
+
+        <h2 class="section-title"><i class="fa-solid fa-person-walking"></i> Шаг 4: Движение</h2>
+        <div class="step-card">
+            <h3><span class="step-num">8</span> 8000 шагов в день</h3>
+            <p style="font-family: var(--font-body); line-height: 1.6;">Не обязательно бежать в зал. Прогулка после обеда, лестница вместо лифта, звонки стоя — маленькие привычки складываются в большой результат.</p>
+        </div>
+
+        <h2 class="section-title"><i class="fa-solid fa-brain"></i> Шаг 5: Осознанность</h2>
+        <div class="step-card">
+            <h3><span class="step-num">9</span> Ведите дневник питания</h3>
+            <p style="font-family: var(--font-body); line-height: 1.6;">Хотя бы первые 2 недели записывайте всё, что едите. Не для подсчёта калорий — а чтобы увидеть свои реальные привычки. Используйте нашего бота — просто отправьте фото еды!</p>
+        </div>
+        <div class="step-card">
+            <h3><span class="step-num">10</span> Не ругайте себя за срывы</h3>
+            <p style="font-family: var(--font-body); line-height: 1.6;">Съели торт? Окей. Один день не определяет результат. Важна общая тенденция, а не каждый отдельный приём пищи. Возвращайтесь к своему плану без чувства вины.</p>
+        </div>
+
+        <div class="highlight" style="background: #FEF3C7; border-left-color: var(--accent-gold);">
+            <strong>💡 Совет:</strong> Выберите из этого списка 2-3 самых простых для вас пункта. Делайте их 3 недели. Когда станет легко — добавьте ещё один. Так вы создадите фундамент здоровых привычек без стресса.
+        </div>
+    </div>
+
+    <script>const tg = window.Telegram.WebApp; tg.ready();</script>
+</body>
+</html>

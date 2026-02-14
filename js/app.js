@@ -296,12 +296,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const btnEl = document.getElementById(`guide-btn-${key}`);
             if (btnEl) {
-                // Starter has download icon, others have read icon
-                if (key === 'starter') {
-                    btnEl.innerHTML = `${t('common.download')} <i class="fa-solid fa-download"></i>`;
-                } else {
-                    btnEl.innerHTML = `${t('common.read')} <i class="fa-solid fa-chevron-right"></i>`;
-                }
+                btnEl.innerHTML = `${t('common.read')} <i class="fa-solid fa-chevron-right"></i>`;
             }
         });
     }
